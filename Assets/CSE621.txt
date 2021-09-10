@@ -1,0 +1,35 @@
+<iml version="0.1">
+    <StructuralModel name="CSE621" conformsTo="University.iml">
+        <Classes>
+            <Class name="Professor" isAbstract="FALSE" x="59" y="125" id="3a87c811-a9aa-46b6-92ce-6d2ed5b856a3">
+                <Attribute visibility="PUBLIC" name="name" type="STRING" value="Eric Rapos" lowerBound="1" upperBound="1" position="1" />
+                <Attribute visibility="PUBLIC" name="ID" type="STRING" value="rapose" lowerBound="1" upperBound="1" position="2" />
+                <Attribute visibility="PUBLIC" name="department" type="STRING" value="CSE" lowerBound="0" upperBound="*" position="3" />
+            </Class>
+            <Class name="Student" isAbstract="FALSE" x="676" y="238" id="57d0ae02-3cab-4bc9-851c-76f7a3cfc1e9">
+                <Attribute visibility="PUBLIC" name="name" type="STRING" value="Bhisma Adhikari" lowerBound="1" upperBound="1" position="1" />
+                <Attribute visibility="PUBLIC" name="ID" type="STRING" value="adhikab" lowerBound="1" upperBound="1" position="2" />
+                <Attribute visibility="PUBLIC" name="major" type="STRING" value="MSCS" lowerBound="1" upperBound="*" position="3" />
+            </Class>
+            <Class name="Course" isAbstract="FALSE" x="327" y="527" id="ca82b834-eed1-46f8-a63a-15f7ac6a7b45">
+                <Attribute visibility="PUBLIC" name="courseNumber" type="INTEGER" value="621" lowerBound="1" upperBound="1" position="1" />
+                <Attribute visibility="PUBLIC" name="title" type="STRING" value="Foundations of SE" lowerBound="1" upperBound="1" position="2" />
+            </Class>
+            <Class name="Department" isAbstract="FALSE" x="697" y="524" id="4c1e605c-63b7-435c-848a-00a0238e8c50">
+                <Attribute visibility="PUBLIC" name="fullName" type="STRING" value="Comp Sci SE" lowerBound="1" upperBound="1" position="1" />
+                <Attribute visibility="PUBLIC" name="deptCode" type="STRING" value="CSE" lowerBound="1" upperBound="1" position="2" />
+            </Class>
+            <Class name="Student" isAbstract="FALSE" x="379" y="121" id="c3ff91ff-cad3-4236-9b26-7f1ecdd21e89">
+                <Attribute visibility="PUBLIC" name="name" type="STRING" value="Nick DiGennaro" lowerBound="1" upperBound="1" position="1" />
+                <Attribute visibility="PUBLIC" name="ID" type="STRING" value="digennnj" lowerBound="1" upperBound="1" position="2" />
+                <Attribute visibility="PUBLIC" name="major" type="STRING" value="[SE,MSCS]" lowerBound="1" upperBound="*" position="3" />
+            </Class>
+        </Classes>
+        <Relations>
+            <Relation source="ca82b834-eed1-46f8-a63a-15f7ac6a7b45" destination="4c1e605c-63b7-435c-848a-00a0238e8c50" type="REFERENCE" name="offeredBy" lowerBound="1" upperBound="*" nameDistance="0.33" boundDistance="0" nameOffset="-15" boundOffset="0" />
+            <Relation source="ca82b834-eed1-46f8-a63a-15f7ac6a7b45" destination="3a87c811-a9aa-46b6-92ce-6d2ed5b856a3" type="REFERENCE" name="instructor" lowerBound="1" upperBound="*" nameDistance="0.33" boundDistance="0" nameOffset="-15" boundOffset="0" />
+            <Relation source="ca82b834-eed1-46f8-a63a-15f7ac6a7b45" destination="c3ff91ff-cad3-4236-9b26-7f1ecdd21e89" type="COMPOSITION" name="students" lowerBound="2" upperBound="*" nameDistance="0.33" boundDistance="0" nameOffset="-15" boundOffset="0" />
+            <Relation source="ca82b834-eed1-46f8-a63a-15f7ac6a7b45" destination="57d0ae02-3cab-4bc9-851c-76f7a3cfc1e9" type="COMPOSITION" name="students" lowerBound="2" upperBound="*" nameDistance="0.33" boundDistance="0" nameOffset="-15" boundOffset="0" />
+        </Relations>
+    </StructuralModel>
+</iml>
