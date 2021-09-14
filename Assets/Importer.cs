@@ -23,6 +23,9 @@ public class StructuralModelXml
     [XmlArray("Classes")]
     [XmlArrayItem("Class")]
     public ClassXml[] classes;
+    [XmlArray("Relations")]
+    [XmlArrayItem("Relation")]
+    public RelationXML[] relations;
 
 }
 
@@ -61,6 +64,31 @@ public class AttributeXml
     [XmlAttribute]
     public int position;
 
+}
+
+[XmlRoot(ElementName = "relation")]
+public class RelationXML
+{
+    [XmlAttribute]
+    public string name;
+    [XmlAttribute]
+    public string source;
+    [XmlAttribute]
+    public string destination;
+    [XmlAttribute]
+    public string type;
+    [XmlAttribute]
+    public string upperBound;
+    [XmlAttribute]
+    public string lowerBound;
+    [XmlAttribute]
+    public double nameDistance;
+    [XmlAttribute]
+    public int boundDistance;
+    [XmlAttribute]
+    public int nameOffset;
+    [XmlAttribute]
+    public int boundOffset;
 }
 
 public class Importer{
