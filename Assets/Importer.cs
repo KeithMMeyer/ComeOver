@@ -25,7 +25,7 @@ public class StructuralModelXml
     public ClassXml[] classes;
     [XmlArray("Relations")]
     [XmlArrayItem("Relation")]
-    public RelationXML[] relations;
+    public RelationXml[] relations;
 
 }
 
@@ -42,13 +42,16 @@ public class ClassXml
     public int y;
     [XmlAttribute]
     public string id;
-    [XmlArrayAttribute()]
-    [XmlArrayItem("attribute")]
+
+    [XmlElement("Attribute")]
     public AttributeXml[] attributes;
+
+    [XmlIgnore]
+    public GameObject gameObject;
 
 }
 
-[XmlRoot(ElementName = "attribute")]
+[XmlRoot(ElementName = "Attribute")]
 public class AttributeXml
 {
     [XmlAttribute]
@@ -67,7 +70,7 @@ public class AttributeXml
 }
 
 [XmlRoot(ElementName = "relation")]
-public class RelationXML
+public class RelationXml
 {
     [XmlAttribute]
     public string name;
@@ -89,9 +92,25 @@ public class RelationXML
     public int nameOffset;
     [XmlAttribute]
     public int boundOffset;
+
+    [XmlIgnore]
+    public GameObject gameObject = new GameObject();
+    [XmlIgnore]
+    LineRenderer lineRenderer;
+
+    public void setPoints(Vector3 start, Vector3 end)
+    {
+        lineRenderer = gameObject.AddComponent<LineRenderer>();
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer.widthMultiplier = 0.2f;
+        lineRenderer.positionCount = 2;
+        lineRenderer.SetPosition(0, start);
+        lineRenderer.SetPosition(1, end);
+    }
 }
 
-public class Importer{
+public class Importer
+{
     public static IMLXml ImportXml(string file)
     {
         try
