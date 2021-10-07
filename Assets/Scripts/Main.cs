@@ -9,16 +9,16 @@ public class Main : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        IMLXml iml = Importer.ImportXml(inputfile);
-        Debug.Log(iml.structuralModel.classes[0].attributes.Length);
+        Iml iml = Importer.ImportXml(inputfile);
+        Debug.Log(iml.structuralModel.classes[0].attributes.Count);
 
         GenerateClasses(iml);
 
-        foreach (RelationXml relation in iml.structuralModel.relations)
+        foreach (Relation relation in iml.structuralModel.relations)
         {
             string source = relation.source;
             Vector3 start = new Vector3();
-            foreach (ClassXml classXml in iml.structuralModel.classes)
+            foreach (UserClass classXml in iml.structuralModel.classes)
             {
                 if (classXml.id.Equals(source))
                 {
@@ -30,7 +30,7 @@ public class Main : MonoBehaviour
 
             string destination = relation.destination;
             Vector3 end = new Vector3();
-            foreach (ClassXml classXml in iml.structuralModel.classes)
+            foreach (UserClass classXml in iml.structuralModel.classes)
             {
                 if (classXml.id.Equals(destination))
                 {
@@ -43,16 +43,10 @@ public class Main : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    private void GenerateClasses(IMLXml iml)
+    private void GenerateClasses(Iml iml)
     {
        
-        foreach (ClassXml classXml in iml.structuralModel.classes)
+        foreach (UserClass classXml in iml.structuralModel.classes)
         {
             classXml.createGameObject();
         }

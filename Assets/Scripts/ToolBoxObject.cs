@@ -11,7 +11,7 @@ public class ToolBoxObject : MonoBehaviour
     {
         if (type == "class")
         {
-            ClassXml newClass = new ClassXml();
+            UserClass newClass = new UserClass();
             newClass.name = "New Class";
             newClass.createGameObject();
 
@@ -20,7 +20,7 @@ public class ToolBoxObject : MonoBehaviour
             newClass.gameObject.transform.position = position;
         } else
         {
-            AttributeXml newAttribute = new AttributeXml();
+            UserAttribute newAttribute = new UserAttribute();
             newAttribute.name = "New Attribute";
             newAttribute.value = "STRING";
             newAttribute.createGameObject();
