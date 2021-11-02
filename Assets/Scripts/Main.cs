@@ -23,6 +23,7 @@ public class Main : MonoBehaviour
                 if (classXml.id.Equals(source))
                 {
                     start = classXml.gameObject.transform.position;
+                    classXml.addRelation(relation);
                     break;
                 }
                 start.y = -1;
@@ -35,6 +36,7 @@ public class Main : MonoBehaviour
                 if (classXml.id.Equals(destination))
                 {
                     end = classXml.gameObject.transform.position;
+                    classXml.addRelation(relation);
                     break;
                 }
             }

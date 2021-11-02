@@ -47,6 +47,9 @@ public class UserClass
     public List<UserAttribute> attributes = new List<UserAttribute>();
 
     [XmlIgnore]
+    public List<Relation> relations = new List<Relation>();
+
+    [XmlIgnore]
     public GameObject gameObject;
 
 
@@ -60,6 +63,7 @@ public class UserClass
         classObject.transform.GetChild(1).gameObject.GetComponent<TextMesh>().text = name;
         classObject.name = name;
         classObject.transform.GetChild(0).gameObject.AddComponent<Moveable>();
+        classObject.transform.GetChild(0).GetComponent<Moveable>().classReference = this;
         gameObject = classObject;
 
         classObject.transform.parent = container.transform;
@@ -74,6 +78,22 @@ public class UserClass
 
         Debug.Log("Created object for " + name + " at " + classObject.transform.position);
     }
+
+    public void addRelation(Relation target) {
+        relations.Add(target);
+    }
+
+    public void updateRelations()
+    {
+        foreach(Relation relation in relations)
+        {
+            if (relation.source.Equals(id))
+                relation.updatePoints(gameObject.transform.position, null);
+            if (relation.destination.Equals(id))
+                relation.updatePoints(null, gameObject.transform.position);
+        }
+    }
+
 
 }
 
@@ -104,7 +124,7 @@ public class UserAttribute
         attributeObject.transform.GetChild(1).GetChild(1).gameObject.GetComponent<TextMesh>().text = name;
         attributeObject.transform.GetChild(2).GetChild(1).gameObject.GetComponent<TextMesh>().text = value;
 
-        attributeObject.name = name + " : " + name;
+        attributeObject.name = "Attribute : " + name;
 
         gameObject = attributeObject;
     }
@@ -117,6 +137,7 @@ public class UserAttribute
         position.z -= counter * (float)1.5;
         gameObject.transform.position = position;
         gameObject.transform.parent = parent.gameObject.transform;
+        gameObject.name = parent.name + " : " + name;
     }
 }
 
@@ -150,15 +171,32 @@ public class Relation
     [XmlIgnore]
     LineRenderer lineRenderer;
 
-    public void setPoints(Vector3 start, Vector3 end)
+    public void setPoints(Vector3 source, Vector3 destination)
     {
-        gameObject.name = name != null ? name : source + " " + destination;
+        gameObject.name = name != null ? name : this.source + " " + this.destination;
         lineRenderer = gameObject.AddComponent<LineRenderer>();
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         lineRenderer.widthMultiplier = 0.2f;
         lineRenderer.positionCount = 2;
-        lineRenderer.SetPosition(0, start);
-        lineRenderer.SetPosition(1, end);
+        lineRenderer.SetPosition(0, source);
+        lineRenderer.SetPosition(1, destination);
+    }
+
+    public void updatePoints(Vector3? source, Vector3? destination)
+    {
+        if (source.HasValue)
+        {
+            Vector3 point = source.Value;
+            point.y -= 1;
+            lineRenderer.SetPosition(0, point);
+        }
+        if (destination.HasValue)
+        {
+            Vector3 point = destination.Value;
+            point.y -= 1;
+            lineRenderer.SetPosition(1, point);
+        }
+
     }
 }
 
