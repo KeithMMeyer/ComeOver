@@ -10,7 +10,6 @@ public class Main : MonoBehaviour
     void Start()
     {
         Iml iml = Importer.ImportXml(inputfile);
-        Debug.Log(iml.structuralModel.classes[0].attributes.Count);
 
         GenerateClasses(iml);
 
@@ -26,8 +25,8 @@ public class Main : MonoBehaviour
                     classXml.addRelation(relation);
                     break;
                 }
-                start.y = -1;
             }
+            start.z = (float)3.1;
 
             string destination = relation.destination;
             Vector3 end = new Vector3();
@@ -40,7 +39,7 @@ public class Main : MonoBehaviour
                     break;
                 }
             }
-            start.y = -1;
+            end.z = (float) 3.1;
             relation.setPoints(start, end);
         }
     }
@@ -53,4 +52,5 @@ public class Main : MonoBehaviour
             classXml.createGameObject();
         }
     }
+    
 }

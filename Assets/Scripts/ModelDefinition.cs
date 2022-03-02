@@ -59,33 +59,58 @@ public class UserClass
         GameObject templateClass = Resources.Load<GameObject>("ClassObject");
 
         GameObject classObject = UnityEngine.Object.Instantiate(templateClass);
-        classObject.transform.position = new Vector3((float)(x / 15.0) - 20, 0, (float)(y / 15.0) - 20);
+        classObject.transform.position = new Vector3((float)(x / 200.0) - 2, (float)(y / 200.0) + 1, 3);
+        classObject.transform.Rotate(-90.0f, 0.0f, 0.0f, Space.Self);
+        classObject.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
         classObject.transform.GetChild(1).gameObject.GetComponent<TextMesh>().text = name;
         classObject.name = name;
         classObject.transform.GetChild(0).gameObject.AddComponent<Moveable>();
-        classObject.transform.GetChild(0).GetComponent<Moveable>().classReference = this;
+        classObject.GetComponent<Identity>().classReference = this;
+
         gameObject = classObject;
 
         classObject.transform.parent = container.transform;
 
-        int counter = 0;
-        foreach (UserAttribute attribute in attributes)
-        {
-            attribute.createGameObject();
-            attribute.attachToClass(this, counter++);
-
-        }
+        generateAttributes();
 
         Debug.Log("Created object for " + name + " at " + classObject.transform.position);
     }
 
-    public void addRelation(Relation target) {
+    public void generateAttributes()
+    {
+        int size = resize();
+        int counter = 0;
+        foreach (UserAttribute attribute in attributes)
+        {
+            if (attribute.gameObject != null)
+            {
+                GameObject.Destroy(attribute.gameObject);
+                attribute.gameObject = null;
+            }
+            attribute.createGameObject();
+            attribute.attachToClass(this, counter++, size);
+
+        }
+    }
+
+    private int resize()
+    {
+        int size = Mathf.Clamp(attributes.Count, 3, 10) - 3;
+        Vector3 meshScale = new Vector3(2, 1, 1 + size * 0.125f);
+        gameObject.transform.GetChild(0).transform.localScale = meshScale;
+        Vector3 namePosition = new Vector3(-9, 0, 4 + size * 0.66f);
+        gameObject.transform.GetChild(1).localPosition = namePosition;
+        return size;
+    }
+
+    public void addRelation(Relation target)
+    {
         relations.Add(target);
     }
 
     public void updateRelations()
     {
-        foreach(Relation relation in relations)
+        foreach (Relation relation in relations)
         {
             if (relation.source.Equals(id))
                 relation.updatePoints(gameObject.transform.position, null);
@@ -94,7 +119,6 @@ public class UserClass
         }
     }
 
-
 }
 
 [XmlRoot(ElementName = "Attribute")]
@@ -102,6 +126,8 @@ public class UserAttribute
 {
     [XmlAttribute]
     public string name;
+    [XmlAttribute]
+    public string type;
     [XmlAttribute]
     public string value;
     [XmlAttribute]
@@ -115,28 +141,40 @@ public class UserAttribute
 
     [XmlIgnore]
     public GameObject gameObject;
+    [XmlIgnore]
+    public UserClass parent;
 
     public void createGameObject()
     {
         GameObject templateAttribute = Resources.Load<GameObject>("AttributeObject");
 
         GameObject attributeObject = UnityEngine.Object.Instantiate(templateAttribute);
-        attributeObject.transform.GetChild(1).GetChild(1).gameObject.GetComponent<TextMesh>().text = name;
-        attributeObject.transform.GetChild(2).GetChild(1).gameObject.GetComponent<TextMesh>().text = value;
+        attributeObject.transform.GetChild(1).GetChild(0).gameObject.GetComponent<TextMesh>().text = name;
+        attributeObject.transform.GetChild(2).GetChild(0).gameObject.GetComponent<TextMesh>().text = value;
 
+        attributeObject.GetComponent<Identity>().attributeReference = this;
         attributeObject.name = "Attribute : " + name;
 
         gameObject = attributeObject;
+        gameObject.transform.Rotate(-90.0f, 0.0f, 0.0f, Space.Self);
+        gameObject.transform.localScale = new Vector3((float)0.05, (float)0.05, (float)0.05);
     }
 
-    public void attachToClass(UserClass parent, int counter)
+    public void attachToClass(UserClass parent, int counter, int size)
     {
+        this.parent = parent;
         Vector3 position = parent.gameObject.transform.position;
-        position.x -= 5;
-        position.y += (float)0.1;
-        position.z -= counter * (float)1.5;
+        position.x -= (5 * 0.05f);
+        position.y -= counter * (1.5f * 0.05f) - size * 0.045f;
+
         gameObject.transform.position = position;
+
         gameObject.transform.parent = parent.gameObject.transform;
+
+        position = gameObject.transform.localPosition;
+        position.y = 0.05f;
+        gameObject.transform.localPosition = position;
+
         gameObject.name = parent.name + " : " + name;
     }
 }
@@ -176,10 +214,11 @@ public class Relation
         gameObject.name = name != null ? name : this.source + " " + this.destination;
         lineRenderer = gameObject.AddComponent<LineRenderer>();
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        lineRenderer.widthMultiplier = 0.2f;
+        lineRenderer.widthMultiplier = 0.01f;
         lineRenderer.positionCount = 2;
         lineRenderer.SetPosition(0, source);
         lineRenderer.SetPosition(1, destination);
+        Debug.Log("Drew relation from " + source + " to " + destination);
     }
 
     public void updatePoints(Vector3? source, Vector3? destination)
@@ -187,13 +226,13 @@ public class Relation
         if (source.HasValue)
         {
             Vector3 point = source.Value;
-            point.y -= 1;
+            point.z += (float)0.1;
             lineRenderer.SetPosition(0, point);
         }
         if (destination.HasValue)
         {
             Vector3 point = destination.Value;
-            point.y -= 1;
+            point.z += (float)0.1;
             lineRenderer.SetPosition(1, point);
         }
 

@@ -14,7 +14,7 @@ public class Moveable : MonoBehaviour
     private Vector3 offset;
     private bool isColliding;
 
-
+    /*
     void OnMouseDown()
     {
         screenPoint = Camera.main.WorldToScreenPoint(transform.parent.position);
@@ -60,5 +60,6 @@ public class Moveable : MonoBehaviour
     {
         isColliding = false;
     }
+    */
 
 }
