@@ -18,7 +18,10 @@ public class ToolBoxObject : MonoBehaviour
             UserClass newClass = new UserClass();
             newClass.name = "NewClass";
             newClass.name += classCount > 0 ? ""+classCount : "";
+            newClass.id = "5"; //need to update
+            newClass.isAbstract = "FALSE";
             classCount++;
+            gameObject.transform.parent.parent.parent.GetComponent<ToolBox>().modelReference.classes.Add(newClass);
             newClass.createGameObject();
 
             Vector3 position = new Vector3((float)(0 / 200.0) - 2, (float)(0 / 200.0) + 1, 3);

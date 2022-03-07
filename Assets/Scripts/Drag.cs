@@ -58,42 +58,9 @@ public class Drag : MonoBehaviour
         if (gameObject.layer == 7) //attributes
         {
             List<Collider> collisionList = GetComponentInChildren<Collision>().collisionList;
-            transform.GetChild(0).gameObject.SetActive(false);
-            bool placed = false;
-            foreach (Collider c in collisionList)
-            {
-                if (c.gameObject.layer == 6) //classes
-                {
-                    UserAttribute attribute = gameObject.GetComponentInParent<Identity>().attributeReference;
-                    if (gameObject.GetComponentInParent<Identity>().attributeReference.parent != null)
-                    {
-                        UserClass oldClass = attribute.parent;
-                        oldClass.attributes.Remove(attribute);
-                        oldClass.generateAttributes();
-                    }
+            transform.GetChild(0).gameObject.SetActive(false); // turn off collider
+            bool placed = placeAttribute(collisionList);
 
-                    UserClass newClass = c.gameObject.GetComponentInParent<Identity>().classReference;
-
-                    int position = 0;
-                    if (c.transform.position.y > interactable.transform.position.y)
-                        position = newClass.attributes.Count;
-                    foreach (Collider c2 in collisionList)
-                    {
-                        if (c2.gameObject.layer == 7) //attributes
-                        {
-                            if (newClass.attributes.Contains(c2.transform.parent.GetComponent<Identity>().attributeReference) && c2.transform.position.y > interactable.transform.position.y)
-                            {
-                                position = newClass.attributes.IndexOf(c2.transform.parent.GetComponent<Identity>().attributeReference)+1;
-                                break;
-                            }
-                        }
-                    }
-                    newClass.attributes.Insert(position, attribute);
-                    newClass.generateAttributes();
-                    placed = true;
-                    break;
-                }
-            }
             if (!placed)
             {
                 errorPanel.gameObject.SetActive(true);
@@ -132,6 +99,47 @@ public class Drag : MonoBehaviour
         }
 
     }
+
+    private bool placeAttribute(List<Collider> collisionList)
+    {
+        foreach (Collider c in collisionList)
+        {
+            if (c.gameObject.layer == 6) //classes
+            {
+                UserAttribute attribute = gameObject.GetComponentInParent<Identity>().attributeReference;
+                if (gameObject.GetComponentInParent<Identity>().attributeReference.parent != null)
+                {
+                    UserClass oldClass = attribute.parent;
+                    oldClass.attributes.Remove(attribute);
+                    oldClass.generateAttributes();
+                }
+
+                UserClass newClass = c.gameObject.GetComponentInParent<Identity>().classReference;
+
+                int position = 0;
+
+                if (c.transform.position.y > interactable.transform.position.y)
+                    position = newClass.attributes.Count;
+                foreach (Collider c2 in collisionList)
+                {
+                    if (c2.gameObject.layer == 7) //attributes
+                    {
+                        if (newClass.attributes.Contains(c2.transform.parent.GetComponent<Identity>().attributeReference) && c2.transform.position.y > interactable.transform.position.y)
+                        {
+                            position = newClass.attributes.IndexOf(c2.transform.parent.GetComponent<Identity>().attributeReference) + 1;
+                            break;
+                        }
+                    }
+                }
+                newClass.attributes.Insert(position, attribute);
+                newClass.generateAttributes();
+
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     void UpdateRelations(Vector3 position)
     {

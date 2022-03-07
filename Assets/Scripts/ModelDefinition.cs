@@ -11,6 +11,15 @@ public class Iml
     public string version;
     [XmlElement(ElementName = "StructuralModel")]
     public StructuralModel structuralModel;
+
+    [XmlIgnore]
+    public GameObject gameObject;
+
+    public void createGameObject()
+    {
+        gameObject = GameObject.Find("IML");
+        gameObject.GetComponent<Identity>().modelReference = structuralModel;
+    }
 }
 
 [XmlRoot(ElementName = "StructuralModel")]
@@ -80,6 +89,7 @@ public class UserClass
 
     public void generateAttributes()
     {
+        attributes.RemoveAll(item => item == null);
         int size = resize();
         int counter = 0;
         foreach (UserAttribute attribute in attributes)

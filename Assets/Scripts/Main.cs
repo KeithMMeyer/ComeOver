@@ -10,6 +10,7 @@ public class Main : MonoBehaviour
     void Start()
     {
         Iml iml = Importer.ImportXml(inputfile);
+        iml.createGameObject();
 
         GenerateClasses(iml);
 

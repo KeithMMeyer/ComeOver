@@ -17,7 +17,8 @@ public class Editable : MonoBehaviour
         editPanel = GameObject.Find("ToolBox").transform.GetChild(0).GetChild(1);
 
         interactable = GetComponent<XRSimpleInteractable>();
-        interactable.onActivate.AddListener(OpenDrawer);
+        interactable.onSelectEntered.AddListener(OpenDrawer);
+        //interactable.onActivate.AddListener(OpenDrawer);
 
 
     }

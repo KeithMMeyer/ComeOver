@@ -19,7 +19,6 @@ public class Importer
             }
             else
             {
-               
                 UnityEngine.Networking.UnityWebRequest www = UnityEngine.Networking.UnityWebRequest.Get(path);
                 www.SendWebRequest();
                 while (!www.isDone)
