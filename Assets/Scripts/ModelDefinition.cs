@@ -66,6 +66,8 @@ public class UserClass
         classObject.name = name;
         classObject.transform.GetChild(0).gameObject.AddComponent<Moveable>();
         classObject.GetComponent<Identity>().classReference = this;
+        if (isAbstract.Equals("TRUE"))
+            classObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/AbstractColor");
 
         gameObject = classObject;
 
@@ -101,6 +103,21 @@ public class UserClass
         Vector3 namePosition = new Vector3(-9, 0, 4 + size * 0.66f);
         gameObject.transform.GetChild(1).localPosition = namePosition;
         return size;
+    }
+
+    public void setAbstract(bool isAbstract)
+    {
+        this.isAbstract = isAbstract ? "TRUE" : "FALSE";
+
+        if (isAbstract)
+        {
+            gameObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/AbstractColor");
+
+        }
+        else
+        {
+            gameObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/UIColor");
+        }
     }
 
     public void addRelation(Relation target)

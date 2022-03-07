@@ -154,6 +154,7 @@ GameObject:
   - component: {fileID: 5374818466328540317}
   - component: {fileID: 7411771285652208254}
   - component: {fileID: 7523023535765076928}
+  - component: {fileID: 2150985784699624490}
   m_Layer: 6
   m_Name: ClassMesh
   m_TagString: Untagged
@@ -296,3 +297,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dragParent: 1
+--- !u!114 &2150985784699624490
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5017261607093558440}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21bb9b299a9095e4db9126a4e3ff99cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

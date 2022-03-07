@@ -18,7 +18,7 @@ public class SaveText : MonoBehaviour
     {
         gameObject.GetComponent<InputField>().onEndEdit.AddListener(saveText);
         gameObject.SetActive(false);
-        //errorPanel.gameObject.SetActive(false);
+        errorPanel.gameObject.SetActive(false);
     }
 
     private void Update()

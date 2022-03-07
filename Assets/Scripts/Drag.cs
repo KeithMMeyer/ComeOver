@@ -13,6 +13,8 @@ public class Drag : MonoBehaviour
     private Transform active;
     private Vector3 startingPos;
 
+    Transform errorPanel;
+
     private bool grabbed = false;
 
     // Start is called before the first frame update
@@ -27,6 +29,7 @@ public class Drag : MonoBehaviour
 
         interactable.onSelectEntered.AddListener(Grabbed);
         interactable.onSelectExited.AddListener(Dropped);
+        errorPanel = GameObject.Find("Main Canvas").transform.GetChild(1);
 
     }
 
@@ -43,6 +46,7 @@ public class Drag : MonoBehaviour
         {
             active = right;
         }
+        active = right;
         if (gameObject.layer == 7) //attributes
         {
             transform.GetChild(0).gameObject.SetActive(true);
@@ -92,10 +96,15 @@ public class Drag : MonoBehaviour
             }
             if (!placed)
             {
-                gameObject.GetComponentInParent<Identity>().attributeReference.parent.generateAttributes();
-                //Transform errorPanel = GameObject.Find("MainScene").transform.GetChild(6).GetChild(1);
-                //errorPanel.gameObject.SetActive(true);
-                //errorPanel.GetChild(1).GetComponent<Text>().text = "Attributes can only be added to IML Classes.";
+                errorPanel.gameObject.SetActive(true);
+                errorPanel.GetChild(1).GetComponent<Text>().text = "Attributes can only be added to IML Classes.";
+                if (gameObject.GetComponentInParent<Identity>().attributeReference.parent != null)
+                {
+                    gameObject.GetComponentInParent<Identity>().attributeReference.parent.generateAttributes();
+                } else
+                {
+                    Destroy(gameObject.transform.parent.gameObject);
+                }
             }
 
         }
