@@ -23,31 +23,34 @@ public class Editable : MonoBehaviour
 
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     public void OpenDrawer(XRBaseInteractor i)
     {
         editPanel.gameObject.SetActive(true);
 
         UserClass classReference = transform.GetComponentInParent<Identity>().classReference;
 
-        InputField inputField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
-        inputField.placeholder.GetComponent<Text>().text = classReference.name;
-        inputField.text = classReference.name;
+        InputField nameField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
+        nameField.placeholder.GetComponent<Text>().text = classReference.name;
+        nameField.text = classReference.name;
+        nameField.onEndEdit.RemoveAllListeners();
+        nameField.onEndEdit.AddListener(SaveInputField);
 
-        Dropdown dropDown = editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>();
-        dropDown.value = classReference.isAbstract.Equals("TRUE") ? 1 : 0;
-        dropDown.onValueChanged.AddListener(SaveChanges);
+        Dropdown abstractField = editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>();
+        abstractField.value = classReference.isAbstract.Equals("TRUE") ? 1 : 0;
+        abstractField.onValueChanged.RemoveAllListeners();
+        abstractField.onValueChanged.AddListener(SaveDropdown);
     }
 
-    public void SaveChanges(int i)
+
+    public void SaveInputField(string s)
     {
-        Dropdown dropDown = editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>();
         UserClass classReference = transform.GetComponentInParent<Identity>().classReference;
-        classReference.setAbstract(dropDown.value == 1);
+        classReference.setName(s);
+    }
+
+    public void SaveDropdown(int i)
+    {
+        UserClass classReference = transform.GetComponentInParent<Identity>().classReference;
+        classReference.setAbstract(i == 1);
     }
 }

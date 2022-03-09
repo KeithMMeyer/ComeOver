@@ -55,6 +55,10 @@ public class Drag : MonoBehaviour
 
     public void Dropped(XRBaseInteractor i)
     {
+        if (gameObject.layer == 6) //classes
+        {
+            gameObject.GetComponentInParent<Identity>().classReference.setPosition(transform.position);
+        }
         if (gameObject.layer == 7) //attributes
         {
             List<Collider> collisionList = GetComponentInChildren<Collision>().collisionList;
@@ -83,12 +87,14 @@ public class Drag : MonoBehaviour
     {
         if (grabbed)
         {
+            Vector3 newPosition;
+            bool found =  LinePlaneIntersection(out newPosition, active.transform.GetChild(2).position, active.transform.GetChild(2).forward, new Vector3(0, 0, -1), new Vector3(0, 0, 3));
             RaycastHit h;
-            bool found = active.GetComponent<XRRayInteractor>().GetCurrentRaycastHit(out h);
+            //bool found = active.GetComponent<XRRayInteractor>().GetCurrentRaycastHit(out h);
             if (found)
             {
                 Transform movable = dragParent ? transform.parent : transform;
-                Vector3 position = h.point;
+                Vector3 position = newPosition;
                 position.z = movable.position.z;
                 movable.position = position;
                 if (gameObject.layer == 6) //classes
@@ -141,11 +147,38 @@ public class Drag : MonoBehaviour
     }
 
 
-    void UpdateRelations(Vector3 position)
+    private void UpdateRelations(Vector3 position)
     {
         UserClass classReference = transform.parent.GetComponent<Identity>().classReference;
         //TODO update stored position
         classReference.updateRelations();
 
+    }
+
+    private static bool LinePlaneIntersection(out Vector3 intersection, Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint)
+    {
+        float length;
+        float dotNumerator;
+        float dotDenominator;
+        Vector3 vector;
+        intersection = Vector3.zero;
+
+        //calculate the distance between the linePoint and the line-plane intersection point
+        dotNumerator = Vector3.Dot((planePoint - linePoint), planeNormal);
+        dotDenominator = Vector3.Dot(lineVec, planeNormal);
+
+        if (dotDenominator != 0.0f)
+        {
+            length = dotNumerator / dotDenominator;
+
+            vector = Vector3.Normalize(lineVec) * length;
+
+            intersection = linePoint + vector;
+
+            return true;
+        }
+
+        else
+            return false;
     }
 }

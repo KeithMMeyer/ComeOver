@@ -12,13 +12,28 @@ public class Iml
     [XmlElement(ElementName = "StructuralModel")]
     public StructuralModel structuralModel;
 
-    [XmlIgnore]
-    public GameObject gameObject;
+    private static Iml singleton;
 
-    public void createGameObject()
+    public Iml()
     {
-        gameObject = GameObject.Find("IML");
-        gameObject.GetComponent<Identity>().modelReference = structuralModel;
+        if (singleton != null)
+            throw new UnityException();
+        singleton = this;
+    }
+
+    public static Iml getSingleton()
+    {
+        return singleton;
+    }
+
+    public static Vector3 to3dPosition(float x, float y, float z)
+    {
+        return new Vector3((float)(x / 200.0) - 2, (float)(y / 200.0) + 1, z);
+    }
+
+    public static Vector2 to2dPosition(Vector3 position)
+    {
+        return new Vector3(position.x, position.y);
     }
 }
 
@@ -44,7 +59,7 @@ public class UserClass
     [XmlAttribute]
     public string name;
     [XmlAttribute]
-    public string isAbstract;
+    public string isAbstract = "FALSE";
     [XmlAttribute]
     public int x;
     [XmlAttribute]
@@ -68,20 +83,17 @@ public class UserClass
         GameObject templateClass = Resources.Load<GameObject>("ClassObject");
 
         GameObject classObject = UnityEngine.Object.Instantiate(templateClass);
-        classObject.transform.position = new Vector3((float)(x / 200.0) - 2, (float)(y / 200.0) + 1, 3);
+        classObject.transform.position = Iml.to3dPosition(x, y, 3);
         classObject.transform.Rotate(-90.0f, 0.0f, 0.0f, Space.Self);
         classObject.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
-        classObject.transform.GetChild(1).gameObject.GetComponent<TextMesh>().text = name;
-        classObject.name = name;
-        classObject.transform.GetChild(0).gameObject.AddComponent<Moveable>();
         classObject.GetComponent<Identity>().classReference = this;
-        if (isAbstract.Equals("TRUE"))
-            classObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/AbstractColor");
 
         gameObject = classObject;
 
         classObject.transform.parent = container.transform;
 
+        setName(name);
+        setAbstract(isAbstract.Equals("TRUE"));
         generateAttributes();
 
         Debug.Log("Created object for " + name + " at " + classObject.transform.position);
@@ -128,6 +140,27 @@ public class UserClass
         {
             gameObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/UIColor");
         }
+    }
+
+    public void setName(string name)
+    {
+        this.name = name;
+        if (gameObject != null)
+        {
+            gameObject.name = name;
+            gameObject.transform.GetChild(1).gameObject.GetComponent<TextMesh>().text = name;
+        }
+    }
+
+    public void setPosition(Vector3 position)
+    {
+        if (gameObject != null)
+        {
+            gameObject.transform.position = position;
+        }
+        Vector2 imlPostion = Iml.to2dPosition(position);
+        x = Mathf.RoundToInt(imlPostion.x);
+        y = Mathf.RoundToInt(imlPostion.y);
     }
 
     public void addRelation(Relation target)

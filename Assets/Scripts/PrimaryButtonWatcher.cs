@@ -55,7 +55,7 @@ public class PrimaryButtonWatcher : MonoBehaviour
         if (devicesWithPrimaryButton.Contains(device))
             devicesWithPrimaryButton.Remove(device);
     }
-
+    
     void Update()
     {
         bool tempState = false;

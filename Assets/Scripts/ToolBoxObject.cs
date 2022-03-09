@@ -16,17 +16,13 @@ public class ToolBoxObject : MonoBehaviour
         if (type == "class")
         {
             UserClass newClass = new UserClass();
-            newClass.name = "NewClass";
-            newClass.name += classCount > 0 ? ""+classCount : "";
+            newClass.setName("NewClass" + (classCount > 0 ? "" + classCount : ""));
             newClass.id = "5"; //need to update
-            newClass.isAbstract = "FALSE";
+            newClass.setPosition(new Vector3(0, 0, 3));
             classCount++;
-            gameObject.transform.parent.parent.parent.GetComponent<ToolBox>().modelReference.classes.Add(newClass);
+            Iml.getSingleton().structuralModel.classes.Add(newClass);
             newClass.createGameObject();
 
-            Vector3 position = new Vector3((float)(0 / 200.0) - 2, (float)(0 / 200.0) + 1, 3);
-            //position.y += 1;
-            newClass.gameObject.transform.position = position;
             GameObject.Find("XR Interaction Manager").GetComponent<XRInteractionManager>().ForceSelect(GameObject.Find("RightHand Controller").GetComponent<XRRayInteractor>(), newClass.gameObject.GetComponent<XRSimpleInteractable>());
         }
         else
@@ -38,7 +34,7 @@ public class ToolBoxObject : MonoBehaviour
             newAttribute.value = "";
             newAttribute.createGameObject();
 
-            Vector3 position = new Vector3((float)(0 / 200.0) - 2, (float)(0 / 200.0) + 1, 3);
+            Vector3 position = Iml.to3dPosition(0, 0, 2.99f);
             //position.y += 1;
             newAttribute.gameObject.transform.position = position;
         }

@@ -9,18 +9,12 @@ public class ToolBox : MonoBehaviour
     private PrimaryButtonWatcher watcher;
     public bool IsPressed = false; // used to display button state in the Unity Inspector window
 
-    public StructuralModel modelReference;
-
-    public UserClass Target;
-
 
     void Start()
     {
         watcher = GetComponent<PrimaryButtonWatcher>();
         watcher.primaryButtonPress.AddListener(onPrimaryButtonEvent);
         transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
-
-        modelReference = GameObject.Find("IML").GetComponent<Identity>().modelReference;
     }
 
     public void onPrimaryButtonEvent(bool pressed)
@@ -31,7 +25,8 @@ public class ToolBox : MonoBehaviour
         {
             transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
             transform.GetChild(0).GetChild(1).gameObject.SetActive(false);
-        } else
+        }
+        else
         {
             transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
         }
@@ -42,10 +37,5 @@ public class ToolBox : MonoBehaviour
     {
         Vector3 lookAtPos = new Vector3(viewCamera.transform.position.x, viewCamera.transform.position.y, viewCamera.transform.position.z);
         transform.LookAt(lookAtPos);
-    }
-
-    public void UpdateSettings()
-    {
-        Target.setAbstract(true);
     }
 }
