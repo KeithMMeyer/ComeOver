@@ -37,7 +37,7 @@ public class Drag : MonoBehaviour
     {
         grabbed = true;
         RaycastHit h;
-        bool hit = left.GetComponent<XRRayInteractor>().GetCurrentRaycastHit(out h);
+        bool hit = left.GetComponent<XRRayInteractor>().TryGetCurrent3DRaycastHit(out h);
         if (hit && h.transform.Equals(transform))
         {
             active = left;
@@ -71,7 +71,7 @@ public class Drag : MonoBehaviour
                 errorPanel.GetChild(1).GetComponent<Text>().text = "Attributes can only be added to IML Classes.";
                 if (gameObject.GetComponentInParent<Identity>().attributeReference.parent != null)
                 {
-                    gameObject.GetComponentInParent<Identity>().attributeReference.parent.generateAttributes();
+                    gameObject.GetComponentInParent<Identity>().attributeReference.parent.resize();
                 } else
                 {
                     Destroy(gameObject.transform.parent.gameObject);
@@ -89,7 +89,7 @@ public class Drag : MonoBehaviour
         {
             Vector3 newPosition;
             bool found =  LinePlaneIntersection(out newPosition, active.transform.GetChild(2).position, active.transform.GetChild(2).forward, new Vector3(0, 0, -1), new Vector3(0, 0, 3));
-            RaycastHit h;
+            //RaycastHit h;
             //bool found = active.GetComponent<XRRayInteractor>().GetCurrentRaycastHit(out h);
             if (found)
             {
@@ -117,7 +117,7 @@ public class Drag : MonoBehaviour
                 {
                     UserClass oldClass = attribute.parent;
                     oldClass.attributes.Remove(attribute);
-                    oldClass.generateAttributes();
+                    oldClass.resize();
                 }
 
                 UserClass newClass = c.gameObject.GetComponentInParent<Identity>().classReference;
@@ -138,7 +138,7 @@ public class Drag : MonoBehaviour
                     }
                 }
                 newClass.attributes.Insert(position, attribute);
-                newClass.generateAttributes();
+                newClass.resize();
 
                 return true;
             }

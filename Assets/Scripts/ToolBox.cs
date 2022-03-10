@@ -19,18 +19,20 @@ public class ToolBox : MonoBehaviour
 
     public void onPrimaryButtonEvent(bool pressed)
     {
+        closeAll();
+
         IsPressed = pressed;
 
         if (pressed)
-        {
             transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
-            transform.GetChild(0).GetChild(1).gameObject.SetActive(false);
-        }
-        else
-        {
-            transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
-        }
 
+    }
+
+    public void closeAll()
+    {
+        transform.GetChild(0).GetChild(1).gameObject.SetActive(false);
+        transform.GetChild(0).GetChild(2).gameObject.SetActive(false);
+        transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
     }
 
     private void Update()
@@ -38,4 +40,5 @@ public class ToolBox : MonoBehaviour
         Vector3 lookAtPos = new Vector3(viewCamera.transform.position.x, viewCamera.transform.position.y, viewCamera.transform.position.z);
         transform.LookAt(lookAtPos);
     }
+
 }

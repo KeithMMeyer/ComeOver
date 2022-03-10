@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
 using UnityEngine;
@@ -85,7 +84,6 @@ public class UserClass
         GameObject classObject = UnityEngine.Object.Instantiate(templateClass);
         classObject.transform.position = Iml.to3dPosition(x, y, 3);
         classObject.transform.Rotate(-90.0f, 0.0f, 0.0f, Space.Self);
-        classObject.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
         classObject.GetComponent<Identity>().classReference = this;
 
         gameObject = classObject;
@@ -94,15 +92,42 @@ public class UserClass
 
         setName(name);
         setAbstract(isAbstract.Equals("TRUE"));
-        generateAttributes();
+        resize();
 
         Debug.Log("Created object for " + name + " at " + classObject.transform.position);
     }
+    public void resize()
+    {
+        int height = Mathf.Clamp(attributes.Count, 3, 99) - 3;
+        float width = 0;
+        foreach (UserAttribute attribute in attributes)
+        {
+            if (attribute.gameObject == null)
+            {
+                attribute.createGameObject();
+            }
+            float newWidth = attribute.getWidth();
+            width = newWidth > width ? newWidth : width;
+        }
+        width = Mathf.Clamp(width, 2 * 0.05f, 99);
 
-    public void generateAttributes()
+        Vector3 meshScale = gameObject.transform.GetChild(0).transform.localScale;
+        meshScale.x = width;
+        meshScale.z = (1 + height * 0.125f) * 0.05f;
+        gameObject.transform.GetChild(0).transform.localScale = meshScale;
+        Vector3 namePosition = gameObject.transform.GetChild(1).localPosition;
+        namePosition.x = -0.5f * 10.1f * width;
+        namePosition.x += 0.05f;
+        namePosition.z = (4 + height * 0.66f) * 0.05f;
+        gameObject.transform.GetChild(1).localPosition = namePosition;
+
+
+        generateAttributes(height, width);
+    }
+
+    private void generateAttributes(int height, float width)
     {
         attributes.RemoveAll(item => item == null);
-        int size = resize();
         int counter = 0;
         foreach (UserAttribute attribute in attributes)
         {
@@ -112,19 +137,9 @@ public class UserClass
                 attribute.gameObject = null;
             }
             attribute.createGameObject();
-            attribute.attachToClass(this, counter++, size);
+            attribute.attachToClass(this, counter++, height, width);
 
         }
-    }
-
-    private int resize()
-    {
-        int size = Mathf.Clamp(attributes.Count, 3, 10) - 3;
-        Vector3 meshScale = new Vector3(2, 1, 1 + size * 0.125f);
-        gameObject.transform.GetChild(0).transform.localScale = meshScale;
-        Vector3 namePosition = new Vector3(-9, 0, 4 + size * 0.66f);
-        gameObject.transform.GetChild(1).localPosition = namePosition;
-        return size;
     }
 
     public void setAbstract(bool isAbstract)
@@ -209,33 +224,92 @@ public class UserAttribute
         GameObject templateAttribute = Resources.Load<GameObject>("AttributeObject");
 
         GameObject attributeObject = UnityEngine.Object.Instantiate(templateAttribute);
-        attributeObject.transform.GetChild(1).GetChild(0).gameObject.GetComponent<TextMesh>().text = name;
-        attributeObject.transform.GetChild(2).GetChild(0).gameObject.GetComponent<TextMesh>().text = value;
 
         attributeObject.GetComponent<Identity>().attributeReference = this;
         attributeObject.name = "Attribute : " + name;
 
         gameObject = attributeObject;
         gameObject.transform.Rotate(-90.0f, 0.0f, 0.0f, Space.Self);
-        gameObject.transform.localScale = new Vector3((float)0.05, (float)0.05, (float)0.05);
+
+        generateDisplayString();
     }
 
-    public void attachToClass(UserClass parent, int counter, int size)
+    public void attachToClass(UserClass parent, int counter, int height, float width)
     {
         this.parent = parent;
         Vector3 position = parent.gameObject.transform.position;
         position.x -= (5 * 0.05f);
-        position.y -= counter * (1.5f * 0.05f) - size * 0.045f;
+        position.y -= counter * (1.5f * 0.05f) - height * 0.045f;
 
         gameObject.transform.position = position;
 
         gameObject.transform.parent = parent.gameObject.transform;
 
         position = gameObject.transform.localPosition;
-        position.y = 0.05f;
+        position.y = 0.001f;
         gameObject.transform.localPosition = position;
 
         gameObject.name = parent.name + " : " + name;
+
+        Vector3 meshScale = gameObject.transform.GetChild(0).transform.localScale;
+        meshScale.x = width;
+        gameObject.transform.GetChild(0).transform.localScale = meshScale;
+        Vector3 textPos = gameObject.transform.GetChild(1).localPosition;
+        textPos.x *= 20 * width;
+        textPos.x += 0.225f;
+        gameObject.transform.GetChild(1).localPosition = textPos;
+
+    }
+
+    public void setName(string name)
+    {
+        this.name = name;
+        generateDisplayString();
+    }
+
+    public void setValue(string value)
+    {
+        this.value = value;
+        generateDisplayString();
+    }
+
+    public void generateDisplayString()
+    {
+        string display = int.Parse(lowerBound) > 0 ? "■" : "□";
+        int upper;
+        if (!(int.TryParse(upperBound, out upper) && upper == 1))
+        {
+            display += "⃞   ";
+        } else
+        {
+            display += "   ";
+        }
+        display += visibility.Equals("PUBLIC") ? "+" : visibility.Equals("PRIVATE") ? "-" : "#";
+        display += " " + name + " : " + type + " = " + value;
+
+        if (gameObject != null)
+        {
+            gameObject.name = "Attribute : " + name;
+            gameObject.transform.GetChild(1).gameObject.GetComponent<TextMesh>().text = display;
+        }
+    }
+
+    public float getWidth()
+    {
+        TextMesh mesh = gameObject.transform.GetChild(1).gameObject.GetComponent<TextMesh>();
+        float width = 0;
+        float bonus = 0;
+        foreach (char symbol in mesh.text)
+        {
+            CharacterInfo info;
+            if (mesh.font.GetCharacterInfo(symbol, out info, mesh.fontSize, mesh.fontStyle))
+            {
+                width += info.advance;
+                bonus = info.advance;
+            }
+        }
+        width += bonus * 4;
+        return width * mesh.characterSize * 0.05f * 0.01f;
     }
 }
 
