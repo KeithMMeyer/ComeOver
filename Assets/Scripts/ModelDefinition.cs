@@ -75,6 +75,11 @@ public class UserClass
     [XmlIgnore]
     public GameObject gameObject;
 
+    [XmlIgnore]
+    public int height;
+    [XmlIgnore]
+    public float width;
+
 
     public void createGameObject()
     {
@@ -120,12 +125,13 @@ public class UserClass
         namePosition.x += 0.05f;
         namePosition.z = (4 + height * 0.66f) * 0.05f;
         gameObject.transform.GetChild(1).localPosition = namePosition;
+        this.height = height;
+        this.width = width;
 
-
-        generateAttributes(height, width);
+        generateAttributes();
     }
 
-    private void generateAttributes(int height, float width)
+    private void generateAttributes()
     {
         attributes.RemoveAll(item => item == null);
         int counter = 0;
@@ -280,7 +286,8 @@ public class UserAttribute
         if (!(int.TryParse(upperBound, out upper) && upper == 1))
         {
             display += "⃞   ";
-        } else
+        }
+        else
         {
             display += "   ";
         }
@@ -339,9 +346,37 @@ public class Relation
     public int boundOffset;
 
     [XmlIgnore]
-    public GameObject gameObject = new GameObject();
+    UserClass sourceClass;
+    [XmlIgnore]
+    UserClass destinationClass;
+
+    [XmlIgnore]
+    public GameObject gameObject;
     [XmlIgnore]
     LineRenderer lineRenderer;
+
+    public void createGameObject()
+    {
+        GameObject templateRelation = Resources.Load<GameObject>("RelationObject");
+
+        GameObject relationObject = UnityEngine.Object.Instantiate(templateRelation);
+
+        relationObject.GetComponent<Identity>().relationReference = this;
+
+        gameObject = relationObject;
+
+    }
+
+    public void attachToClass(UserClass source, UserClass destination)
+    {
+        sourceClass = source;
+        destinationClass = destination;
+        Vector3 sourcePos = source.gameObject.transform.position;
+        Vector3 destinationPos = destination.gameObject.transform.position;
+        sourcePos.z = 3.1f;
+        destinationPos.z = 3.1f;
+        setPoints(sourcePos, destinationPos);
+    }
 
     public void setPoints(Vector3 source, Vector3 destination)
     {
@@ -352,6 +387,7 @@ public class Relation
         lineRenderer.positionCount = 2;
         lineRenderer.SetPosition(0, source);
         lineRenderer.SetPosition(1, destination);
+        placeObjects();
         Debug.Log("Drew relation from " + source + " to " + destination);
     }
 
@@ -360,16 +396,35 @@ public class Relation
         if (source.HasValue)
         {
             Vector3 point = source.Value;
-            point.z += (float)0.1;
+            point.z += 0.1f;
             lineRenderer.SetPosition(0, point);
         }
         if (destination.HasValue)
         {
             Vector3 point = destination.Value;
-            point.z += (float)0.1;
+            point.z += 0.1f;
             lineRenderer.SetPosition(1, point);
         }
+        placeObjects();
+    }
 
+    private void placeObjects()
+    {
+        Vector3 source = lineRenderer.GetPosition(0);
+        Vector3 destination = lineRenderer.GetPosition(1);
+        Vector3 position = destination;
+        position.z -= 0.1f;
+        //position.y += ((1 + 3 * 0.125f) * 0.05f * 3.5f);
+
+        float angle = Vector3.Angle(destination - source, new Vector3(1, 0, 0));
+
+        float cos = Mathf.Cos(Mathf.Deg2Rad*(90-angle));
+
+        if (destinationClass.height == 0)
+            destinationClass.resize();
+        gameObject.transform.position = position + (destination - source).normalized * -((1 + (destinationClass.height + 3) * 0.125f) * 0.05f * 3.5f)/cos;
+
+        gameObject.transform.Rotate(0, angle, 0, Space.Self);
     }
 }
 

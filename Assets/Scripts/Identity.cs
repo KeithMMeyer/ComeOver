@@ -6,5 +6,5 @@ public class Identity : MonoBehaviour
 {
     public UserClass classReference { set; get; }
     public UserAttribute attributeReference { set; get; }
-
+    public Relation relationReference { set; get; }
 }

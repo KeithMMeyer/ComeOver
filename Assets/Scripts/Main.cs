@@ -16,31 +16,30 @@ public class Main : MonoBehaviour
         foreach (Relation relation in iml.structuralModel.relations)
         {
             string source = relation.source;
-            Vector3 start = new Vector3();
+            UserClass start = null;
             foreach (UserClass classXml in iml.structuralModel.classes)
             {
                 if (classXml.id.Equals(source))
                 {
-                    start = classXml.gameObject.transform.position;
+                    start = classXml;
                     classXml.addRelation(relation);
                     break;
                 }
             }
-            start.z = (float)3.1;
 
             string destination = relation.destination;
-            Vector3 end = new Vector3();
+            UserClass end = null;
             foreach (UserClass classXml in iml.structuralModel.classes)
             {
                 if (classXml.id.Equals(destination))
                 {
-                    end = classXml.gameObject.transform.position;
+                    end = classXml;
                     classXml.addRelation(relation);
                     break;
                 }
             }
-            end.z = (float) 3.1;
-            relation.setPoints(start, end);
+            relation.createGameObject();
+            relation.attachToClass(start, end);
         }
     }
 
