@@ -44,7 +44,7 @@ public class Relation
         relationObject.GetComponent<Identity>().relationReference = this;
 
         gameObject = relationObject;
-
+        buildStrings();
     }
 
     public void attachToClass(UserClass source, UserClass destination)
@@ -56,6 +56,12 @@ public class Relation
         sourcePos.z = 3.1f;
         destinationPos.z = 3.1f;
         setPoints(sourcePos, destinationPos);
+    }
+
+    public void buildStrings()
+    {
+        gameObject.transform.GetChild(1).GetComponent<TextMesh>().text = name;
+        gameObject.transform.GetChild(2).GetComponent<TextMesh>().text = "[" + lowerBound + ".." + upperBound + "]" ;
     }
 
     public void setPoints(Vector3 source, Vector3 destination)
@@ -90,11 +96,17 @@ public class Relation
 
     private void placeObjects()
     {
+        Transform arrow = gameObject.transform.GetChild(0);
+        Transform name = gameObject.transform.GetChild(1);
+        Transform bounds = gameObject.transform.GetChild(2);
+
         Vector3 source = lineRenderer.GetPosition(0);
         Vector3 destination = lineRenderer.GetPosition(1);
+        source.z -= 0.1f;
+        destination.z -= 0.1f;
         Vector3 position = destination;
-        position.z -= 0.1f;
-        //position.y += ((1 + 3 * 0.125f) * 0.05f * 3.5f);
+
+        name.position = source + (destination - source) / 2;
 
         float angle = Vector3.Angle(destination - source, new Vector3(1, 0, 0));
 
@@ -102,8 +114,11 @@ public class Relation
 
         if (destinationClass.height == 0)
             destinationClass.resize();
-        gameObject.transform.position = position + (destination - source).normalized * -((1 + (destinationClass.height + 3) * 0.125f) * 0.05f * 3.5f) / cos;
+        Vector3 offset = (destination - source).normalized * -((1 + (destinationClass.height + 3) * 0.125f) * 0.05f * 3.5f) / cos;
+        arrow.position = position + offset;
+        bounds.position = position + 2 * offset;
 
-        gameObject.transform.Rotate(0, angle, 0, Space.Self);
+        arrow.localRotation = Quaternion.identity;
+        arrow.Rotate(0, Mathf.Sign(source.y - destination.y) * angle, 0, Space.Self);
     }
 }
