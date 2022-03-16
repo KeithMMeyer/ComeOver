@@ -11,7 +11,7 @@ public class EditAttribute : MonoBehaviour
     private XRSimpleInteractable interactable;
     private ToolBox toolbox;
     private Transform editPanel;
-    private UserAttribute attributeReference;
+    UserAttribute attributeReference;
 
     // Start is called before the first frame update
     void Start()
@@ -20,13 +20,14 @@ public class EditAttribute : MonoBehaviour
         editPanel = toolbox.transform.GetChild(0).GetChild(2);
 
         interactable = GetComponent<XRSimpleInteractable>();
-        interactable.onSelectEntered.AddListener(OpenDrawer);
+        interactable.selectEntered.AddListener(OpenDrawer);
         //interactable.onActivate.AddListener(OpenDrawer);
 
         attributeReference = transform.GetComponentInParent<Identity>().attributeReference;
+
     }
 
-    public void OpenDrawer(XRBaseInteractor i)
+    public void OpenDrawer(SelectEnterEventArgs args)
     {
         toolbox.closeAll();
         editPanel.gameObject.SetActive(true);
@@ -36,7 +37,7 @@ public class EditAttribute : MonoBehaviour
         string[] visibilityArray = { "PUBLIC", "PRIVATE", "PROTECTED" };
         List<string> visibilities = visibilityArray.ToList();
         visibilityField.value = visibilities.IndexOf(attributeReference.visibility);
-        visibilityField.onValueChanged.AddListener(SaveType);
+        visibilityField.onValueChanged.AddListener(SaveVisibility);
 
         InputField nameField = editPanel.GetChild(1).GetChild(1).GetComponent<InputField>();
         nameField.onEndEdit.RemoveAllListeners();
@@ -55,31 +56,51 @@ public class EditAttribute : MonoBehaviour
         lowerBound.onEndEdit.RemoveAllListeners();
         lowerBound.placeholder.GetComponent<Text>().text = attributeReference.lowerBound;
         lowerBound.text = attributeReference.lowerBound;
-        lowerBound.onEndEdit.AddListener(SaveName);
+        lowerBound.onEndEdit.AddListener(SaveLower);
 
         InputField upperBound = editPanel.GetChild(4).GetChild(1).GetComponent<InputField>();
         upperBound.onEndEdit.RemoveAllListeners();
         upperBound.placeholder.GetComponent<Text>().text = attributeReference.upperBound;
         upperBound.text = attributeReference.upperBound;
-        upperBound.onEndEdit.AddListener(SaveName);
+        upperBound.onEndEdit.AddListener(SaveUpper);
 
         InputField valueField = editPanel.GetChild(5).GetChild(1).GetComponent<InputField>();
         valueField.onEndEdit.RemoveAllListeners();
         valueField.placeholder.GetComponent<Text>().text = attributeReference.value;
         valueField.text = attributeReference.value;
         valueField.onEndEdit.AddListener(SaveValue);
-
     }
 
 
     public void SaveName(string s)
     {
         attributeReference.setName(s);
+        attributeReference.generateDisplayString();
+    }
+
+    public void SaveUpper(string s)
+    {
+        attributeReference.upperBound = s;
+        attributeReference.generateDisplayString();
+    }
+
+    public void SaveLower(string s)
+    {
+        attributeReference.lowerBound = s;
+        attributeReference.generateDisplayString();
     }
 
     public void SaveValue(string s)
     {
         attributeReference.setValue(s);
+        attributeReference.generateDisplayString();
+    }
+
+    public void SaveVisibility(int i)
+    {
+        string[] visibilityArray = { "PUBLIC", "PRIVATE", "PROTECTED" };
+        attributeReference.visibility = visibilityArray[i];
+        attributeReference.generateDisplayString();
     }
 
     public void SaveType(int i)

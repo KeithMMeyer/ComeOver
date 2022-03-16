@@ -14,7 +14,7 @@ public class ToolBox : MonoBehaviour
     {
         watcher = GetComponent<PrimaryButtonWatcher>();
         watcher.primaryButtonPress.AddListener(onPrimaryButtonEvent);
-        transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
+        closeAll();
     }
 
     public void onPrimaryButtonEvent(bool pressed)
@@ -30,9 +30,9 @@ public class ToolBox : MonoBehaviour
 
     public void closeAll()
     {
+        transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
         transform.GetChild(0).GetChild(1).gameObject.SetActive(false);
         transform.GetChild(0).GetChild(2).gameObject.SetActive(false);
-        transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
     }
 
     private void Update()

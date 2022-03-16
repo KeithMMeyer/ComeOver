@@ -10,7 +10,7 @@ public class Editable : MonoBehaviour
     private XRSimpleInteractable interactable;
     private ToolBox toolbox;
     private Transform editPanel;
-
+    private UserClass classReference;
 
     // Start is called before the first frame update
     void Start()
@@ -19,18 +19,17 @@ public class Editable : MonoBehaviour
         editPanel = toolbox.transform.GetChild(0).GetChild(1);
 
         interactable = GetComponent<XRSimpleInteractable>();
-        interactable.onSelectEntered.AddListener(OpenDrawer);
+        interactable.selectEntered.AddListener(OpenDrawer);
         //interactable.onActivate.AddListener(OpenDrawer);
 
+        classReference = transform.GetComponentInParent<Identity>().classReference;
 
     }
 
-    public void OpenDrawer(XRBaseInteractor i)
+    public void OpenDrawer(SelectEnterEventArgs args)
     {
         toolbox.closeAll();
         editPanel.gameObject.SetActive(true);
-
-        UserClass classReference = transform.GetComponentInParent<Identity>().classReference;
 
         InputField nameField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
         nameField.onEndEdit.RemoveAllListeners();
@@ -47,13 +46,11 @@ public class Editable : MonoBehaviour
 
     public void SaveInputField(string s)
     {
-        UserClass classReference = transform.GetComponentInParent<Identity>().classReference;
         classReference.setName(s);
     }
 
     public void SaveDropdown(int i)
     {
-        UserClass classReference = transform.GetComponentInParent<Identity>().classReference;
         classReference.setAbstract(i == 1);
     }
 }

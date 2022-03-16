@@ -24,16 +24,16 @@ public class Drag : MonoBehaviour
 
         startingPos = interactable.transform.position;
 
-        left = GameObject.Find("XR Rig").transform.GetChild(0).GetChild(1);
-        right = GameObject.Find("XR Rig").transform.GetChild(0).GetChild(2);
+        left = GameObject.Find("XR Origin").transform.GetChild(0).GetChild(1);
+        right = GameObject.Find("XR Origin").transform.GetChild(0).GetChild(2);
 
-        interactable.onSelectEntered.AddListener(Grabbed);
-        interactable.onSelectExited.AddListener(Dropped);
+        interactable.selectEntered.AddListener(Grabbed);
+        interactable.selectExited.AddListener(Dropped);
         errorPanel = GameObject.Find("Main Canvas").transform.GetChild(1);
 
     }
 
-    public void Grabbed(XRBaseInteractor i)
+    public void Grabbed(SelectEnterEventArgs args)
     {
         grabbed = true;
         RaycastHit h;
@@ -53,7 +53,7 @@ public class Drag : MonoBehaviour
         }
     }
 
-    public void Dropped(XRBaseInteractor i)
+    public void Dropped(SelectExitEventArgs args)
     {
         if (gameObject.layer == 6) //classes
         {

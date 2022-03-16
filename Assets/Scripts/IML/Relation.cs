@@ -69,6 +69,10 @@ public class Relation
         gameObject.name = name != null ? name : this.source + " " + this.destination;
         lineRenderer = gameObject.AddComponent<LineRenderer>();
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        Color color = type.Equals("REFERENCE") ? new Color(255, 0, 0) : type.Equals("COMPOSITION") ? new Color(0, 255, 0) : new Color(0, 0, 255);
+        lineRenderer.startColor = color;
+        lineRenderer.endColor = color;
+        gameObject.transform.GetChild(0).GetChild(1).GetComponent<TextMesh>().color = color;
         lineRenderer.widthMultiplier = 0.01f;
         lineRenderer.positionCount = 2;
         lineRenderer.SetPosition(0, source);
@@ -115,6 +119,7 @@ public class Relation
         if (destinationClass.height == 0)
             destinationClass.resize();
         Vector3 offset = (destination - source).normalized * -((1 + (destinationClass.height + 3) * 0.125f) * 0.05f * 3.5f) / cos;
+        offset = (destination - source).magnitude > offset.magnitude ? offset : (destination - source) / 2;
         arrow.position = position + offset;
         bounds.position = position + 2 * offset;
 

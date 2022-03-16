@@ -47,7 +47,9 @@ public class UserClass
 
         setName(name);
         setAbstract(isAbstract.Equals("TRUE"));
+        generateAttributes();
         resize();
+        generateAttributes();
 
         Debug.Log("Created object for " + name + " at " + classObject.transform.position);
     }
@@ -77,8 +79,9 @@ public class UserClass
         gameObject.transform.GetChild(1).localPosition = namePosition;
         this.height = height;
         this.width = width;
-
-        generateAttributes();
+        
+        reattachAttributes();
+        //updateRelations();
     }
 
     private void generateAttributes()
@@ -94,7 +97,15 @@ public class UserClass
             }
             attribute.createGameObject();
             attribute.attachToClass(this, counter++, height, width);
+        }
+    }
 
+    private void reattachAttributes()
+    {
+        int counter = 0;
+        foreach (UserAttribute attribute in attributes)
+        {
+            attribute.attachToClass(this, counter++, height, width);
         }
     }
 

@@ -5,17 +5,17 @@ using UnityEngine;
 public class UserAttribute
 {
     [XmlAttribute]
-    public string name;
+    public string name = "";
     [XmlAttribute]
-    public string type;
+    public string type = "STRING";
     [XmlAttribute]
-    public string value;
+    public string value = "";
     [XmlAttribute]
-    public string visibility;
+    public string visibility = "PUBLIC";
     [XmlAttribute]
-    public string upperBound;
+    public string upperBound = "1";
     [XmlAttribute]
-    public string lowerBound;
+    public string lowerBound = "0";
     [XmlAttribute]
     public int position;
 
@@ -42,25 +42,28 @@ public class UserAttribute
     public void attachToClass(UserClass parent, int counter, int height, float width)
     {
         this.parent = parent;
-        Vector3 position = parent.gameObject.transform.position;
-        position.x -= (5 * 0.05f);
-        position.y -= counter * (1.5f * 0.05f) - height * 0.045f;
+        position = counter;
 
-        gameObject.transform.position = position;
+        Vector3 gamePosition = parent.gameObject.transform.position;
+        gamePosition.x -= (5 * 0.05f);
+        gamePosition.y -= counter * (1.5f * 0.05f) - height * 0.045f;
+
+        gameObject.transform.position = gamePosition;
 
         gameObject.transform.parent = parent.gameObject.transform;
 
-        position = gameObject.transform.localPosition;
-        position.y = 0.001f;
-        gameObject.transform.localPosition = position;
+        gamePosition = gameObject.transform.localPosition;
+        gamePosition.y = 0.001f;
+        gameObject.transform.localPosition = gamePosition;
 
         gameObject.name = parent.name + " : " + name;
 
-        Vector3 meshScale = gameObject.transform.GetChild(0).transform.localScale;
+        Vector3 meshScale = gameObject.transform.GetChild(0).localScale;
         meshScale.x = width;
-        gameObject.transform.GetChild(0).transform.localScale = meshScale;
+        gameObject.transform.GetChild(0).localScale = meshScale;
+        gameObject.transform.GetChild(1).localPosition = new Vector3(-0.225f, 0, 0.06f);
         Vector3 textPos = gameObject.transform.GetChild(1).localPosition;
-        textPos.x *= 20 * width;
+        textPos.x *= 20f * width;
         textPos.x += 0.225f;
         gameObject.transform.GetChild(1).localPosition = textPos;
 
@@ -91,7 +94,8 @@ public class UserAttribute
             display += "   ";
         }
         display += visibility.Equals("PUBLIC") ? "+" : visibility.Equals("PRIVATE") ? "-" : "#";
-        display += " " + name + " : " + type + " = " + value;
+        display += " " + name + " : " + type;
+        display += value != null && !value.Equals("") ? " = " + value : "";
 
         if (gameObject != null)
         {
