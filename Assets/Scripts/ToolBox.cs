@@ -33,6 +33,7 @@ public class ToolBox : MonoBehaviour
         transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
         transform.GetChild(0).GetChild(1).gameObject.SetActive(false);
         transform.GetChild(0).GetChild(2).gameObject.SetActive(false);
+        transform.GetChild(0).GetChild(3).gameObject.SetActive(false);
     }
 
     private void Update()

@@ -26,9 +26,9 @@ public class Relation
     public int boundOffset;
 
     [XmlIgnore]
-    UserClass sourceClass;
+    public UserClass sourceClass;
     [XmlIgnore]
-    UserClass destinationClass;
+    public UserClass destinationClass;
 
     [XmlIgnore]
     public GameObject gameObject;
@@ -55,19 +55,20 @@ public class Relation
         Vector3 destinationPos = destination.gameObject.transform.position;
         sourcePos.z = 3.1f;
         destinationPos.z = 3.1f;
+        gameObject.name = name != null ? name : this.source + " " + this.destination;
         setPoints(sourcePos, destinationPos);
     }
 
     public void buildStrings()
     {
         gameObject.transform.GetChild(1).GetComponent<TextMesh>().text = name;
-        gameObject.transform.GetChild(2).GetComponent<TextMesh>().text = "[" + lowerBound + ".." + upperBound + "]" ;
+        gameObject.transform.GetChild(2).GetComponent<TextMesh>().text = "[" + lowerBound + ".." + upperBound + "]";
     }
 
     public void setPoints(Vector3 source, Vector3 destination)
     {
-        gameObject.name = name != null ? name : this.source + " " + this.destination;
-        lineRenderer = gameObject.AddComponent<LineRenderer>();
+        if (lineRenderer == null)
+            lineRenderer = gameObject.AddComponent<LineRenderer>();
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         Color color = type.Equals("REFERENCE") ? new Color(255, 0, 0) : type.Equals("COMPOSITION") ? new Color(0, 255, 0) : new Color(0, 0, 255);
         lineRenderer.startColor = color;
@@ -86,13 +87,13 @@ public class Relation
         if (source.HasValue)
         {
             Vector3 point = source.Value;
-            point.z += 0.1f;
+            point.z += 0.01f;
             lineRenderer.SetPosition(0, point);
         }
         if (destination.HasValue)
         {
             Vector3 point = destination.Value;
-            point.z += 0.1f;
+            point.z += 0.01f;
             lineRenderer.SetPosition(1, point);
         }
         placeObjects();
@@ -103,11 +104,12 @@ public class Relation
         Transform arrow = gameObject.transform.GetChild(0);
         Transform name = gameObject.transform.GetChild(1);
         Transform bounds = gameObject.transform.GetChild(2);
+        Transform block = gameObject.transform.GetChild(3);
 
         Vector3 source = lineRenderer.GetPosition(0);
         Vector3 destination = lineRenderer.GetPosition(1);
-        source.z -= 0.1f;
-        destination.z -= 0.1f;
+        source.z -= 0.01f;
+        destination.z -= 0.01f;
         Vector3 position = destination;
 
         name.position = source + (destination - source) / 2;
@@ -119,11 +121,32 @@ public class Relation
         if (destinationClass.height == 0)
             destinationClass.resize();
         Vector3 offset = (destination - source).normalized * -((1 + (destinationClass.height + 3) * 0.125f) * 0.05f * 3.5f) / cos;
-        offset = (destination - source).magnitude > offset.magnitude ? offset : (destination - source) / 2;
+        offset = (destination - source).magnitude > offset.magnitude ? offset : -(destination - source) / 2;
         arrow.position = position + offset;
         bounds.position = position + 2 * offset;
 
         arrow.localRotation = Quaternion.identity;
         arrow.Rotate(0, Mathf.Sign(source.y - destination.y) * angle, 0, Space.Self);
+
+        //GameObject.Destroy(block.gameObject);
+    }
+
+    public void updateBounds(string lower, string upper)
+    {
+        if (lower != null)
+        {
+            lowerBound = lower;
+        }
+        if (upper != null)
+        {
+            upperBound = upper;
+        }
+        buildStrings();
+    }
+
+    public void setName(string name)
+    {
+        this.name = name;
+        buildStrings();
     }
 }

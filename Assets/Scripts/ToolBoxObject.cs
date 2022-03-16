@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using Random = UnityEngine.Random;
 
 public class ToolBoxObject : MonoBehaviour
 {
@@ -20,7 +21,7 @@ public class ToolBoxObject : MonoBehaviour
         {
             UserClass newClass = new UserClass();
             newClass.setName("NewClass" + (classCount > 0 ? "" + classCount : ""));
-            newClass.id = "5"; //need to update
+            newClass.id = ((int) Random.Range(0,500)).ToString(); //need to update
             newClass.setPosition(new Vector3(0, 0, 3));
             classCount++;
             Iml.getSingleton().structuralModel.classes.Add(newClass);

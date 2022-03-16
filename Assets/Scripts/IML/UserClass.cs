@@ -79,7 +79,7 @@ public class UserClass
         gameObject.transform.GetChild(1).localPosition = namePosition;
         this.height = height;
         this.width = width;
-        
+
         reattachAttributes();
         //updateRelations();
     }
@@ -161,4 +161,17 @@ public class UserClass
         }
     }
 
+    public override bool Equals(object obj)
+    {
+        if (obj.GetType() != typeof(UserClass))
+            return false;
+        UserClass other = (UserClass) obj;
+
+        return id.Equals(other.id);
+    }
+
+    public override int GetHashCode()
+    {
+        return 1877310944 + EqualityComparer<string>.Default.GetHashCode(id);
+    }
 }
