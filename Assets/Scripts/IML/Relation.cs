@@ -19,11 +19,11 @@ public class Relation
     [XmlAttribute]
     public double nameDistance;
     [XmlAttribute]
-    public int boundDistance;
+    public double boundDistance;
     [XmlAttribute]
-    public int nameOffset;
+    public double nameOffset;
     [XmlAttribute]
-    public int boundOffset;
+    public double boundOffset;
 
     [XmlIgnore]
     public UserClass sourceClass;
