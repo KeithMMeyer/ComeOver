@@ -68,15 +68,46 @@ public class EditRelation : MonoBehaviour
         lowerBound.placeholder.GetComponent<Text>().text = relationReference.lowerBound;
         lowerBound.text = relationReference.lowerBound;
         lowerBound.onEndEdit.AddListener(SaveLower);
+        editPanel.GetChild(3).GetChild(2).GetComponent<Button>().onClick.RemoveAllListeners();
+        editPanel.GetChild(3).GetChild(2).GetComponent<Button>().onClick.AddListener(delegate { BumpField(lowerBound, true); });
+        editPanel.GetChild(3).GetChild(3).GetComponent<Button>().onClick.RemoveAllListeners();
+        editPanel.GetChild(3).GetChild(3).GetComponent<Button>().onClick.AddListener(delegate { BumpField(lowerBound, false); });
 
         InputField upperBound = editPanel.GetChild(4).GetChild(1).GetComponent<InputField>();
         upperBound.onEndEdit.RemoveAllListeners();
         upperBound.placeholder.GetComponent<Text>().text = relationReference.upperBound;
         upperBound.text = relationReference.upperBound;
         upperBound.onEndEdit.AddListener(SaveUpper);
+        editPanel.GetChild(4).GetChild(2).GetComponent<Button>().onClick.RemoveAllListeners();
+        editPanel.GetChild(4).GetChild(2).GetComponent<Button>().onClick.AddListener(delegate { BumpField(upperBound, true); });
+        editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.RemoveAllListeners();
+        editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.AddListener(delegate { BumpField(upperBound, false); });
 
     }
 
+    public void BumpField(InputField field, bool upDirection)
+    {
+        string current = field.text;
+        if (current.Equals("*"))
+        {
+            if (upDirection)
+                field.text = "0";
+        }
+        else
+        {
+            if (current.Equals("0") && !upDirection)
+            {
+                field.text = "*";
+            }
+            else
+            {
+                int number = int.Parse(field.text);
+                number = upDirection ? number + 1 : number - 1;
+                field.text = number.ToString();
+            }
+        }
+        field.onEndEdit.Invoke(field.text);
+    }
 
     public void SaveName(string s)
     {
