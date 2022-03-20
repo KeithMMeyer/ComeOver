@@ -1,56 +1,33 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 
-public class Editable : MonoBehaviour
+public class EditClass : EditObject
 {
 
-    private XRSimpleInteractable interactable;
-    private ToolBox toolbox;
-    private Transform editPanel;
     private UserClass classReference;
 
     // Start is called before the first frame update
-    void Start()
+    protected override void Start()
     {
-        toolbox = GameObject.Find("ToolBox").GetComponent<ToolBox>();
+        base.Start();
         editPanel = toolbox.transform.GetChild(0).GetChild(1);
-
-        interactable = GetComponent<XRSimpleInteractable>();
         interactable.selectEntered.AddListener(OpenDrawer);
-        //interactable.onActivate.AddListener(OpenDrawer);
-
         classReference = transform.GetComponentInParent<Identity>().classReference;
-
     }
 
-    public void OpenDrawer(SelectEnterEventArgs args)
+    protected override void OpenDrawer(SelectEnterEventArgs args)
     {
-        toolbox.closeAll();
-        editPanel.gameObject.SetActive(true);
+        base.OpenDrawer(args);
 
         InputField nameField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
         nameField.onEndEdit.RemoveAllListeners();
         nameField.placeholder.GetComponent<Text>().text = classReference.name;
         nameField.text = classReference.name;
-        nameField.onEndEdit.AddListener(SaveInputField);
+        nameField.onEndEdit.AddListener(delegate (string name) { classReference.setName(name); });
 
         Dropdown abstractField = editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>();
         abstractField.onValueChanged.RemoveAllListeners();
         abstractField.value = classReference.isAbstract.Equals("TRUE") ? 1 : 0;
-        abstractField.onValueChanged.AddListener(SaveDropdown);
-    }
-
-
-    public void SaveInputField(string s)
-    {
-        classReference.setName(s);
-    }
-
-    public void SaveDropdown(int i)
-    {
-        classReference.setAbstract(i == 1);
+        abstractField.onValueChanged.AddListener(delegate (int isAbstract) { classReference.setAbstract(isAbstract == 1); });
     }
 }

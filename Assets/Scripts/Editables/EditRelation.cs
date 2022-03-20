@@ -1,44 +1,38 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 
-public class EditRelation : MonoBehaviour
+public class EditRelation : EditObject
 {
 
-    private XRSimpleInteractable interactable;
-    private ToolBox toolbox;
-    private Transform editPanel;
     Relation relationReference;
 
     // Start is called before the first frame update
-    void Start()
+    protected override void Start()
     {
-        toolbox = GameObject.Find("ToolBox").GetComponent<ToolBox>();
+        base.Start();
         editPanel = toolbox.transform.GetChild(0).GetChild(3);
-
-        interactable = GetComponent<XRSimpleInteractable>();
         interactable.selectEntered.AddListener(OpenDrawer);
-        //interactable.onActivate.AddListener(OpenDrawer);
-
         relationReference = transform.parent.GetComponentInParent<Identity>().relationReference;
-
     }
 
-    public void OpenDrawer(SelectEnterEventArgs args)
+    protected override void OpenDrawer(SelectEnterEventArgs args)
     {
-        toolbox.closeAll();
-        editPanel.gameObject.SetActive(true);
+        base.OpenDrawer(args);
 
         InputField nameField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
         nameField.onEndEdit.RemoveAllListeners();
         nameField.placeholder.GetComponent<Text>().text = relationReference.name;
         nameField.text = relationReference.name;
-        nameField.onEndEdit.AddListener(SaveName);
+        nameField.onEndEdit.AddListener(delegate (string name) { relationReference.setName(name); });
 
+        SetUpPositions();
+        SetUpBounds();
 
+    }
+
+    private void SetUpPositions()
+    {
         Dropdown sourceField = editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>();
         sourceField.onValueChanged.RemoveAllListeners();
         Dropdown destField = editPanel.GetChild(2).GetChild(1).GetComponent<Dropdown>();
@@ -49,7 +43,7 @@ public class EditRelation : MonoBehaviour
             List<string> options = new List<string>();
             foreach (UserClass classRef in Iml.getSingleton().structuralModel.classes)
             {
-                options.Add(classRef.name); // Or whatever you want for a label
+                options.Add(classRef.name);
             }
             sourceField.ClearOptions();
             sourceField.AddOptions(options);
@@ -61,8 +55,10 @@ public class EditRelation : MonoBehaviour
         sourceField.onValueChanged.AddListener(SaveSource);
         destField.value = Iml.getSingleton().structuralModel.classes.IndexOf(relationReference.destinationClass);
         destField.onValueChanged.AddListener(SaveDestination);
+    }
 
-
+    private void SetUpBounds()
+    {
         InputField lowerBound = editPanel.GetChild(3).GetChild(1).GetComponent<InputField>();
         lowerBound.onEndEdit.RemoveAllListeners();
         lowerBound.placeholder.GetComponent<Text>().text = relationReference.lowerBound;
@@ -82,65 +78,33 @@ public class EditRelation : MonoBehaviour
         editPanel.GetChild(4).GetChild(2).GetComponent<Button>().onClick.AddListener(delegate { BumpField(upperBound, true); });
         editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.RemoveAllListeners();
         editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.AddListener(delegate { BumpField(upperBound, false); });
-
     }
 
-    public void BumpField(InputField field, bool upDirection)
-    {
-        string current = field.text;
-        if (current.Equals("*"))
-        {
-            if (upDirection)
-                field.text = "0";
-        }
-        else
-        {
-            if (current.Equals("0") && !upDirection)
-            {
-                field.text = "*";
-            }
-            else
-            {
-                int number = int.Parse(field.text);
-                number = upDirection ? number + 1 : number - 1;
-                field.text = number.ToString();
-            }
-        }
-        field.onEndEdit.Invoke(field.text);
-    }
-
-    public void SaveName(string s)
-    {
-        relationReference.setName(s);
-    }
-
-    public void SaveLower(string s)
+    private void SaveLower(string s)
     {
         relationReference.updateBounds(s, null);
     }
 
-    public void SaveUpper(string s)
+    private void SaveUpper(string s)
     {
         relationReference.updateBounds(null, s);
     }
 
-    public void SaveSource(int i)
+    private void SaveSource(int i)
     {
         relationReference.sourceClass.relations.Remove(relationReference);
         UserClass classRef = Iml.getSingleton().structuralModel.classes[i];
         relationReference.sourceClass = classRef;
         relationReference.source = classRef.id;
         relationReference.attachToClass(classRef, relationReference.destinationClass);
-        //GameObject.Destroy(transform.parent.gameObject);
     }
 
-    public void SaveDestination(int i)
+    private void SaveDestination(int i)
     {
         relationReference.destinationClass.relations.Remove(relationReference);
         UserClass classRef = Iml.getSingleton().structuralModel.classes[i];
         relationReference.destinationClass = classRef;
         relationReference.destination = classRef.id;
         relationReference.attachToClass(relationReference.sourceClass, classRef);
-        //GameObject.Destroy(transform.parent.gameObject);
     }
 }

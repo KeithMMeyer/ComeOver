@@ -1,36 +1,25 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 
-public class EditAttribute : MonoBehaviour
+public class EditAttribute : EditObject
 {
 
-    private XRSimpleInteractable interactable;
-    private ToolBox toolbox;
-    private Transform editPanel;
     UserAttribute attributeReference;
 
     // Start is called before the first frame update
-    void Start()
+    protected override void Start()
     {
-        toolbox = GameObject.Find("ToolBox").GetComponent<ToolBox>();
+        base.Start();
         editPanel = toolbox.transform.GetChild(0).GetChild(2);
-
-        interactable = GetComponent<XRSimpleInteractable>();
         interactable.selectEntered.AddListener(OpenDrawer);
-        //interactable.onActivate.AddListener(OpenDrawer);
-
         attributeReference = transform.GetComponentInParent<Identity>().attributeReference;
-
     }
 
-    public void OpenDrawer(SelectEnterEventArgs args)
+    protected override void OpenDrawer(SelectEnterEventArgs args)
     {
-        toolbox.closeAll();
-        editPanel.gameObject.SetActive(true);
+        base.OpenDrawer(args);
 
         Dropdown visibilityField = editPanel.GetChild(0).GetChild(1).GetComponent<Dropdown>();
         visibilityField.onValueChanged.RemoveAllListeners();
@@ -43,7 +32,7 @@ public class EditAttribute : MonoBehaviour
         nameField.onEndEdit.RemoveAllListeners();
         nameField.placeholder.GetComponent<Text>().text = attributeReference.name;
         nameField.text = attributeReference.name;
-        nameField.onEndEdit.AddListener(SaveName);
+        nameField.onEndEdit.AddListener(delegate (string name) { attributeReference.setName(name); attributeReference.generateDisplayString(); });
 
         Dropdown typeField = editPanel.GetChild(2).GetChild(1).GetComponent<Dropdown>();
         typeField.onValueChanged.RemoveAllListeners();
@@ -52,6 +41,17 @@ public class EditAttribute : MonoBehaviour
         typeField.value = types.IndexOf(attributeReference.type);
         typeField.onValueChanged.AddListener(SaveType);
 
+        SetUpBounds();
+
+        InputField valueField = editPanel.GetChild(5).GetChild(1).GetComponent<InputField>();
+        valueField.onEndEdit.RemoveAllListeners();
+        valueField.placeholder.GetComponent<Text>().text = attributeReference.value;
+        valueField.text = attributeReference.value;
+        valueField.onEndEdit.AddListener(delegate (string name) { attributeReference.setName(name); attributeReference.generateDisplayString(); });
+    }
+
+    private void SetUpBounds()
+    {
         InputField lowerBound = editPanel.GetChild(3).GetChild(1).GetComponent<InputField>();
         lowerBound.onEndEdit.RemoveAllListeners();
         lowerBound.placeholder.GetComponent<Text>().text = attributeReference.lowerBound;
@@ -71,70 +71,28 @@ public class EditAttribute : MonoBehaviour
         editPanel.GetChild(4).GetChild(2).GetComponent<Button>().onClick.AddListener(delegate { BumpField(upperBound, true); });
         editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.RemoveAllListeners();
         editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.AddListener(delegate { BumpField(upperBound, false); });
-
-        InputField valueField = editPanel.GetChild(5).GetChild(1).GetComponent<InputField>();
-        valueField.onEndEdit.RemoveAllListeners();
-        valueField.placeholder.GetComponent<Text>().text = attributeReference.value;
-        valueField.text = attributeReference.value;
-        valueField.onEndEdit.AddListener(SaveValue);
     }
 
-    public void BumpField(InputField field, bool upDirection)
-    {
-        string current = field.text;
-        if (current.Equals("*"))
-        {
-            if (upDirection)
-                field.text = "0";
-        }
-        else
-        {
-            if (current.Equals("0") && !upDirection)
-            {
-                field.text = "*";
-            }
-            else
-            {
-                int number = int.Parse(field.text);
-                number = upDirection ? number + 1 : number - 1;
-                field.text = number.ToString();
-            }
-        }
-        field.onEndEdit.Invoke(field.text);
-    }
-
-    public void SaveName(string s)
-    {
-        attributeReference.setName(s);
-        attributeReference.generateDisplayString();
-    }
-
-    public void SaveUpper(string s)
+    private void SaveUpper(string s)
     {
         attributeReference.upperBound = s;
         attributeReference.generateDisplayString();
     }
 
-    public void SaveLower(string s)
+    private void SaveLower(string s)
     {
         attributeReference.lowerBound = s;
         attributeReference.generateDisplayString();
     }
 
-    public void SaveValue(string s)
-    {
-        attributeReference.setValue(s);
-        attributeReference.generateDisplayString();
-    }
-
-    public void SaveVisibility(int i)
+    private void SaveVisibility(int i)
     {
         string[] visibilityArray = { "PUBLIC", "PRIVATE", "PROTECTED" };
         attributeReference.visibility = visibilityArray[i];
         attributeReference.generateDisplayString();
     }
 
-    public void SaveType(int i)
+    private void SaveType(int i)
     {
         string[] strings = { "STRING", "BOOLEAN", "DOUBLE", "INTEGER" };
         attributeReference.type = strings[i];
