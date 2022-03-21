@@ -82,12 +82,36 @@ public class EditRelation : EditObject
 
     private void SaveLower(string s)
     {
-        relationReference.updateBounds(s, null);
+        string message;
+        if(ValidateBounds(s, relationReference.upperBound, out message))
+        {
+            relationReference.updateBounds(s, null);
+        } else
+        {
+            if (message.Contains("greater"))
+            {
+                relationReference.updateBounds(s, s);
+            }
+            else
+            {
+                editPanel.GetChild(3).GetChild(1).GetComponent<InputField>().text = relationReference.lowerBound;
+                PrintError(message);
+            }
+        }
     }
 
     private void SaveUpper(string s)
     {
-        relationReference.updateBounds(null, s);
+        string message;
+        if (ValidateBounds(relationReference.lowerBound, s, out message))
+        {
+            relationReference.updateBounds(null, s);
+        }
+        else
+        {
+                editPanel.GetChild(4).GetChild(1).GetComponent<InputField>().text = relationReference.upperBound;
+                PrintError(message);
+        }
     }
 
     private void SaveSource(int i)

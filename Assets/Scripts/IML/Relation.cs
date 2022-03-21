@@ -13,9 +13,9 @@ public class Relation
     [XmlAttribute]
     public string type;
     [XmlAttribute]
-    public string upperBound;
+    public string upperBound = "1";
     [XmlAttribute]
-    public string lowerBound;
+    public string lowerBound = "0";
     [XmlAttribute]
     public double nameDistance;
     [XmlAttribute]
@@ -44,7 +44,14 @@ public class Relation
         relationObject.GetComponent<Identity>().relationReference = this;
 
         gameObject = relationObject;
-        buildStrings();
+
+        if (!type.Equals("INHERITENCE"))
+        {
+            GameObject.Destroy(gameObject.transform.GetChild(1).gameObject);
+            GameObject.Destroy(gameObject.transform.GetChild(2).gameObject);
+        }
+
+            buildStrings();
     }
 
     public void attachToClass(UserClass source, UserClass destination)
@@ -61,6 +68,8 @@ public class Relation
 
     public void buildStrings()
     {
+        if (type.Equals("INHERITENCE"))
+            return;
         gameObject.transform.GetChild(1).GetComponent<TextMesh>().text = name;
         gameObject.transform.GetChild(2).GetComponent<TextMesh>().text = "[" + lowerBound + ".." + upperBound + "]";
     }
@@ -102,17 +111,13 @@ public class Relation
     private void placeObjects()
     {
         Transform arrow = gameObject.transform.GetChild(0);
-        Transform name = gameObject.transform.GetChild(1);
-        Transform bounds = gameObject.transform.GetChild(2);
+        
         Transform block = gameObject.transform.GetChild(3);
 
         Vector3 source = lineRenderer.GetPosition(0);
         Vector3 destination = lineRenderer.GetPosition(1);
         source.z -= 0.01f;
         destination.z -= 0.01f;
-        Vector3 position = destination;
-
-        name.position = source + (destination - source) / 2;
 
         float angle = Vector3.Angle(destination - source, new Vector3(1, 0, 0));
 
@@ -122,13 +127,19 @@ public class Relation
             destinationClass.resize();
         Vector3 offset = (destination - source).normalized * -((1 + (destinationClass.height + 3) * 0.125f) * 0.05f * 3.5f) / cos;
         offset = (destination - source).magnitude > offset.magnitude ? offset : -(destination - source) / 2;
-        arrow.position = position + offset;
-        bounds.position = position + 2 * offset;
+        arrow.position = destination + offset;
 
         arrow.localRotation = Quaternion.identity;
         arrow.Rotate(0, Mathf.Sign(source.y - destination.y) * angle, 0, Space.Self);
 
-        //GameObject.Destroy(block.gameObject);
+        if (!type.Equals("INHERITENCE"))
+        {
+            Transform name = gameObject.transform.GetChild(1);
+            Transform bounds = gameObject.transform.GetChild(2);
+            name.position = source + (destination - source) / 2;
+            bounds.position = destination + 2 * offset;
+        }
+
     }
 
     public void updateBounds(string lower, string upper)

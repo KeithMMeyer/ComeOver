@@ -73,16 +73,45 @@ public class EditAttribute : EditObject
         editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.AddListener(delegate { BumpField(upperBound, false); });
     }
 
-    private void SaveUpper(string s)
-    {
-        attributeReference.upperBound = s;
-        attributeReference.generateDisplayString();
-    }
-
     private void SaveLower(string s)
     {
-        attributeReference.lowerBound = s;
-        attributeReference.generateDisplayString();
+        string message;
+        if (ValidateBounds(s, attributeReference.upperBound, out message))
+        {
+            attributeReference.lowerBound = s;
+            attributeReference.generateDisplayString();
+        }
+        else
+        {
+            if (message.Contains("greater"))
+            {
+                attributeReference.lowerBound = s;
+                attributeReference.upperBound = s;
+                editPanel.GetChild(4).GetChild(1).GetComponent<InputField>().text = s;
+                attributeReference.generateDisplayString();
+            }
+            else
+            {
+                editPanel.GetChild(3).GetChild(1).GetComponent<InputField>().text = attributeReference.lowerBound;
+                PrintError(message);
+            }
+        }
+        
+    }
+
+    private void SaveUpper(string s)
+    {
+        string message;
+        if (ValidateBounds(attributeReference.lowerBound, s, out message))
+        {
+            attributeReference.upperBound = s;
+            attributeReference.generateDisplayString();
+        }
+        else
+        {
+            editPanel.GetChild(4).GetChild(1).GetComponent<InputField>().text = attributeReference.upperBound;
+            PrintError(message);
+        }
     }
 
     private void SaveVisibility(int i)
