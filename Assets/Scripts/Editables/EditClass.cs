@@ -23,11 +23,11 @@ public class EditClass : EditObject
         nameField.onEndEdit.RemoveAllListeners();
         nameField.placeholder.GetComponent<Text>().text = classReference.name;
         nameField.text = classReference.name;
-        nameField.onEndEdit.AddListener(delegate (string name) { classReference.setName(name); });
+        nameField.onEndEdit.AddListener(delegate (string name) { classReference.SetName(name); });
 
         Dropdown abstractField = editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>();
         abstractField.onValueChanged.RemoveAllListeners();
         abstractField.value = classReference.isAbstract.Equals("TRUE") ? 1 : 0;
-        abstractField.onValueChanged.AddListener(delegate (int isAbstract) { classReference.setAbstract(isAbstract == 1); });
+        abstractField.onValueChanged.AddListener(delegate (int isAbstract) { classReference.SetAbstract(isAbstract == 1); });
     }
 }

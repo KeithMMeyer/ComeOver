@@ -98,7 +98,7 @@ public class Drag : MonoBehaviour
                     return;
                 }
             }
-            gameObject.GetComponentInParent<Identity>().classReference.setPosition(transform.position);
+            gameObject.GetComponentInParent<Identity>().classReference.SetPosition(transform.position);
         }
         if (gameObject.layer == 7) //attributes
         {
@@ -120,7 +120,7 @@ public class Drag : MonoBehaviour
                 errorPanel.GetChild(1).GetComponent<Text>().text = "Attributes can only be added to IML Classes.";
                 if (gameObject.GetComponentInParent<Identity>().attributeReference.parent != null)
                 {
-                    gameObject.GetComponentInParent<Identity>().attributeReference.parent.resize();
+                    gameObject.GetComponentInParent<Identity>().attributeReference.parent.Resize();
                 } else
                 {
                     Destroy(gameObject.transform.parent.gameObject);
@@ -141,7 +141,7 @@ public class Drag : MonoBehaviour
                 {
                     UserClass oldClass = attribute.parent;
                     oldClass.attributes.Remove(attribute);
-                    oldClass.resize();
+                    oldClass.Resize();
                 }
 
                 UserClass newClass = c.gameObject.GetComponentInParent<Identity>().classReference;
@@ -162,7 +162,7 @@ public class Drag : MonoBehaviour
                     }
                 }
                 newClass.attributes.Insert(position, attribute);
-                newClass.resize();
+                newClass.Resize();
 
                 return true;
             }
@@ -175,7 +175,7 @@ public class Drag : MonoBehaviour
     {
         UserClass classReference = transform.parent.GetComponent<Identity>().classReference;
         //TODO update stored position
-        classReference.updateRelations();
+        classReference.UpdateRelations();
 
     }
 
@@ -190,13 +190,13 @@ public class Drag : MonoBehaviour
         {
             UserAttribute attribute = gameObject.GetComponentInParent<Identity>().attributeReference;
             Destroy(attribute.gameObject);
-            List<UserClass> imlClasses = Iml.getSingleton().structuralModel.classes;
+            List<UserClass> imlClasses = Iml.GetSingleton().structuralModel.classes;
             foreach (UserClass uc in imlClasses)
             {
                 if (uc.attributes.Contains(attribute))
                 {
                     uc.attributes.Remove(attribute);
-                    uc.resize();
+                    uc.Resize();
                 }
             }
         }
@@ -214,7 +214,7 @@ public class Drag : MonoBehaviour
         {
             Destroy(ua.gameObject);
         }
-        List<Relation> imlRelations = Iml.getSingleton().structuralModel.relations;
+        List<Relation> imlRelations = Iml.GetSingleton().structuralModel.relations;
         for (int i = 0; i < imlRelations.Count; i++)
         {
             if (imlRelations[i].source.Equals(classReference.id) || imlRelations[i].destination.Equals(classReference.id))
@@ -223,13 +223,13 @@ public class Drag : MonoBehaviour
                 i--;
             }
         }
-        Iml.getSingleton().structuralModel.classes.Remove(classReference);
+        Iml.GetSingleton().structuralModel.classes.Remove(classReference);
     }
 
     private void TrashRelation(Relation relation)
     {
         Destroy(relation.gameObject);
-        Iml.getSingleton().structuralModel.relations.Remove(relation);
+        Iml.GetSingleton().structuralModel.relations.Remove(relation);
         relation.sourceClass.relations.Remove(relation);
         relation.destinationClass.relations.Remove(relation);
     }

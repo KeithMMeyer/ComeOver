@@ -15,17 +15,17 @@ public class ToolBoxObject : MonoBehaviour
 
     private LayerMask normalMask;
 
-    public void createObject()
+    public void CreateObject()
     {
         if (type == "class")
         {
             UserClass newClass = new UserClass();
-            newClass.setName("NewClass" + (classCount > 0 ? "" + classCount : ""));
+            newClass.SetName("NewClass" + (classCount > 0 ? "" + classCount : ""));
             newClass.id = ((int) Random.Range(0,500)).ToString(); //need to update
-            newClass.setPosition(new Vector3(0, 0, 3));
+            newClass.SetPosition(new Vector3(0, 0, 3));
             classCount++;
-            Iml.getSingleton().structuralModel.classes.Add(newClass);
-            newClass.createGameObject();
+            Iml.GetSingleton().structuralModel.classes.Add(newClass);
+            newClass.CreateGameObject();
 
             //GameObject.Find("XR Interaction Manager").GetComponent<XRInteractionManager>().SelectEnter(GameObject.Find("RightHand Controller").GetComponent<XRRayInteractor>(), (IXRSelectInteractable) newClass.gameObject.transform.GetChild(0).GetComponent<XRSimpleInteractable>());
             //GameObject.Find("RightHand Controller").GetComponent<XRRayInteractor>().StartManualInteraction((IXRSelectInteractable)newClass.gameObject.transform.GetChild(0).GetComponent<XRSimpleInteractable>());
@@ -40,12 +40,12 @@ public class ToolBoxObject : MonoBehaviour
                 newAttribute.name += attrCount > 0 ? "" + attrCount : "";
                 attrCount++;
                 newAttribute.value = "";
-                newAttribute.createGameObject();
+                newAttribute.CreateGameObject();
 
-                Vector3 position = Iml.to3dPosition(0, 0, 2.99f);
+                Vector3 position = Iml.To3dPosition(0, 0, 2.99f);
                 newAttribute.gameObject.transform.position = position;
                 Vector3 meshScale = newAttribute.gameObject.transform.GetChild(0).transform.localScale;
-                meshScale.x = newAttribute.getWidth();
+                meshScale.x = newAttribute.GetWidth();
                 newAttribute.gameObject.transform.GetChild(0).transform.localScale = meshScale;
                 
             }

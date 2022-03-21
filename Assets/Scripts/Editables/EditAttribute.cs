@@ -32,7 +32,7 @@ public class EditAttribute : EditObject
         nameField.onEndEdit.RemoveAllListeners();
         nameField.placeholder.GetComponent<Text>().text = attributeReference.name;
         nameField.text = attributeReference.name;
-        nameField.onEndEdit.AddListener(delegate (string name) { attributeReference.setName(name); attributeReference.generateDisplayString(); });
+        nameField.onEndEdit.AddListener(delegate (string name) { attributeReference.SetName(name); attributeReference.GenerateDisplayString(); });
 
         Dropdown typeField = editPanel.GetChild(2).GetChild(1).GetComponent<Dropdown>();
         typeField.onValueChanged.RemoveAllListeners();
@@ -47,7 +47,7 @@ public class EditAttribute : EditObject
         valueField.onEndEdit.RemoveAllListeners();
         valueField.placeholder.GetComponent<Text>().text = attributeReference.value;
         valueField.text = attributeReference.value;
-        valueField.onEndEdit.AddListener(delegate (string name) { attributeReference.setName(name); attributeReference.generateDisplayString(); });
+        valueField.onEndEdit.AddListener(delegate (string name) { attributeReference.SetName(name); attributeReference.GenerateDisplayString(); });
     }
 
     private void SetUpBounds()
@@ -79,7 +79,7 @@ public class EditAttribute : EditObject
         if (ValidateBounds(s, attributeReference.upperBound, out message))
         {
             attributeReference.lowerBound = s;
-            attributeReference.generateDisplayString();
+            attributeReference.GenerateDisplayString();
         }
         else
         {
@@ -88,7 +88,7 @@ public class EditAttribute : EditObject
                 attributeReference.lowerBound = s;
                 attributeReference.upperBound = s;
                 editPanel.GetChild(4).GetChild(1).GetComponent<InputField>().text = s;
-                attributeReference.generateDisplayString();
+                attributeReference.GenerateDisplayString();
             }
             else
             {
@@ -105,7 +105,7 @@ public class EditAttribute : EditObject
         if (ValidateBounds(attributeReference.lowerBound, s, out message))
         {
             attributeReference.upperBound = s;
-            attributeReference.generateDisplayString();
+            attributeReference.GenerateDisplayString();
         }
         else
         {
@@ -118,13 +118,13 @@ public class EditAttribute : EditObject
     {
         string[] visibilityArray = { "PUBLIC", "PRIVATE", "PROTECTED" };
         attributeReference.visibility = visibilityArray[i];
-        attributeReference.generateDisplayString();
+        attributeReference.GenerateDisplayString();
     }
 
     private void SaveType(int i)
     {
         string[] strings = { "STRING", "BOOLEAN", "DOUBLE", "INTEGER" };
         attributeReference.type = strings[i];
-        attributeReference.generateDisplayString();
+        attributeReference.GenerateDisplayString();
     }
 }

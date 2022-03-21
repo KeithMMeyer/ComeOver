@@ -22,7 +22,7 @@ public class Main : MonoBehaviour
                 if (classXml.id.Equals(source))
                 {
                     start = classXml;
-                    classXml.addRelation(relation);
+                    classXml.AddRelation(relation);
                     break;
                 }
             }
@@ -34,12 +34,12 @@ public class Main : MonoBehaviour
                 if (classXml.id.Equals(destination))
                 {
                     end = classXml;
-                    classXml.addRelation(relation);
+                    classXml.AddRelation(relation);
                     break;
                 }
             }
-            relation.createGameObject();
-            relation.attachToClass(start, end);
+            relation.CreateGameObject();
+            relation.AttachToClass(start, end);
         }
     }
 
@@ -48,7 +48,7 @@ public class Main : MonoBehaviour
        
         foreach (UserClass classXml in iml.structuralModel.classes)
         {
-            classXml.createGameObject();
+            classXml.CreateGameObject();
         }
     }
     

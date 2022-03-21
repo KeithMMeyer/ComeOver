@@ -20,17 +20,17 @@ public class Iml
         singleton = this;
     }
 
-    public static Iml getSingleton()
+    public static Iml GetSingleton()
     {
         return singleton;
     }
 
-    public static Vector3 to3dPosition(float x, float y, float z)
+    public static Vector3 To3dPosition(float x, float y, float z)
     {
         return new Vector3((float)(x / 200.0) - 2, (float)(y / 200.0) + 1, z);
     }
 
-    public static Vector2 to2dPosition(Vector3 position)
+    public static Vector2 To2dPosition(Vector3 position)
     {
         return new Vector3(position.x, position.y);
     }

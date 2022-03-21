@@ -24,7 +24,7 @@ public class UserAttribute
     [XmlIgnore]
     public UserClass parent;
 
-    public void createGameObject()
+    public void CreateGameObject()
     {
         GameObject templateAttribute = Resources.Load<GameObject>("AttributeObject");
 
@@ -36,10 +36,10 @@ public class UserAttribute
         gameObject = attributeObject;
         gameObject.transform.Rotate(-90.0f, 0.0f, 0.0f, Space.Self);
 
-        generateDisplayString();
+        GenerateDisplayString();
     }
 
-    public void attachToClass(UserClass parent, int counter, int height, float width)
+    public void AttachToClass(UserClass parent, int counter, int height, float width)
     {
         this.parent = parent;
         position = counter;
@@ -69,19 +69,19 @@ public class UserAttribute
 
     }
 
-    public void setName(string name)
+    public void SetName(string name)
     {
         this.name = name;
-        generateDisplayString();
+        GenerateDisplayString();
     }
 
-    public void setValue(string value)
+    public void SetValue(string value)
     {
         this.value = value;
-        generateDisplayString();
+        GenerateDisplayString();
     }
 
-    public void generateDisplayString()
+    public void GenerateDisplayString()
     {
         string display = int.Parse(lowerBound) > 0 ? "■" : "□";
         int upper;
@@ -104,7 +104,7 @@ public class UserAttribute
         }
     }
 
-    public float getWidth()
+    public float GetWidth()
     {
         TextMesh mesh = gameObject.transform.GetChild(1).gameObject.GetComponent<TextMesh>();
         float width = 0;

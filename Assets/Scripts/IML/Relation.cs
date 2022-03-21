@@ -35,7 +35,7 @@ public class Relation
     [XmlIgnore]
     LineRenderer lineRenderer;
 
-    public void createGameObject()
+    public void CreateGameObject()
     {
         GameObject templateRelation = Resources.Load<GameObject>("RelationObject");
 
@@ -51,10 +51,10 @@ public class Relation
             GameObject.Destroy(gameObject.transform.GetChild(2).gameObject);
         }
 
-            buildStrings();
+            BuildStrings();
     }
 
-    public void attachToClass(UserClass source, UserClass destination)
+    public void AttachToClass(UserClass source, UserClass destination)
     {
         sourceClass = source;
         destinationClass = destination;
@@ -63,10 +63,10 @@ public class Relation
         sourcePos.z = 3.1f;
         destinationPos.z = 3.1f;
         gameObject.name = name != null ? name : this.source + " " + this.destination;
-        setPoints(sourcePos, destinationPos);
+        SetPoints(sourcePos, destinationPos);
     }
 
-    public void buildStrings()
+    public void BuildStrings()
     {
         if (type.Equals("INHERITENCE"))
             return;
@@ -74,7 +74,7 @@ public class Relation
         gameObject.transform.GetChild(2).GetComponent<TextMesh>().text = "[" + lowerBound + ".." + upperBound + "]";
     }
 
-    public void setPoints(Vector3 source, Vector3 destination)
+    public void SetPoints(Vector3 source, Vector3 destination)
     {
         if (lineRenderer == null)
             lineRenderer = gameObject.AddComponent<LineRenderer>();
@@ -87,11 +87,11 @@ public class Relation
         lineRenderer.positionCount = 2;
         lineRenderer.SetPosition(0, source);
         lineRenderer.SetPosition(1, destination);
-        placeObjects();
+        PlaceObjects();
         Debug.Log("Drew relation from " + source + " to " + destination);
     }
 
-    public void updatePoints(Vector3? source, Vector3? destination)
+    public void UpdatePoints(Vector3? source, Vector3? destination)
     {
         if (source.HasValue)
         {
@@ -105,10 +105,10 @@ public class Relation
             point.z += 0.01f;
             lineRenderer.SetPosition(1, point);
         }
-        placeObjects();
+        PlaceObjects();
     }
 
-    private void placeObjects()
+    private void PlaceObjects()
     {
         Transform arrow = gameObject.transform.GetChild(0);
         
@@ -124,7 +124,7 @@ public class Relation
         float cos = Mathf.Cos(Mathf.Deg2Rad * (90 - angle));
 
         if (destinationClass.height == 0)
-            destinationClass.resize();
+            destinationClass.Resize();
         Vector3 offset = (destination - source).normalized * -((1 + (destinationClass.height + 3) * 0.125f) * 0.05f * 3.5f) / cos;
         offset = (destination - source).magnitude > offset.magnitude ? offset : -(destination - source) / 2;
         arrow.position = destination + offset;
@@ -142,7 +142,7 @@ public class Relation
 
     }
 
-    public void updateBounds(string lower, string upper)
+    public void UpdateBounds(string lower, string upper)
     {
         if (lower != null)
         {
@@ -152,12 +152,12 @@ public class Relation
         {
             upperBound = upper;
         }
-        buildStrings();
+        BuildStrings();
     }
 
-    public void setName(string name)
+    public void SetName(string name)
     {
         this.name = name;
-        buildStrings();
+        BuildStrings();
     }
 }

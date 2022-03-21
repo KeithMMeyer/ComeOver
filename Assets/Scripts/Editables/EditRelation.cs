@@ -24,7 +24,7 @@ public class EditRelation : EditObject
         nameField.onEndEdit.RemoveAllListeners();
         nameField.placeholder.GetComponent<Text>().text = relationReference.name;
         nameField.text = relationReference.name;
-        nameField.onEndEdit.AddListener(delegate (string name) { relationReference.setName(name); });
+        nameField.onEndEdit.AddListener(delegate (string name) { relationReference.SetName(name); });
 
         SetUpPositions();
         SetUpBounds();
@@ -38,10 +38,10 @@ public class EditRelation : EditObject
         Dropdown destField = editPanel.GetChild(2).GetChild(1).GetComponent<Dropdown>();
         destField.onValueChanged.RemoveAllListeners();
 
-        if (sourceField.options.Count != Iml.getSingleton().structuralModel.classes.Count)
+        if (sourceField.options.Count != Iml.GetSingleton().structuralModel.classes.Count)
         {
             List<string> options = new List<string>();
-            foreach (UserClass classRef in Iml.getSingleton().structuralModel.classes)
+            foreach (UserClass classRef in Iml.GetSingleton().structuralModel.classes)
             {
                 options.Add(classRef.name);
             }
@@ -51,9 +51,9 @@ public class EditRelation : EditObject
             destField.AddOptions(options);
         }
 
-        sourceField.value = Iml.getSingleton().structuralModel.classes.IndexOf(relationReference.sourceClass);
+        sourceField.value = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.sourceClass);
         sourceField.onValueChanged.AddListener(SaveSource);
-        destField.value = Iml.getSingleton().structuralModel.classes.IndexOf(relationReference.destinationClass);
+        destField.value = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.destinationClass);
         destField.onValueChanged.AddListener(SaveDestination);
     }
 
@@ -85,12 +85,12 @@ public class EditRelation : EditObject
         string message;
         if(ValidateBounds(s, relationReference.upperBound, out message))
         {
-            relationReference.updateBounds(s, null);
+            relationReference.UpdateBounds(s, null);
         } else
         {
             if (message.Contains("greater"))
             {
-                relationReference.updateBounds(s, s);
+                relationReference.UpdateBounds(s, s);
             }
             else
             {
@@ -105,7 +105,7 @@ public class EditRelation : EditObject
         string message;
         if (ValidateBounds(relationReference.lowerBound, s, out message))
         {
-            relationReference.updateBounds(null, s);
+            relationReference.UpdateBounds(null, s);
         }
         else
         {
@@ -117,18 +117,18 @@ public class EditRelation : EditObject
     private void SaveSource(int i)
     {
         relationReference.sourceClass.relations.Remove(relationReference);
-        UserClass classRef = Iml.getSingleton().structuralModel.classes[i];
+        UserClass classRef = Iml.GetSingleton().structuralModel.classes[i];
         relationReference.sourceClass = classRef;
         relationReference.source = classRef.id;
-        relationReference.attachToClass(classRef, relationReference.destinationClass);
+        relationReference.AttachToClass(classRef, relationReference.destinationClass);
     }
 
     private void SaveDestination(int i)
     {
         relationReference.destinationClass.relations.Remove(relationReference);
-        UserClass classRef = Iml.getSingleton().structuralModel.classes[i];
+        UserClass classRef = Iml.GetSingleton().structuralModel.classes[i];
         relationReference.destinationClass = classRef;
         relationReference.destination = classRef.id;
-        relationReference.attachToClass(relationReference.sourceClass, classRef);
+        relationReference.AttachToClass(relationReference.sourceClass, classRef);
     }
 }

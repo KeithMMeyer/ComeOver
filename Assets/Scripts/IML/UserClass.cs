@@ -31,13 +31,13 @@ public class UserClass
     public float width;
 
 
-    public void createGameObject()
+    public void CreateGameObject()
     {
         GameObject container = new GameObject("Classes");
         GameObject templateClass = Resources.Load<GameObject>("ClassObject");
 
         GameObject classObject = UnityEngine.Object.Instantiate(templateClass);
-        classObject.transform.position = Iml.to3dPosition(x, y, 3);
+        classObject.transform.position = Iml.To3dPosition(x, y, 3);
         classObject.transform.Rotate(-90.0f, 0.0f, 0.0f, Space.Self);
         classObject.GetComponent<Identity>().classReference = this;
 
@@ -45,15 +45,15 @@ public class UserClass
 
         classObject.transform.parent = container.transform;
 
-        setName(name);
-        setAbstract(isAbstract.Equals("TRUE"));
-        generateAttributes();
-        resize();
-        generateAttributes();
+        SetName(name);
+        SetAbstract(isAbstract.Equals("TRUE"));
+        GenerateAttributes();
+        Resize();
+        GenerateAttributes();
 
         Debug.Log("Created object for " + name + " at " + classObject.transform.position);
     }
-    public void resize()
+    public void Resize()
     {
         int height = Mathf.Clamp(attributes.Count, 3, 99) - 3;
         float width = 0;
@@ -61,9 +61,9 @@ public class UserClass
         {
             if (attribute.gameObject == null)
             {
-                attribute.createGameObject();
+                attribute.CreateGameObject();
             }
-            float newWidth = attribute.getWidth();
+            float newWidth = attribute.GetWidth();
             width = newWidth > width ? newWidth : width;
         }
         width = Mathf.Clamp(width, 2 * 0.05f, 99);
@@ -80,11 +80,11 @@ public class UserClass
         this.height = height;
         this.width = width;
 
-        reattachAttributes();
+        ReattachAttributes();
         //updateRelations();
     }
 
-    private void generateAttributes()
+    private void GenerateAttributes()
     {
         attributes.RemoveAll(item => item == null);
         int counter = 0;
@@ -95,21 +95,21 @@ public class UserClass
                 GameObject.Destroy(attribute.gameObject);
                 attribute.gameObject = null;
             }
-            attribute.createGameObject();
-            attribute.attachToClass(this, counter++, height, width);
+            attribute.CreateGameObject();
+            attribute.AttachToClass(this, counter++, height, width);
         }
     }
 
-    private void reattachAttributes()
+    private void ReattachAttributes()
     {
         int counter = 0;
         foreach (UserAttribute attribute in attributes)
         {
-            attribute.attachToClass(this, counter++, height, width);
+            attribute.AttachToClass(this, counter++, height, width);
         }
     }
 
-    public void setAbstract(bool isAbstract)
+    public void SetAbstract(bool isAbstract)
     {
         this.isAbstract = isAbstract ? "TRUE" : "FALSE";
 
@@ -124,7 +124,7 @@ public class UserClass
         }
     }
 
-    public void setName(string name)
+    public void SetName(string name)
     {
         this.name = name;
         if (gameObject != null)
@@ -134,30 +134,30 @@ public class UserClass
         }
     }
 
-    public void setPosition(Vector3 position)
+    public void SetPosition(Vector3 position)
     {
         if (gameObject != null)
         {
             gameObject.transform.position = position;
         }
-        Vector2 imlPostion = Iml.to2dPosition(position);
+        Vector2 imlPostion = Iml.To2dPosition(position);
         x = Mathf.RoundToInt(imlPostion.x);
         y = Mathf.RoundToInt(imlPostion.y);
     }
 
-    public void addRelation(Relation target)
+    public void AddRelation(Relation target)
     {
         relations.Add(target);
     }
 
-    public void updateRelations()
+    public void UpdateRelations()
     {
         foreach (Relation relation in relations)
         {
             if (relation.source.Equals(id))
-                relation.updatePoints(gameObject.transform.position, null);
+                relation.UpdatePoints(gameObject.transform.position, null);
             if (relation.destination.Equals(id))
-                relation.updatePoints(null, gameObject.transform.position);
+                relation.UpdatePoints(null, gameObject.transform.position);
         }
     }
 
