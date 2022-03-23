@@ -47,7 +47,7 @@ public class Relation
 
         if (type.Equals("INHERITENCE"))
         {
-            GameObject.Destroy(gameObject.transform.GetChild(1).gameObject);
+            GameObject.Destroy(gameObject.transform.GetChild(2).gameObject);
             GameObject.Destroy(gameObject.transform.GetChild(2).gameObject);
         }
 
@@ -70,8 +70,8 @@ public class Relation
     {
         if (type.Equals("INHERITENCE"))
             return;
-        gameObject.transform.GetChild(1).GetComponent<TextMesh>().text = name;
-        gameObject.transform.GetChild(2).GetComponent<TextMesh>().text = "[" + lowerBound + ".." + upperBound + "]";
+        gameObject.transform.GetChild(2).GetComponent<TextMesh>().text = name;
+        gameObject.transform.GetChild(3).GetComponent<TextMesh>().text = "[" + lowerBound + ".." + upperBound + "]";
     }
 
     public void SetPoints(Vector3 source, Vector3 destination)
@@ -87,6 +87,7 @@ public class Relation
         lineRenderer.positionCount = 2;
         lineRenderer.SetPosition(0, source);
         lineRenderer.SetPosition(1, destination);
+        lineRenderer.sortingOrder = -1;
         PlaceObjects();
         Debug.Log("Drew relation from " + source + " to " + destination);
     }
@@ -111,6 +112,7 @@ public class Relation
     private void PlaceObjects()
     {
         Transform arrow = gameObject.transform.GetChild(0);
+        Transform block = gameObject.transform.GetChild(1);
 
         Vector3 source = lineRenderer.GetPosition(0);
         Vector3 destination = lineRenderer.GetPosition(1);
@@ -119,49 +121,55 @@ public class Relation
 
         float angle = Vector3.Angle(destination - source, new Vector3(1, 0, 0));
 
-        float cosA = Mathf.Cos(Mathf.Deg2Rad * (90 - angle));
-        float cosB = Mathf.Cos(Mathf.Deg2Rad * angle) * -Mathf.Sign(90-angle);
+        block.position = source + CalculateOffset(sourceClass, (source-destination), angle, 0);
+        block.localRotation = Quaternion.identity;
+        block.Rotate(0, Mathf.Sign(destination.y - source.y) * (180 - angle), 0, Space.Self);
 
-        if (destinationClass.height == 0)
-            destinationClass.Resize();
-        float up = ((1 + (destinationClass.height + 3) * 0.125f) * 0.05f * 3.5f);
-        float right = (destinationClass.width * 0.05f * 100 * 0.95f);
-        Vector3 verticalOffset = (destination - source).normalized * -up / cosA;
-        Vector3 horizontalOffset = (destination - source).normalized * right / cosB;
-
-        Vector3 corner = destination;
-        corner.y += up;
-        corner.x += right;
-        float cornerAngle = Vector3.Angle(destination - corner, new Vector3(1, 0, 0));
-        //verticalOffset = (destination - source).magnitude > verticalOffset.magnitude ? verticalOffset : -(destination - source) / 2;
-        if ((angle > 90 && angle > cornerAngle) || (angle < 90 && 180-cornerAngle > angle))
-        {
-            arrow.position = destination + horizontalOffset;
-        } else
-        {
-            arrow.position = destination + verticalOffset;
-        }
-        Debug.Log(destinationClass.name + " " + angle + " : " + cornerAngle);
+        arrow.position = destination + CalculateOffset(destinationClass, (destination - source), angle, 0);
         arrow.localRotation = Quaternion.identity;
         arrow.Rotate(0, Mathf.Sign(source.y - destination.y) * angle, 0, Space.Self);
 
         if (!type.Equals("INHERITENCE"))
         {
-            Transform name = gameObject.transform.GetChild(1);
-            Transform bounds = gameObject.transform.GetChild(2);
-            Transform block = gameObject.transform.GetChild(3);
-            name.position = source + (destination - source) / 2;
-            if ((angle > 90 && angle > cornerAngle) || (angle < 90 && cornerAngle > angle))
-            {
-                bounds.position = destination + 2 * horizontalOffset;
-            } else
-            {
-                bounds.position = destination + 2 * verticalOffset;
-            }
-            name.GetComponent<TextMesh>().text = angle + ">" + cornerAngle;
-            bounds.GetComponent<TextMesh>().text = angle + ">" + cornerAngle;
+            Transform name = gameObject.transform.GetChild(2);
+            Transform bounds = gameObject.transform.GetChild(3);
+            Vector3 namePosition = source + (destination - source) / 2;
+            name.position = namePosition + 0.1f * Vector3.Cross((source - destination).normalized, new Vector3(0, 0, 1));
+
+            Vector3 boundPosition;
+            Vector3 offset = CalculateOffset(destinationClass, (destination - source), angle, 0.25f);
+            boundPosition = destination + offset;
+            bounds.position = boundPosition + 0.15f * Vector3.Cross((source-destination).normalized, new Vector3(0, 0, 1));
         }
 
+    }
+
+    private Vector3 CalculateOffset(UserClass target, Vector3 line, float angle, float padding)
+    {
+        float cosA = Mathf.Cos(Mathf.Deg2Rad * (90 - angle));
+        float cosB = Mathf.Cos(Mathf.Deg2Rad * angle) * -Mathf.Sign(90 - angle);
+
+        if (destinationClass.height == 0)
+            destinationClass.Resize();
+        Vector3 position = target.gameObject.transform.position;
+        float up = ((1 + (target.height + 3) * 0.125f) * 0.05f * 3.5f);
+        float right = (target.width * 0.05f * 100 * 0.95f);
+        Vector3 verticalOffset = line.normalized * (-up / cosA + -Mathf.Sign(cosA) * padding);
+        Vector3 horizontalOffset = line.normalized * (right / cosB + Mathf.Sign(cosB) * padding);
+
+        Vector3 corner = position;
+        corner.y += up;
+        corner.x += right;
+        float cornerAngle = Vector3.Angle(position - corner, new Vector3(1, 0, 0));
+        //verticalOffset = (destination - source).magnitude > verticalOffset.magnitude ? verticalOffset : -(destination - source) / 2;
+        if ((angle > 90 && angle > cornerAngle) || (angle < 90 && 180 - cornerAngle > angle))
+        {
+            return horizontalOffset;
+        }
+        else
+        {
+           return verticalOffset;
+        }
     }
 
     public void UpdateBounds(string lower, string upper)
