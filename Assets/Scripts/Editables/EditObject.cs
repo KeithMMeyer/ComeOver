@@ -37,10 +37,10 @@ public class EditObject : MonoBehaviour
             {
                 return upperNum >= lowerNum;
             }
-            message = "The value " + upper + " is not a valid upper bound. Bounds must be positive integers, or * to indicated unbounded";
+            message = "The value " + upper + " is not a valid upper bound. Bounds must be positive integers, or * to indicated unbounded.";
             return false;
         }
-        message = "The value " + lower + " is not a valid upper bound. Bounds must be positive integers, or * to indicated unbounded";
+        message = "The value " + lower + " is not a valid upper bound. Bounds must be positive integers, or * to indicated unbounded.";
         return false;
     }
 

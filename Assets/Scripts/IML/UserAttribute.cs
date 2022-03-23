@@ -1,4 +1,6 @@
-﻿using System.Xml.Serialization;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Serialization;
 using UnityEngine;
 
 [XmlRoot(ElementName = "Attribute")]
@@ -75,10 +77,45 @@ public class UserAttribute
         GenerateDisplayString();
     }
 
-    public void SetValue(string value)
+    public int GetTypeNumber()
     {
-        this.value = value;
+        string[] typeArray = { "STRING", "BOOLEAN", "DOUBLE", "INTEGER" };
+        List<string> types = typeArray.ToList();
+        return types.IndexOf(type);
+    }
+
+    public void SetType(int type)
+    {
+        string[] strings = { "STRING", "BOOLEAN", "DOUBLE", "INTEGER" };
+        this.type = strings[type];
+        value = ConvertValue(value, false, out _);
         GenerateDisplayString();
+    }
+    public void UpdateBounds(string lower, string upper)
+    {
+        if (lower != null)
+        {
+            lowerBound = lower;
+        }
+        if (upper != null)
+        {
+            upperBound = upper;
+        }
+        value = ConvertValue(value, false, out _);
+        GenerateDisplayString();
+    }
+
+    public string SetValue(string value)
+    {
+        string message;
+        string newValue = ConvertValue(value, true, out message);
+        if (newValue != null)
+        {
+            this.value = value;
+            GenerateDisplayString();
+            return null;
+        }
+        return message;
     }
 
     public void GenerateDisplayString()
@@ -121,4 +158,163 @@ public class UserAttribute
         width += bonus * 4;
         return width * mesh.characterSize * 0.05f * 0.01f;
     }
+
+    private string ConvertValue(string value, bool throwErrors, out string message)
+    {
+        message = null;
+        if (value.Equals(""))
+            return "";
+        if (value.StartsWith("[") && value.EndsWith("]"))
+        {
+            List<string> values = new List<string>();
+            if (value.Contains("\""))
+            {
+                string raw = value.Substring(2, value.Length - 4);
+                string[] parts = raw.Split(new[] { "\",\"" }, System.StringSplitOptions.None);
+                if (throwErrors && parts.Length < int.Parse(lowerBound))
+                {
+                    message = "The entered array " + value + " of size " + parts.Length + " has fewer attributes than the allowable lower bound of " + lowerBound + ".";
+                    return null;
+                }
+                if (throwErrors && !upperBound.Equals("*") && parts.Length > int.Parse(upperBound))
+                {
+                    message = "The entered array " + value + " of size " + parts.Length + " has more attributes than the allowable upper bound of " + upperBound + ".";
+                    return null;
+                }
+
+                foreach (string part in parts)
+                {
+                    string departed = ConvertValue(part);
+                    if (departed != null)
+                    {
+                        values.Add(departed);
+                        if (!(upperBound.Equals("*") || values.Count != int.Parse(upperBound)))
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                string raw = value.Substring(1, value.Length - 2);
+                string[] parts = raw.Split(',');
+                if (throwErrors && parts.Length < int.Parse(lowerBound))
+                {
+                    message = "The entered array " + value + " of size " + parts.Length + " has fewer attributes than the allowable lower bound of " + lowerBound + ".";
+                    return null;
+                }
+                if (throwErrors && !upperBound.Equals("*") && parts.Length > int.Parse(upperBound))
+                {
+                    message = "The entered array " + value + " of size " + parts.Length + " has more attributes than the allowable upper bound of " + upperBound + ".";
+                    return null;
+                }
+
+                foreach (string part in parts)
+                {
+                    string departed = ConvertValue(part);
+                    if (departed != null)
+                    {
+                        values.Add(departed);
+                        if (!(upperBound.Equals("*") || values.Count != int.Parse(upperBound)))
+                            break;
+                    }
+                }
+            }
+            value = "";
+            if (values.Count > 0)
+            {
+                foreach (string finalValue in values)
+                {
+                    if (type.Equals("STRING"))
+                    {
+                        value += ",\"" + finalValue + "\"";
+                    }
+                    else
+                    {
+                        value += "," + finalValue;
+                    }
+                }
+                value = value.Substring(1, value.Length - 1);
+                value = PadValue(value, values.Count);
+                return value;
+            }
+        }
+        else
+        {
+            value = ConvertValue(value);
+            if (type.Equals("STRING"))
+            {
+                value = "\"" + value + "\"";
+            }
+            value = PadValue(value, 1);
+            return value;
+        }
+        return null;
+    }
+
+    private string PadValue(string value, int currentLength)
+    {
+        if (upperBound.Equals("*") || int.Parse(upperBound) > 1)
+        {
+            if (int.Parse(lowerBound) > 1)
+            {
+                for (int i = currentLength; i < int.Parse(lowerBound); i++)
+                {
+                    if (type.Equals("STRING"))
+                    {
+                        value += "," + "\"\"";
+                    }
+                    else
+                    {
+                        value += "," + ConvertValue("FALSE");
+                    }
+                }
+            }
+            value = "[" + value + "]";
+        }
+        return value;
+    }
+
+    private string ConvertValue(string value)
+    {
+        string[] boolStrings = { "TRUE", "T", "FALSE", "F" };
+        List<string> boolValues = boolStrings.ToList();
+
+        int intTry;
+        double doubleTry;
+        switch (type)
+        {
+            case "STRING":
+                return value;
+            case "BOOLEAN":
+                if ((boolValues.IndexOf(value.ToUpper()) != -1 && boolValues.IndexOf(value.ToUpper()) < boolValues.Count / 2) ||
+                        (int.TryParse(value, out intTry) && intTry > 0) || (double.TryParse(value, out doubleTry) && doubleTry > 0))
+                    return "TRUE";
+                if ((boolValues.IndexOf(value.ToUpper()) != -1 && boolValues.IndexOf(value.ToUpper()) >= boolValues.Count / 2) ||
+                        (int.TryParse(value, out intTry) && intTry <= 0) || (double.TryParse(value, out doubleTry) && doubleTry <= 0))
+                    return "FALSE";
+                break;
+            case "DOUBLE":
+                if (int.TryParse(value, out intTry))
+                    return value + ".0";
+                if (double.TryParse(value, out doubleTry))
+                    return value;
+                if (value.Equals("TRUE"))
+                    return "1.0";
+                if (value.Equals("FALSE"))
+                    return "0.0";
+                break;
+            case "INTEGER":
+                if (int.TryParse(value, out intTry))
+                    return value;
+                if (double.TryParse(value, out doubleTry))
+                    return ((int)doubleTry).ToString();
+                if (value.Equals("TRUE"))
+                    return "1";
+                if (value.Equals("FALSE"))
+                    return "0";
+                break;
+        }
+        return null;
+    }
+
 }

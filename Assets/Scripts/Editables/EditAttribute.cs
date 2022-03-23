@@ -32,13 +32,11 @@ public class EditAttribute : EditObject
         nameField.onEndEdit.RemoveAllListeners();
         nameField.placeholder.GetComponent<Text>().text = attributeReference.name;
         nameField.text = attributeReference.name;
-        nameField.onEndEdit.AddListener(delegate (string name) { attributeReference.SetName(name); attributeReference.GenerateDisplayString(); });
+        nameField.onEndEdit.AddListener(delegate (string name) { attributeReference.SetName(name); });
 
         Dropdown typeField = editPanel.GetChild(2).GetChild(1).GetComponent<Dropdown>();
         typeField.onValueChanged.RemoveAllListeners();
-        string[] typeArray = { "STRING", "BOOLEAN", "DOUBLE", "INTEGER" };
-        List<string> types = typeArray.ToList();
-        typeField.value = types.IndexOf(attributeReference.type);
+        typeField.value = attributeReference.GetTypeNumber();
         typeField.onValueChanged.AddListener(SaveType);
 
         SetUpBounds();
@@ -47,7 +45,7 @@ public class EditAttribute : EditObject
         valueField.onEndEdit.RemoveAllListeners();
         valueField.placeholder.GetComponent<Text>().text = attributeReference.value;
         valueField.text = attributeReference.value;
-        valueField.onEndEdit.AddListener(delegate (string name) { attributeReference.SetName(name); attributeReference.GenerateDisplayString(); });
+        valueField.onEndEdit.AddListener(SaveValue);
     }
 
     private void SetUpBounds()
@@ -78,17 +76,14 @@ public class EditAttribute : EditObject
         string message;
         if (ValidateBounds(s, attributeReference.upperBound, out message))
         {
-            attributeReference.lowerBound = s;
-            attributeReference.GenerateDisplayString();
+            attributeReference.UpdateBounds(s, null);
         }
         else
         {
             if (message.Contains("greater"))
             {
-                attributeReference.lowerBound = s;
-                attributeReference.upperBound = s;
+                attributeReference.UpdateBounds(s, s);
                 editPanel.GetChild(4).GetChild(1).GetComponent<InputField>().text = s;
-                attributeReference.GenerateDisplayString();
             }
             else
             {
@@ -96,7 +91,7 @@ public class EditAttribute : EditObject
                 PrintError(message);
             }
         }
-        
+        editPanel.GetChild(5).GetChild(1).GetComponent<InputField>().text = attributeReference.value;
     }
 
     private void SaveUpper(string s)
@@ -104,8 +99,8 @@ public class EditAttribute : EditObject
         string message;
         if (ValidateBounds(attributeReference.lowerBound, s, out message))
         {
-            attributeReference.upperBound = s;
-            attributeReference.GenerateDisplayString();
+            attributeReference.UpdateBounds(null, s);
+            editPanel.GetChild(5).GetChild(1).GetComponent<InputField>().text = attributeReference.value;
         }
         else
         {
@@ -123,8 +118,14 @@ public class EditAttribute : EditObject
 
     private void SaveType(int i)
     {
-        string[] strings = { "STRING", "BOOLEAN", "DOUBLE", "INTEGER" };
-        attributeReference.type = strings[i];
-        attributeReference.GenerateDisplayString();
+        attributeReference.SetType(i);
+        editPanel.GetChild(5).GetChild(1).GetComponent<InputField>().text = attributeReference.value;
+    }
+
+    private void SaveValue(string value)
+    {
+        string message = attributeReference.SetValue(value);
+        if(message != null)
+            PrintError(message);
     }
 }

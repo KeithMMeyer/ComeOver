@@ -36,7 +36,7 @@ public class ToolBoxObject : MonoBehaviour
             if (type == "attribute")
             {
                 UserAttribute newAttribute = new UserAttribute();
-                newAttribute.name = "NewAttribute";
+                newAttribute.name = "newAttr";
                 newAttribute.name += attrCount > 0 ? "" + attrCount : "";
                 attrCount++;
                 newAttribute.value = "";
