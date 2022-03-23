@@ -19,7 +19,7 @@ public class UserAttribute
     [XmlAttribute]
     public string lowerBound = "0";
     [XmlAttribute]
-    public int position;
+    public int position = 1;
 
     [XmlIgnore]
     public GameObject gameObject;
@@ -44,7 +44,7 @@ public class UserAttribute
     public void AttachToClass(UserClass parent, int counter, int height, float width)
     {
         this.parent = parent;
-        position = counter;
+        position = counter + 1;
 
         Vector3 gamePosition = parent.gameObject.transform.position;
         gamePosition.x -= (5 * 0.05f);

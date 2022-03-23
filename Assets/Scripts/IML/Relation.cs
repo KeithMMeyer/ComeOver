@@ -45,13 +45,13 @@ public class Relation
 
         gameObject = relationObject;
 
-        if (!type.Equals("INHERITENCE"))
+        if (type.Equals("INHERITENCE"))
         {
             GameObject.Destroy(gameObject.transform.GetChild(1).gameObject);
             GameObject.Destroy(gameObject.transform.GetChild(2).gameObject);
         }
 
-            BuildStrings();
+        BuildStrings();
     }
 
     public void AttachToClass(UserClass source, UserClass destination)
@@ -111,8 +111,6 @@ public class Relation
     private void PlaceObjects()
     {
         Transform arrow = gameObject.transform.GetChild(0);
-        
-        Transform block = gameObject.transform.GetChild(3);
 
         Vector3 source = lineRenderer.GetPosition(0);
         Vector3 destination = lineRenderer.GetPosition(1);
@@ -121,14 +119,29 @@ public class Relation
 
         float angle = Vector3.Angle(destination - source, new Vector3(1, 0, 0));
 
-        float cos = Mathf.Cos(Mathf.Deg2Rad * (90 - angle));
+        float cosA = Mathf.Cos(Mathf.Deg2Rad * (90 - angle));
+        float cosB = Mathf.Cos(Mathf.Deg2Rad * angle) * -Mathf.Sign(90-angle);
 
         if (destinationClass.height == 0)
             destinationClass.Resize();
-        Vector3 offset = (destination - source).normalized * -((1 + (destinationClass.height + 3) * 0.125f) * 0.05f * 3.5f) / cos;
-        offset = (destination - source).magnitude > offset.magnitude ? offset : -(destination - source) / 2;
-        arrow.position = destination + offset;
+        float up = ((1 + (destinationClass.height + 3) * 0.125f) * 0.05f * 3.5f);
+        float right = (destinationClass.width * 0.05f * 100 * 0.95f);
+        Vector3 verticalOffset = (destination - source).normalized * -up / cosA;
+        Vector3 horizontalOffset = (destination - source).normalized * right / cosB;
 
+        Vector3 corner = destination;
+        corner.y += up;
+        corner.x += right;
+        float cornerAngle = Vector3.Angle(destination - corner, new Vector3(1, 0, 0));
+        //verticalOffset = (destination - source).magnitude > verticalOffset.magnitude ? verticalOffset : -(destination - source) / 2;
+        if ((angle > 90 && angle > cornerAngle) || (angle < 90 && 180-cornerAngle > angle))
+        {
+            arrow.position = destination + horizontalOffset;
+        } else
+        {
+            arrow.position = destination + verticalOffset;
+        }
+        Debug.Log(destinationClass.name + " " + angle + " : " + cornerAngle);
         arrow.localRotation = Quaternion.identity;
         arrow.Rotate(0, Mathf.Sign(source.y - destination.y) * angle, 0, Space.Self);
 
@@ -136,8 +149,17 @@ public class Relation
         {
             Transform name = gameObject.transform.GetChild(1);
             Transform bounds = gameObject.transform.GetChild(2);
+            Transform block = gameObject.transform.GetChild(3);
             name.position = source + (destination - source) / 2;
-            bounds.position = destination + 2 * offset;
+            if ((angle > 90 && angle > cornerAngle) || (angle < 90 && cornerAngle > angle))
+            {
+                bounds.position = destination + 2 * horizontalOffset;
+            } else
+            {
+                bounds.position = destination + 2 * verticalOffset;
+            }
+            name.GetComponent<TextMesh>().text = angle + ">" + cornerAngle;
+            bounds.GetComponent<TextMesh>().text = angle + ">" + cornerAngle;
         }
 
     }

@@ -20,14 +20,25 @@ public class EditRelation : EditObject
     {
         base.OpenDrawer(args);
 
-        InputField nameField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
-        nameField.onEndEdit.RemoveAllListeners();
-        nameField.placeholder.GetComponent<Text>().text = relationReference.name;
-        nameField.text = relationReference.name;
-        nameField.onEndEdit.AddListener(delegate (string name) { relationReference.SetName(name); });
+        if (relationReference.type.Equals("INHERITENCE"))
+        {
+            editPanel.GetChild(0).gameObject.SetActive(false);
+            editPanel.GetChild(3).gameObject.SetActive(false);
+            editPanel.GetChild(4).gameObject.SetActive(false);
+        }
+        else
+        {
+            InputField nameField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
+            nameField.transform.parent.gameObject.SetActive(true);
+            nameField.onEndEdit.RemoveAllListeners();
+            nameField.placeholder.GetComponent<Text>().text = relationReference.name;
+            nameField.text = relationReference.name;
+            nameField.onEndEdit.AddListener(delegate (string name) { relationReference.SetName(name); });
+            SetUpBounds();
+        }
 
         SetUpPositions();
-        SetUpBounds();
+
 
     }
 
@@ -60,6 +71,7 @@ public class EditRelation : EditObject
     private void SetUpBounds()
     {
         InputField lowerBound = editPanel.GetChild(3).GetChild(1).GetComponent<InputField>();
+        lowerBound.transform.parent.gameObject.SetActive(true);
         lowerBound.onEndEdit.RemoveAllListeners();
         lowerBound.placeholder.GetComponent<Text>().text = relationReference.lowerBound;
         lowerBound.text = relationReference.lowerBound;
@@ -70,6 +82,7 @@ public class EditRelation : EditObject
         editPanel.GetChild(3).GetChild(3).GetComponent<Button>().onClick.AddListener(delegate { BumpField(lowerBound, false); });
 
         InputField upperBound = editPanel.GetChild(4).GetChild(1).GetComponent<InputField>();
+        upperBound.transform.parent.gameObject.SetActive(true);
         upperBound.onEndEdit.RemoveAllListeners();
         upperBound.placeholder.GetComponent<Text>().text = relationReference.upperBound;
         upperBound.text = relationReference.upperBound;
@@ -83,10 +96,11 @@ public class EditRelation : EditObject
     private void SaveLower(string s)
     {
         string message;
-        if(ValidateBounds(s, relationReference.upperBound, out message))
+        if (ValidateBounds(s, relationReference.upperBound, out message))
         {
             relationReference.UpdateBounds(s, null);
-        } else
+        }
+        else
         {
             if (message.Contains("greater"))
             {
@@ -109,8 +123,8 @@ public class EditRelation : EditObject
         }
         else
         {
-                editPanel.GetChild(4).GetChild(1).GetComponent<InputField>().text = relationReference.upperBound;
-                PrintError(message);
+            editPanel.GetChild(4).GetChild(1).GetComponent<InputField>().text = relationReference.upperBound;
+            PrintError(message);
         }
     }
 
