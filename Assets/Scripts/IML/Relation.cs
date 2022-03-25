@@ -101,10 +101,14 @@ public class Relation
             lineRenderer.widthMultiplier = 0.01f;
         }
         lineRenderer.positionCount = 2;
+        
+        if (source.Equals(destination))
+            source.x += (destinationClass.width * 0.05f * 100 * 0.95f)*2;
         lineRenderer.SetPosition(0, source);
         lineRenderer.SetPosition(1, destination);
+
         lineRenderer.sortingOrder = -1;
-        PlaceObjects();
+        PlaceObjects(source, destination);
         Debug.Log("Drew relation from " + source + " to " + destination);
     }
 
@@ -120,18 +124,18 @@ public class Relation
         {
             Vector3 point = destination.Value;
             point.z += 0.01f;
+            if (source.Equals(destination))
+                point.x += (destinationClass.width * 0.05f * 100 * 0.95f)*2;
             lineRenderer.SetPosition(1, point);
         }
-        PlaceObjects();
+        PlaceObjects(lineRenderer.GetPosition(0), lineRenderer.GetPosition(1));
     }
 
-    private void PlaceObjects()
+    private void PlaceObjects(Vector3 source, Vector3 destination)
     {
         Transform arrow = gameObject.transform.GetChild(0);
         Transform block = gameObject.transform.GetChild(1);
 
-        Vector3 source = lineRenderer.GetPosition(0);
-        Vector3 destination = lineRenderer.GetPosition(1);
         source.z -= 0.01f;
         destination.z -= 0.01f;
 
