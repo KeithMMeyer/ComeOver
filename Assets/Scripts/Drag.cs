@@ -246,6 +246,7 @@ public class Drag : MonoBehaviour
 
     public void TrashObject()
     {
+        GameObject.Find("ToolBox").GetComponent<ToolBox>().closeAll();
         if (gameObject.layer == 6) //classes
         {
             UserClass classReference = gameObject.GetComponentInParent<Identity>().classReference;
