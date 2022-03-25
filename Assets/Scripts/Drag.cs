@@ -8,11 +8,9 @@ public class Drag : MonoBehaviour
 {
     public bool dragParent = false;
     private XRSimpleInteractable interactable;
-    private Transform left;
-    private Transform right;
     private Transform active;
     private Transform trash;
-    private Vector3 startingPos;
+    private UserClass storage;
 
     Transform errorPanel;
 
@@ -22,11 +20,6 @@ public class Drag : MonoBehaviour
     void Start()
     {
         interactable = GetComponent<XRSimpleInteractable>();
-
-        startingPos = interactable.transform.position;
-
-        left = GameObject.Find("XR Origin").transform.GetChild(0).GetChild(1);
-        right = GameObject.Find("XR Origin").transform.GetChild(0).GetChild(2);
 
         interactable.selectEntered.AddListener(Grabbed);
         interactable.selectExited.AddListener(Dropped);
@@ -56,6 +49,18 @@ public class Drag : MonoBehaviour
                 {
                     UpdateRelations(position);
                 }
+                if (gameObject.layer == 8) //relations
+                {
+                    if (transform.parent.name.Equals("Arrow"))
+                    {
+                        gameObject.GetComponentInParent<Identity>().relationReference.UpdatePoints(null, position);
+                    }
+                    else
+                    {
+                        gameObject.GetComponentInParent<Identity>().relationReference.UpdatePoints(position, null);
+                    }
+
+                }
             }
         }
 
@@ -65,20 +70,19 @@ public class Drag : MonoBehaviour
     {
         grabbed = true;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = false;
-        RaycastHit h;
-        bool hit = left.GetComponent<XRRayInteractor>().TryGetCurrent3DRaycastHit(out h);
-        if (hit && h.transform.Equals(transform))
+        active = args.interactorObject.transform;
+        transform.GetChild(0).gameObject.SetActive(true);
+        if (gameObject.layer == 8) //relations
         {
-            active = left;
-        }
-        else
-        {
-            active = right;
-        }
-        active = right;
-        if (gameObject.layer == 6 || gameObject.layer == 7) //classes and attributes
-        {
-            transform.GetChild(0).gameObject.SetActive(true);
+            if (transform.parent.name.Equals("Arrow"))
+            {
+                storage = gameObject.GetComponentInParent<Identity>().relationReference.destinationClass;
+                gameObject.GetComponentInParent<Identity>().relationReference.destinationClass = null;
+            } else
+            {
+                storage = gameObject.GetComponentInParent<Identity>().relationReference.sourceClass;
+                gameObject.GetComponentInParent<Identity>().relationReference.sourceClass = null;
+            }
         }
     }
 
@@ -106,13 +110,13 @@ public class Drag : MonoBehaviour
             transform.GetChild(0).gameObject.SetActive(false); // turn off collider
             foreach (Collider c in collisionList)
             {
-                if(c.transform == trash)
+                if (c.transform == trash)
                 {
                     TrashObject();
                     return;
                 }
             }
-                bool placed = placeAttribute(collisionList);
+            bool placed = placeAttribute(collisionList);
 
             if (!placed)
             {
@@ -121,9 +125,48 @@ public class Drag : MonoBehaviour
                 if (gameObject.GetComponentInParent<Identity>().attributeReference.parent != null)
                 {
                     gameObject.GetComponentInParent<Identity>().attributeReference.parent.Resize();
-                } else
+                }
+                else
                 {
                     Destroy(gameObject.transform.parent.gameObject);
+                }
+            }
+
+        }
+        if (gameObject.layer == 8) //relations
+        {
+            List<Collider> collisionList = GetComponentInChildren<Collision>().collisionList;
+            transform.GetChild(0).gameObject.SetActive(false); // turn off collider
+            foreach (Collider c in collisionList)
+            {
+                if (c.transform == trash)
+                {
+                    TrashObject();
+                    return;
+                }
+            }
+
+            bool placed = placeRelation(collisionList);
+
+            if (!placed)
+            {
+                Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
+                //errorPanel.gameObject.SetActive(true);
+                //errorPanel.GetChild(1).GetComponent<Text>().text = "Relations can only be added to IML Classes.";
+                if (relation.sourceClass != null)
+                {
+                    if (transform.parent.name.Equals("Arrow"))
+                    {
+                        relation.AttachToClass(relation.sourceClass, storage);
+                    } else
+                    {
+                        relation.AttachToClass(storage, relation.destinationClass);
+                    }
+                    storage = null;
+                }
+                else
+                {
+                    Destroy(relation.gameObject);
                 }
             }
 
@@ -137,7 +180,7 @@ public class Drag : MonoBehaviour
             if (c.gameObject.layer == 6) //classes
             {
                 UserAttribute attribute = gameObject.GetComponentInParent<Identity>().attributeReference;
-                if (gameObject.GetComponentInParent<Identity>().attributeReference.parent != null)
+                if (attribute.parent != null)
                 {
                     UserClass oldClass = attribute.parent;
                     oldClass.attributes.Remove(attribute);
@@ -170,6 +213,28 @@ public class Drag : MonoBehaviour
         return false;
     }
 
+    private bool placeRelation(List<Collider> collisionList)
+    {
+        foreach (Collider c in collisionList)
+        {
+            if (c.gameObject.layer == 6) //classes
+            {
+                Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
+                UserClass newClass = c.gameObject.GetComponentInParent<Identity>().classReference;
+                storage.relations.Remove(relation);
+                if (transform.parent.name.Equals("Arrow"))
+                {
+                    relation.AttachToClass(relation.sourceClass, newClass);
+                } else
+                {
+                    relation.AttachToClass(newClass, relation.destinationClass);
+                }
+                storage = null;
+                return true;
+            }
+        }
+        return false;
+    }
 
     private void UpdateRelations(Vector3 position)
     {
@@ -234,7 +299,7 @@ public class Drag : MonoBehaviour
         relation.destinationClass.relations.Remove(relation);
     }
 
-        private static bool LinePlaneIntersection(out Vector3 intersection, Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint)
+    private static bool LinePlaneIntersection(out Vector3 intersection, Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint)
     {
         float length;
         float dotNumerator;

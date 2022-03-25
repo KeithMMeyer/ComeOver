@@ -45,6 +45,10 @@ public class Relation
 
         gameObject = relationObject;
 
+        if (!type.Equals("COMPOSITION"))
+        {
+            GameObject.Destroy(gameObject.transform.GetChild(1).GetChild(1).gameObject);
+        }
         if (type.Equals("INHERITENCE"))
         {
             GameObject.Destroy(gameObject.transform.GetChild(2).gameObject);
@@ -57,7 +61,13 @@ public class Relation
     public void AttachToClass(UserClass source, UserClass destination)
     {
         sourceClass = source;
+        this.source = source.id;
         destinationClass = destination;
+        this.destination = destination.id;
+        if (!source.relations.Contains(this))
+            source.relations.Add(this);
+        if (!destination.relations.Contains(this))
+            destination.relations.Add(this);
         Vector3 sourcePos = source.gameObject.transform.position;
         Vector3 destinationPos = destination.gameObject.transform.position;
         sourcePos.z = 3.1f;
@@ -77,13 +87,19 @@ public class Relation
     public void SetPoints(Vector3 source, Vector3 destination)
     {
         if (lineRenderer == null)
+        {
             lineRenderer = gameObject.AddComponent<LineRenderer>();
-        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        Color color = type.Equals("REFERENCE") ? new Color(255, 0, 0) : type.Equals("COMPOSITION") ? new Color(0, 255, 0) : new Color(0, 0, 255);
-        lineRenderer.startColor = color;
-        lineRenderer.endColor = color;
-        gameObject.transform.GetChild(0).GetChild(1).GetComponent<TextMesh>().color = color;
-        lineRenderer.widthMultiplier = 0.01f;
+            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+            Color color = type.Equals("REFERENCE") ? new Color(255, 0, 0) : type.Equals("COMPOSITION") ? new Color(0, 255, 0) : new Color(0, 0, 255);
+            lineRenderer.startColor = color;
+            lineRenderer.endColor = color;
+            gameObject.transform.GetChild(0).GetChild(1).GetComponent<TextMesh>().color = color;
+            if (type.Equals("COMPOSITION"))
+            {
+                gameObject.transform.GetChild(1).GetChild(1).GetComponent<TextMesh>().color = color;
+            }
+            lineRenderer.widthMultiplier = 0.01f;
+        }
         lineRenderer.positionCount = 2;
         lineRenderer.SetPosition(0, source);
         lineRenderer.SetPosition(1, destination);
@@ -121,7 +137,7 @@ public class Relation
 
         float angle = Vector3.Angle(destination - source, new Vector3(1, 0, 0));
 
-        block.position = source + CalculateOffset(sourceClass, (source-destination), angle, 0);
+        block.position = source + CalculateOffset(sourceClass, (source - destination), angle, 0);
         block.localRotation = Quaternion.identity;
         block.Rotate(0, Mathf.Sign(destination.y - source.y) * (180 - angle), 0, Space.Self);
 
@@ -139,18 +155,20 @@ public class Relation
             Vector3 boundPosition;
             Vector3 offset = CalculateOffset(destinationClass, (destination - source), angle, 0.25f);
             boundPosition = destination + offset;
-            bounds.position = boundPosition + 0.15f * Vector3.Cross((source-destination).normalized, new Vector3(0, 0, 1));
+            bounds.position = boundPosition + 0.15f * Vector3.Cross((source - destination).normalized, new Vector3(0, 0, 1));
         }
 
     }
 
     private Vector3 CalculateOffset(UserClass target, Vector3 line, float angle, float padding)
     {
+        if (target == null)
+            return new Vector3(0, 0, 0);
         float cosA = Mathf.Cos(Mathf.Deg2Rad * (90 - angle));
         float cosB = Mathf.Cos(Mathf.Deg2Rad * angle) * -Mathf.Sign(90 - angle);
 
-        if (destinationClass.height == 0)
-            destinationClass.Resize();
+        if (target.height == 0)
+            target.Resize();
         Vector3 position = target.gameObject.transform.position;
         float up = ((1 + (target.height + 3) * 0.125f) * 0.05f * 3.5f);
         float right = (target.width * 0.05f * 100 * 0.95f);
@@ -168,7 +186,7 @@ public class Relation
         }
         else
         {
-           return verticalOffset;
+            return verticalOffset;
         }
     }
 

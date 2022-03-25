@@ -19,6 +19,11 @@ public class Collision : MonoBehaviour
 
     }
 
+    private void OnEnable()
+    {
+        collisionList = new List<Collider>();
+    }
+
     public void OnTriggerEnter(Collider other)
     {
         if (!collisionList.Contains(other))
