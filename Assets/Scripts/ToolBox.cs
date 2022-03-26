@@ -64,4 +64,25 @@ public class ToolBox : MonoBehaviour
         }
     }
 
+    public void InsertRelation(UserClass classReference, SelectEnterEventArgs args)
+    {
+        Relation relation = new Relation
+        {
+            name = relationMode.Equals("INHERITENCE") ? null : "newRelation",
+            type = relationMode
+        };
+        relation.CreateGameObject();
+        relation.sourceClass = classReference;
+        Vector3 other = classReference.gameObject.transform.position;
+        other.x += 1;
+        relation.SetPoints(classReference.gameObject.transform.position, other);
+        //relation.AttachToClass(classReference, Iml.GetSingleton().structuralModel.classes[0]);
+        GameObject.Find("XR Interaction Manager").GetComponent<XRInteractionManager>().SelectExit(args.interactorObject, args.interactableObject);
+        GameObject.Find("XR Interaction Manager").GetComponent<XRInteractionManager>().SelectEnter(
+            args.interactorObject, relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<XRSimpleInteractable>());
+        relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<Drag>().Grabbed(args);
+        transform.parent.parent.parent.GetComponent<ToolBox>().relationMode = null;
+        return;
+    }
+
 }

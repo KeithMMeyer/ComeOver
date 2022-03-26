@@ -76,15 +76,21 @@ public class Drag : MonoBehaviour
         transform.GetChild(0).gameObject.SetActive(true); // enable collider
         if (gameObject.layer == 8) //relations
         {
+            Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
+            if (relation.sourceClass != null && relation.destinationClass != null && relation.sourceClass.Equals(relation.destinationClass))
+            {
+                //Destroy(transform.parent.gameObject);
+                relation.UpdatePoints(relation.sourceClass.gameObject.transform.position, null);
+            }
             if (transform.parent.name.Equals("Arrow"))
             {
-                storage = gameObject.GetComponentInParent<Identity>().relationReference.destinationClass;
-                gameObject.GetComponentInParent<Identity>().relationReference.destinationClass = null;
+                storage = relation.destinationClass;
+                relation.destinationClass = null;
             }
             else
             {
-                storage = gameObject.GetComponentInParent<Identity>().relationReference.sourceClass;
-                gameObject.GetComponentInParent<Identity>().relationReference.sourceClass = null;
+                storage = relation.sourceClass;
+                relation.sourceClass = null;
             }
         }
     }
