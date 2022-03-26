@@ -79,7 +79,7 @@ public class UserClass
         gameObject.transform.GetChild(1).localPosition = namePosition;
         this.height = height;
         this.width = width;
-
+        
         ReattachAttributes();
         //updateRelations();
     }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using Random = UnityEngine.Random;
@@ -17,7 +15,7 @@ public class ToolBoxObject : MonoBehaviour
 
     public void CreateObject()
     {
-        if (type == "class")
+        if (type == "CLASS")
         {
             UserClass newClass = new UserClass();
             newClass.SetName("NewClass" + (classCount > 0 ? "" + classCount : ""));
@@ -33,7 +31,7 @@ public class ToolBoxObject : MonoBehaviour
         }
         else
         {
-            if (type == "attribute")
+            if (type == "ATTRIBUTE")
             {
                 UserAttribute newAttribute = new UserAttribute();
                 newAttribute.name = "newAttr";
@@ -52,44 +50,19 @@ public class ToolBoxObject : MonoBehaviour
             else
             {
 
-                //GameObject controller = GameObject.Find("RightHand Controller");
-                //Gradient gradient = new Gradient();
-                //gradient.SetKeys(
-                //    new GradientColorKey[] { new GradientColorKey(Color.green, 0.0f), new GradientColorKey(Color.green, 1.0f) },
-                //    new GradientAlphaKey[] { new GradientAlphaKey(1, 0.0f), new GradientAlphaKey(1, 1.0f) }
-                //);
-                //controller.GetComponent<XRInteractorLineVisual>().validColorGradient = gradient;
-                //controller.GetComponent<XRInteractorLineVisual>().invalidColorGradient = gradient;
+                GameObject controller = GameObject.Find("RightHand Controller");
+                Gradient gradient = new Gradient();
+                gradient.SetKeys(
+                    new GradientColorKey[] { new GradientColorKey(Color.green, 0.0f), new GradientColorKey(Color.green, 1.0f) },
+                    new GradientAlphaKey[] { new GradientAlphaKey(1, 0.0f), new GradientAlphaKey(1, 1.0f) }
+                );
+                controller.GetComponent<XRInteractorLineVisual>().validColorGradient = gradient;
+                controller.GetComponent<XRInteractorLineVisual>().invalidColorGradient = gradient;
                 //normalMask = controller.GetComponent<XRRayInteractor>().raycastMask;
                 //controller.GetComponent<XRRayInteractor>().raycastMask = LayerMask.NameToLayer("Classes");
+                transform.parent.parent.parent.GetComponent<ToolBox>().relationMode = type;
 
             }
         }
     }
-
-    /*
-    void OnMouseDown()
-    {
-        if (type == "class")
-        {
-            UserClass newClass = new UserClass();
-            newClass.name = "New Class";
-            newClass.createGameObject();
-
-            Vector3 position = transform.position;
-            //position.y += 1;
-            newClass.gameObject.transform.position = position;
-        } else
-        {
-            UserAttribute newAttribute = new UserAttribute();
-            newAttribute.name = "New Attribute";
-            newAttribute.value = "STRING";
-            newAttribute.createGameObject();
-
-            Vector3 position = transform.position;
-            //position.y += 1;
-            newAttribute.gameObject.transform.position = position;
-        }
-    }
-    */
 }

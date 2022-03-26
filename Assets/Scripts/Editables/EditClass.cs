@@ -1,3 +1,4 @@
+using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -17,6 +18,28 @@ public class EditClass : EditObject
 
     protected override void OpenDrawer(SelectEnterEventArgs args)
     {
+        classReference.SetName(toolbox.relationMode.ToString());
+        if (toolbox.relationMode != null)
+        {
+            Relation relation = new Relation
+            {
+                name = "newRelation",
+                type = toolbox.relationMode
+            };
+            relation.CreateGameObject();
+            relation.sourceClass = classReference;
+            Vector3 other = classReference.gameObject.transform.position;
+            other.x += 1;
+            relation.SetPoints(classReference.gameObject.transform.position, other);
+            classReference.SetName("helpless");
+            //relation.AttachToClass(classReference, Iml.GetSingleton().structuralModel.classes[0]);
+            GameObject.Find("XR Interaction Manager").GetComponent<XRInteractionManager>().SelectExit(args.interactorObject, args.interactableObject);
+            GameObject.Find("XR Interaction Manager").GetComponent<XRInteractionManager>().SelectEnter(
+                args.interactorObject, relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<XRSimpleInteractable>());
+            relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<Drag>().Grabbed(args);
+            toolbox.relationMode = null;
+            return;
+        }
         base.OpenDrawer(args);
 
         InputField nameField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();

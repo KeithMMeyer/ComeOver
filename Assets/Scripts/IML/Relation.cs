@@ -70,8 +70,6 @@ public class Relation
             destination.relations.Add(this);
         Vector3 sourcePos = source.gameObject.transform.position;
         Vector3 destinationPos = destination.gameObject.transform.position;
-        sourcePos.z = 3.1f;
-        destinationPos.z = 3.1f;
         gameObject.name = name != null ? name : this.source + " " + this.destination;
         SetPoints(sourcePos, destinationPos);
     }
@@ -104,6 +102,8 @@ public class Relation
         
         if (source.Equals(destination))
             source.x += (destinationClass.width * 0.05f * 100 * 0.95f)*2;
+        source.z += 0.01f;
+        destination.z += 0.01f;
         lineRenderer.SetPosition(0, source);
         lineRenderer.SetPosition(1, destination);
 

@@ -68,17 +68,20 @@ public class Drag : MonoBehaviour
 
     public void Grabbed(SelectEnterEventArgs args)
     {
+        if(interactable == null)
+            Start();
         grabbed = true;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = false;
         active = args.interactorObject.transform;
-        transform.GetChild(0).gameObject.SetActive(true);
+        transform.GetChild(0).gameObject.SetActive(true); // enable collider
         if (gameObject.layer == 8) //relations
         {
             if (transform.parent.name.Equals("Arrow"))
             {
                 storage = gameObject.GetComponentInParent<Identity>().relationReference.destinationClass;
                 gameObject.GetComponentInParent<Identity>().relationReference.destinationClass = null;
-            } else
+            }
+            else
             {
                 storage = gameObject.GetComponentInParent<Identity>().relationReference.sourceClass;
                 gameObject.GetComponentInParent<Identity>().relationReference.sourceClass = null;
@@ -153,12 +156,13 @@ public class Drag : MonoBehaviour
                 Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
                 //errorPanel.gameObject.SetActive(true);
                 //errorPanel.GetChild(1).GetComponent<Text>().text = "Relations can only be added to IML Classes.";
-                if (relation.sourceClass != null)
+                if (storage != null)
                 {
                     if (transform.parent.name.Equals("Arrow"))
                     {
                         relation.AttachToClass(relation.sourceClass, storage);
-                    } else
+                    }
+                    else
                     {
                         relation.AttachToClass(storage, relation.destinationClass);
                     }
@@ -221,11 +225,18 @@ public class Drag : MonoBehaviour
             {
                 Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
                 UserClass newClass = c.gameObject.GetComponentInParent<Identity>().classReference;
-                storage.relations.Remove(relation);
+                if (storage != null)
+                {
+                    storage.relations.Remove(relation);
+                } else
+                {
+                    Iml.GetSingleton().structuralModel.relations.Add(relation);
+                }
                 if (transform.parent.name.Equals("Arrow"))
                 {
                     relation.AttachToClass(relation.sourceClass, newClass);
-                } else
+                }
+                else
                 {
                     relation.AttachToClass(newClass, relation.destinationClass);
                 }
