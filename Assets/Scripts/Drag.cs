@@ -280,6 +280,7 @@ public class Drag : MonoBehaviour
                 {
                     uc.attributes.Remove(attribute);
                     uc.Resize();
+                    break;
                 }
             }
         }
@@ -297,6 +298,7 @@ public class Drag : MonoBehaviour
         {
             Destroy(ua.gameObject);
         }
+        Iml.GetSingleton().structuralModel.classes.Remove(classReference);
         List<Relation> imlRelations = Iml.GetSingleton().structuralModel.relations;
         for (int i = 0; i < imlRelations.Count; i++)
         {
@@ -306,7 +308,6 @@ public class Drag : MonoBehaviour
                 i--;
             }
         }
-        Iml.GetSingleton().structuralModel.classes.Remove(classReference);
     }
 
     private void TrashRelation(Relation relation)

@@ -105,6 +105,7 @@ public class EditRelation : EditObject
             if (message.Contains("greater"))
             {
                 relationReference.UpdateBounds(s, s);
+                editPanel.GetChild(4).GetChild(1).GetComponent<InputField>().text = s;
             }
             else
             {

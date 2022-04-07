@@ -240,6 +240,8 @@ public class UserAttribute
         }
         else
         {
+            if (value.Contains("\""))
+                value = value.Substring(1, value.Length - 2);
             value = ConvertValue(value);
             if (type.Equals("STRING"))
             {
@@ -286,17 +288,17 @@ public class UserAttribute
             case "STRING":
                 return value;
             case "BOOLEAN":
-                if ((boolValues.IndexOf(value.ToUpper()) != -1 && boolValues.IndexOf(value.ToUpper()) < boolValues.Count / 2) ||
+                if (((boolValues.IndexOf(value.ToUpper()) != -1 && boolValues.IndexOf(value.ToUpper()) < boolValues.Count / 2)) ||
                         (int.TryParse(value, out intTry) && intTry > 0) || (double.TryParse(value, out doubleTry) && doubleTry > 0))
                     return "TRUE";
-                if ((boolValues.IndexOf(value.ToUpper()) != -1 && boolValues.IndexOf(value.ToUpper()) >= boolValues.Count / 2) ||
+                if (((boolValues.IndexOf(value.ToUpper()) != -1 && boolValues.IndexOf(value.ToUpper()) >= boolValues.Count / 2)) ||
                         (int.TryParse(value, out intTry) && intTry <= 0) || (double.TryParse(value, out doubleTry) && doubleTry <= 0))
                     return "FALSE";
                 break;
             case "DOUBLE":
-                if (int.TryParse(value, out intTry))
+                if (int.TryParse(value, out _))
                     return value + ".0";
-                if (double.TryParse(value, out doubleTry))
+                if (double.TryParse(value, out _))
                     return value;
                 if (value.Equals("TRUE"))
                     return "1.0";
@@ -304,7 +306,7 @@ public class UserAttribute
                     return "0.0";
                 break;
             case "INTEGER":
-                if (int.TryParse(value, out intTry))
+                if (int.TryParse(value, out _))
                     return value;
                 if (double.TryParse(value, out doubleTry))
                     return ((int)doubleTry).ToString();

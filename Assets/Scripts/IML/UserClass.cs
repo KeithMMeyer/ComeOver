@@ -172,6 +172,6 @@ public class UserClass
 
     public override int GetHashCode()
     {
-        return 1877310944 + EqualityComparer<string>.Default.GetHashCode(id);
+        return EqualityComparer<string>.Default.GetHashCode(id);
     }
 }
