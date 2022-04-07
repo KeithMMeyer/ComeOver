@@ -130,19 +130,34 @@ public class EditRelation : EditObject
 
     private void SaveSource(int i)
     {
+        string message;
         relationReference.sourceClass.relations.Remove(relationReference);
         UserClass classRef = Iml.GetSingleton().structuralModel.classes[i];
-        relationReference.sourceClass = classRef;
-        relationReference.source = classRef.id;
-        relationReference.AttachToClass(classRef, relationReference.destinationClass);
+        if (true || relationReference.CanAttach(classRef, relationReference.destinationClass, out message))
+        {
+            relationReference.AttachToClass(classRef, relationReference.destinationClass);
+        } else
+        {
+            editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>().value= Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.sourceClass);
+            relationReference.sourceClass.relations.Add(relationReference);
+            PrintError(message);
+        }
     }
 
     private void SaveDestination(int i)
     {
+        string message;
         relationReference.destinationClass.relations.Remove(relationReference);
         UserClass classRef = Iml.GetSingleton().structuralModel.classes[i];
-        relationReference.destinationClass = classRef;
-        relationReference.destination = classRef.id;
-        relationReference.AttachToClass(relationReference.sourceClass, classRef);
+        if (true || relationReference.CanAttach(classRef, relationReference.destinationClass, out message))
+        {
+            relationReference.AttachToClass(relationReference.sourceClass, classRef);
+        }
+        else
+        {
+            editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>().value = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.sourceClass);
+            relationReference.destinationClass.relations.Add(relationReference);
+            PrintError(message);
+        }
     }
 }

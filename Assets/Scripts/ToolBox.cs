@@ -11,6 +11,8 @@ public class ToolBox : MonoBehaviour
     public bool IsPressed = false; // used to display button state in the Unity Inspector window
     public string relationMode = null;
 
+    private int relationCount = 0;
+
 
     void Start()
     {
@@ -68,7 +70,7 @@ public class ToolBox : MonoBehaviour
     {
         Relation relation = new Relation
         {
-            name = relationMode.Equals("INHERITENCE") ? null : "newRelation",
+            name = relationMode.Equals("INHERITENCE") ? null : "newRelation" + (relationCount > 0 ? "" + relationCount : ""),
             type = relationMode
         };
         relation.CreateGameObject();
@@ -81,7 +83,7 @@ public class ToolBox : MonoBehaviour
         GameObject.Find("XR Interaction Manager").GetComponent<XRInteractionManager>().SelectEnter(
             args.interactorObject, relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<XRSimpleInteractable>());
         relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<Drag>().Grabbed(args);
-        transform.parent.parent.parent.GetComponent<ToolBox>().relationMode = null;
+        relationMode = null;
         return;
     }
 

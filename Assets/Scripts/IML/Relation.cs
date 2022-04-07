@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Xml.Serialization;
 using UnityEngine;
 
@@ -99,9 +100,9 @@ public class Relation
             lineRenderer.widthMultiplier = 0.01f;
         }
         lineRenderer.positionCount = 2;
-        
+
         if (source.Equals(destination))
-            source.x += (destinationClass.width * 0.05f * 100 * 0.95f)*2;
+            source.x += (destinationClass.width * 0.05f * 100 * 0.95f) * 2;
         source.z += 0.01f;
         destination.z += 0.01f;
         lineRenderer.SetPosition(0, source);
@@ -125,7 +126,7 @@ public class Relation
             Vector3 point = destination.Value;
             point.z += 0.01f;
             if (source.Equals(destination))
-                point.x += (destinationClass.width * 0.05f * 100 * 0.95f)*2;
+                point.x += (destinationClass.width * 0.05f * 100 * 0.95f) * 2;
             lineRenderer.SetPosition(1, point);
         }
         PlaceObjects(lineRenderer.GetPosition(0), lineRenderer.GetPosition(1));
@@ -211,5 +212,61 @@ public class Relation
     {
         this.name = name;
         BuildStrings();
+    }
+
+    public bool CanAttach(UserClass source, UserClass destination, out string message)
+    {
+        if (type.Equals("INHERITENCE"))
+        {
+            message = "Adding this relation would create a cycle of inheritance; insertion aborted.";
+            List<UserClass> todo = new List<UserClass>();
+            List<UserClass> visited = new List<UserClass>();
+
+            todo.Add(sourceClass);
+            foreach (UserClass each in todo)
+            {
+                visited.Add(each);
+                foreach (Relation r in each.relations)
+                {
+                    if (r.type.Equals("INHERITENCE") && r.sourceClass.Equals(source))
+                    {
+                        if (visited.Contains(r.destinationClass))
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            if (!todo.Contains(r.destinationClass))
+                                todo.Add(r.destinationClass);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        message = "help";
+        return true;
+        message = "IML Class " + source.name + " already contains, inherits, or is inherited by a Class with an attribute/relation with the name \"" + name + "\". Please select a unique relation name.";
+        foreach (Relation r in source.relations)
+        {
+            if (r.sourceClass.Equals(source) && r != this && r.name.Equals(name))
+            {
+                if(type.Equals("INHERITENCE")) // only inheritences have null names, and they're always the same
+                    message = "IML does not allow multiple inheritance; a class can only inherit from one other class.";
+                return false;
+            }
+            if (r.sourceClass.Equals(source) && r.type.Equals("INHERITENCE"))
+            {
+                if (!CanAttach(r.sourceClass, destination, out message))
+                    return false;
+            }
+        }
+        foreach (UserAttribute a in source.attributes)
+        {
+            if (a.name.Equals(name))
+                return false;
+        }
+        message = "";
+        return true;
     }
 }
