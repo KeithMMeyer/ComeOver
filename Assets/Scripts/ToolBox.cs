@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 
 public class ToolBox : MonoBehaviour
@@ -7,8 +8,10 @@ public class ToolBox : MonoBehaviour
     public Camera viewCamera;
     private Vector3 velocity = Vector3.zero;
 
-    private PrimaryButtonWatcher watcher;
-    public bool IsPressed = false; // used to display button state in the Unity Inspector window
+    private PrimaryButtonWatcher primary;
+    private SecondaryButtonWatcher secondary;
+    public bool PrimaryPressed = false; // used to display button state in the Unity Inspector window
+    public bool SecondaryPressed = false; // used to display button state in the Unity Inspector window
     public string relationMode = null;
 
     private int relationCount = 0;
@@ -16,21 +19,49 @@ public class ToolBox : MonoBehaviour
 
     void Start()
     {
-        watcher = GetComponent<PrimaryButtonWatcher>();
-        watcher.primaryButtonPress.AddListener(onPrimaryButtonEvent);
+        primary = GetComponent<PrimaryButtonWatcher>();
+        secondary = GetComponent<SecondaryButtonWatcher>();
+        primary.primaryButtonPress.AddListener(OnPrimaryButtonEvent);
+        secondary.secondaryButtonPress.AddListener(OnSecondaryButtonEvent);
         closeAll();
     }
 
-    public void onPrimaryButtonEvent(bool pressed)
+    public void OnPrimaryButtonEvent(bool pressed)
     {
         closeAll();
 
-        IsPressed = pressed;
+        PrimaryPressed = pressed;
 
         if (pressed)
         {
             transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
             relationMode = null;
+        }
+
+    }
+
+    public void OnSecondaryButtonEvent(bool pressed)
+    {
+        closeAll();
+
+        SecondaryPressed = pressed;
+
+        if (pressed)
+        {
+            Transform editPanel = transform.GetChild(0).GetChild(4);
+            editPanel.gameObject.SetActive(true);
+            relationMode = null;
+            InputField modelField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
+            //modelField.onEndEdit.RemoveAllListeners();
+            modelField.placeholder.GetComponent<Text>().text = Iml.GetSingleton().structuralModel.name;
+            modelField.text = Iml.GetSingleton().structuralModel.name;
+            //modelField.onEndEdit.AddListener(delegate (string name) { classReference.SetName(name); });
+
+            InputField fileField = editPanel.GetChild(1).GetChild(1).GetComponent<InputField>();
+            //modelField.onEndEdit.RemoveAllListeners();
+            fileField.placeholder.GetComponent<Text>().text = Iml.GetSingleton().structuralModel.name + ".iml";
+            fileField.text = Iml.GetSingleton().structuralModel.name + ".iml";
+            //modelField.onEndEdit.AddListener(delegate (string name) { classReference.SetName(name); });
         }
 
     }
@@ -41,6 +72,7 @@ public class ToolBox : MonoBehaviour
         transform.GetChild(0).GetChild(1).gameObject.SetActive(false);
         transform.GetChild(0).GetChild(2).gameObject.SetActive(false);
         transform.GetChild(0).GetChild(3).gameObject.SetActive(false);
+        transform.GetChild(0).GetChild(4).gameObject.SetActive(false);
     }
 
     private void Update()
