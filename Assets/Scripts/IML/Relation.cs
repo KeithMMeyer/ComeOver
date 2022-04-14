@@ -110,7 +110,7 @@ public class Relation
 
         lineRenderer.sortingOrder = -1;
         PlaceObjects(source, destination);
-        Debug.Log("Drew relation from " + source + " to " + destination);
+        //Debug.Log("Drew relation from " + source + " to " + destination);
     }
 
     public void UpdatePoints(Vector3? source, Vector3? destination)
@@ -244,8 +244,6 @@ public class Relation
                 }
             }
         }
-        message = "help";
-        return true;
         message = "IML Class " + source.name + " already contains, inherits, or is inherited by a Class with an attribute/relation with the name \"" + name + "\". Please select a unique relation name.";
         foreach (Relation r in source.relations)
         {

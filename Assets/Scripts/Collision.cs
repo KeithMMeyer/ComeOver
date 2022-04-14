@@ -28,7 +28,7 @@ public class Collision : MonoBehaviour
     {
         if (!collisionList.Contains(other))
             collisionList.Add(other);
-        Debug.Log("Collision!");
+        //Debug.Log("Collision!");
 
     }
 

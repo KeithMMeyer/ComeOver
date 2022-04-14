@@ -10,7 +10,6 @@ public class Main : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        XRSettings.renderViewportScale
         Iml iml = Importer.ImportXml(inputfile);
 
         GenerateClasses(iml);

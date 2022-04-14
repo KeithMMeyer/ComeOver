@@ -38,33 +38,52 @@ public class EditRelation : EditObject
         }
 
         SetUpPositions();
-
-
     }
 
-    private void SetUpPositions()
+    public void SetUpPositions()
     {
         Dropdown sourceField = editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>();
         sourceField.onValueChanged.RemoveAllListeners();
         Dropdown destField = editPanel.GetChild(2).GetChild(1).GetComponent<Dropdown>();
         destField.onValueChanged.RemoveAllListeners();
 
-        if (sourceField.options.Count != Iml.GetSingleton().structuralModel.classes.Count)
+        //if (sourceField.options.Count != Iml.GetSingleton().structuralModel.classes.Count)
+        //{
+        List<string> options = new List<string>();
+        foreach (UserClass classRef in Iml.GetSingleton().structuralModel.classes)
         {
-            List<string> options = new List<string>();
-            foreach (UserClass classRef in Iml.GetSingleton().structuralModel.classes)
-            {
-                options.Add(classRef.name);
-            }
-            sourceField.ClearOptions();
-            sourceField.AddOptions(options);
-            destField.ClearOptions();
-            destField.AddOptions(options);
+            options.Add(classRef.name);
         }
-
-        sourceField.value = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.sourceClass);
+        sourceField.ClearOptions();
+        sourceField.AddOptions(options);
+        destField.ClearOptions();
+        destField.AddOptions(options);
+        //}
+        int sourceIndex = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.sourceClass);
+        if (sourceIndex == -1)
+        {
+            sourceIndex = 0;
+            foreach (UserClass c in Iml.GetSingleton().structuralModel.classes)
+            {
+                if (c.id.Equals(relationReference.source))
+                    break;
+                sourceIndex++;
+            }
+        }
+        int destIndex = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.destinationClass);
+        if (destIndex == -1)
+        {
+            destIndex = 0;
+            foreach (UserClass c in Iml.GetSingleton().structuralModel.classes)
+            {
+                if (c.id.Equals(relationReference.destination))
+                    break;
+                destIndex++;
+            }
+        }
+        sourceField.value = sourceIndex;
         sourceField.onValueChanged.AddListener(SaveSource);
-        destField.value = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.destinationClass);
+        destField.value = destIndex;
         destField.onValueChanged.AddListener(SaveDestination);
     }
 
@@ -137,9 +156,10 @@ public class EditRelation : EditObject
         if (true || relationReference.CanAttach(classRef, relationReference.destinationClass, out message))
         {
             relationReference.AttachToClass(classRef, relationReference.destinationClass);
-        } else
+        }
+        else
         {
-            editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>().value= Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.sourceClass);
+            editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>().value = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.sourceClass);
             relationReference.sourceClass.relations.Add(relationReference);
             PrintError(message);
         }

@@ -6,19 +6,19 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class ToolBox : MonoBehaviour
 {
     public Camera viewCamera;
-    private Vector3 velocity = Vector3.zero;
 
     private PrimaryButtonWatcher primary;
     private SecondaryButtonWatcher secondary;
     public bool PrimaryPressed = false; // used to display button state in the Unity Inspector window
     public bool SecondaryPressed = false; // used to display button state in the Unity Inspector window
-    public string relationMode = null;
+    public string relationMode;
 
     private int relationCount = 0;
 
 
     void Start()
     {
+        relationMode = null;
         primary = GetComponent<PrimaryButtonWatcher>();
         secondary = GetComponent<SecondaryButtonWatcher>();
         primary.primaryButtonPress.AddListener(OnPrimaryButtonEvent);

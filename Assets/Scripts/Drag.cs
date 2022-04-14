@@ -144,7 +144,7 @@ public class Drag : MonoBehaviour
         }
         if (gameObject.layer == 8) //relations
         {
-            List<Collider> collisionList = GetComponentInChildren<Collision>().collisionList;
+            List<Collider> collisionList = GetComponentInChildren<Collision>(true).collisionList;
             transform.GetChild(0).gameObject.SetActive(false); // turn off collider
             foreach (Collider c in collisionList)
             {
@@ -234,7 +234,8 @@ public class Drag : MonoBehaviour
                 if (storage != null)
                 {
                     storage.relations.Remove(relation);
-                } else
+                }
+                else
                 {
                     Iml.GetSingleton().structuralModel.relations.Add(relation);
                 }
@@ -246,6 +247,7 @@ public class Drag : MonoBehaviour
                 {
                     relation.AttachToClass(newClass, relation.destinationClass);
                 }
+                gameObject.GetComponent<EditRelation>().SetUpPositions();
                 storage = null;
                 return true;
             }
