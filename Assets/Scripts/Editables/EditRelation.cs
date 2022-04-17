@@ -10,6 +10,12 @@ public class EditRelation : EditObject
     // Start is called before the first frame update
     protected override void Start()
     {
+        if (interactable == null)
+            Init();
+    }
+
+    public void Init()
+    {
         base.Start();
         editPanel = toolbox.transform.GetChild(0).GetChild(3);
         interactable.selectEntered.AddListener(OpenDrawer);
@@ -59,31 +65,10 @@ public class EditRelation : EditObject
         destField.ClearOptions();
         destField.AddOptions(options);
         //}
-        int sourceIndex = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.sourceClass);
-        if (sourceIndex == -1)
-        {
-            sourceIndex = 0;
-            foreach (UserClass c in Iml.GetSingleton().structuralModel.classes)
-            {
-                if (c.id.Equals(relationReference.source))
-                    break;
-                sourceIndex++;
-            }
-        }
-        int destIndex = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.destinationClass);
-        if (destIndex == -1)
-        {
-            destIndex = 0;
-            foreach (UserClass c in Iml.GetSingleton().structuralModel.classes)
-            {
-                if (c.id.Equals(relationReference.destination))
-                    break;
-                destIndex++;
-            }
-        }
-        sourceField.value = sourceIndex;
+
+        sourceField.value = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.sourceClass);
         sourceField.onValueChanged.AddListener(SaveSource);
-        destField.value = destIndex;
+        destField.value = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.destinationClass);
         destField.onValueChanged.AddListener(SaveDestination);
     }
 

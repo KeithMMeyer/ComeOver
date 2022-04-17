@@ -19,15 +19,10 @@ public class Drag : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        interactable = GetComponent<XRSimpleInteractable>();
-
-        interactable.selectEntered.AddListener(Grabbed);
-        interactable.selectExited.AddListener(Dropped);
-
-        errorPanel = GameObject.Find("Main Canvas").transform.GetChild(1);
-        trash = GameObject.Find("Trash").transform;
-        trash.GetComponent<MeshRenderer>().forceRenderingOff = true;
-
+        if (interactable == null)
+        {
+            init();
+        }
     }
 
     // Update is called once per frame
@@ -66,10 +61,22 @@ public class Drag : MonoBehaviour
 
     }
 
+    private void init()
+    {
+        interactable = GetComponent<XRSimpleInteractable>();
+
+        interactable.selectEntered.AddListener(Grabbed);
+        interactable.selectExited.AddListener(Dropped);
+
+        errorPanel = GameObject.Find("Main Canvas").transform.GetChild(1);
+        trash = GameObject.Find("Trash").transform;
+        trash.GetComponent<MeshRenderer>().forceRenderingOff = true;
+    }
+
     public void Grabbed(SelectEnterEventArgs args)
     {
-        if (interactable == null)
-            Start();
+        if(interactable == null)
+            init();
         grabbed = true;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = false;
         active = args.interactorObject.transform;
@@ -84,13 +91,8 @@ public class Drag : MonoBehaviour
             }
             if (transform.parent.name.Equals("Arrow"))
             {
-                if (relation.destinationClass != null) // this check is to fix a bug with "new" relations, can be removed if source of bug found
-                {
-                    storage = relation.destinationClass;
-                    relation.destinationClass = null;
-                    errorPanel.gameObject.SetActive(true);
-                    errorPanel.GetChild(1).GetComponent<Text>().text = "Saved destination to " + storage.name;
-                }
+                storage = relation.destinationClass;
+                relation.destinationClass = null;
             }
             else
             {
@@ -165,8 +167,8 @@ public class Drag : MonoBehaviour
             if (!placed)
             {
                 Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
-                errorPanel.gameObject.SetActive(true);
-                errorPanel.GetChild(1).GetComponent<Text>().text = "Storage " + storage;
+                //errorPanel.gameObject.SetActive(true);
+                //errorPanel.GetChild(1).GetComponent<Text>().text = "Relations can only be added to IML Classes.";
                 if (storage != null)
                 {
                     if (transform.parent.name.Equals("Arrow"))
@@ -181,14 +183,7 @@ public class Drag : MonoBehaviour
                 }
                 else
                 {
-                    if (relation.sourceClass != null && relation.destinationClass != null)  // this statement is to fix a bug with "new" relations, can be removed if source of bug found
-                    {
-                        relation.AttachToClass(relation.sourceClass, relation.destinationClass);
-                    }
-                    else
-                    {
-                        Destroy(relation.gameObject);
-                    }
+                    Destroy(relation.gameObject);
                 }
             }
 
@@ -254,8 +249,6 @@ public class Drag : MonoBehaviour
                 if (transform.parent.name.Equals("Arrow"))
                 {
                     relation.AttachToClass(relation.sourceClass, newClass);
-                    errorPanel.gameObject.SetActive(true);
-                    errorPanel.GetChild(1).GetComponent<Text>().text = "Relation from " + relation.sourceClass.name + " to " + relation.destinationClass.name;
                 }
                 else
                 {
