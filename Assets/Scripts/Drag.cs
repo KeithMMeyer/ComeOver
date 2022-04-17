@@ -238,6 +238,16 @@ public class Drag : MonoBehaviour
             {
                 Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
                 UserClass newClass = c.gameObject.GetComponentInParent<Identity>().classReference;
+
+                bool isArrow = transform.parent.name.Equals("Arrow");
+                string message;
+                if ((isArrow && !relation.CanAttach(relation.sourceClass, newClass, out message)) || ( !isArrow && !relation.CanAttach(newClass, relation.destinationClass, out message)))
+                {
+                    errorPanel.gameObject.SetActive(true);
+                    errorPanel.GetChild(1).GetComponent<Text>().text = message;
+                    return false;
+                }
+
                 if (storage != null)
                 {
                     storage.relations.Remove(relation);
@@ -246,7 +256,7 @@ public class Drag : MonoBehaviour
                 {
                     Iml.GetSingleton().structuralModel.relations.Add(relation);
                 }
-                if (transform.parent.name.Equals("Arrow"))
+                if (isArrow)
                 {
                     relation.AttachToClass(relation.sourceClass, newClass);
                 }

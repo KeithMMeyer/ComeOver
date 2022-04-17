@@ -135,10 +135,9 @@ public class EditRelation : EditObject
 
     private void SaveSource(int i)
     {
-        string message;
         relationReference.sourceClass.relations.Remove(relationReference);
         UserClass classRef = Iml.GetSingleton().structuralModel.classes[i];
-        if (true || relationReference.CanAttach(classRef, relationReference.destinationClass, out message))
+        if (relationReference.CanAttach(classRef, relationReference.destinationClass, out string message))
         {
             relationReference.AttachToClass(classRef, relationReference.destinationClass);
         }
@@ -152,10 +151,9 @@ public class EditRelation : EditObject
 
     private void SaveDestination(int i)
     {
-        string message;
         relationReference.destinationClass.relations.Remove(relationReference);
         UserClass classRef = Iml.GetSingleton().structuralModel.classes[i];
-        if (true || relationReference.CanAttach(classRef, relationReference.destinationClass, out message))
+        if (relationReference.CanAttach(relationReference.sourceClass, classRef, out string message))
         {
             relationReference.AttachToClass(relationReference.sourceClass, classRef);
         }
@@ -165,5 +163,10 @@ public class EditRelation : EditObject
             relationReference.destinationClass.relations.Add(relationReference);
             PrintError(message);
         }
+    }
+
+    public void attemptAttach()
+    {
+        OpenDrawer(null);
     }
 }

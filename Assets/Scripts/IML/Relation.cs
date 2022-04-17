@@ -214,56 +214,66 @@ public class Relation
         BuildStrings();
     }
 
-    public bool CanAttach(UserClass source, UserClass destination, out string message)
+    public bool CanAttach(UserClass src, UserClass dest, out string message)
     {
+        message = "";
+        if (src.id.Equals(source) && dest.id.Equals(destination))
+            return true;
+
         if (type.Equals("INHERITENCE"))
         {
-            message = "Adding this relation would create a cycle of inheritance; insertion aborted.";
-            List<UserClass> todo = new List<UserClass>();
-            List<UserClass> visited = new List<UserClass>();
-
-            todo.Add(sourceClass);
-            foreach (UserClass each in todo)
+            if (src.Equals(dest))
             {
-                visited.Add(each);
-                foreach (Relation r in each.relations)
+                message = "An inheritance relation cannot have the same source and target.";
+                //return false;
+            }
+
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            foreach (Relation r in Iml.GetSingleton().structuralModel.relations)
+            {
+                if (r.type.Equals("INHERITENCE") && r != this)
                 {
-                    if (r.type.Equals("INHERITENCE") && r.sourceClass.Equals(source))
+                    if (src.id.Equals(r.source))
                     {
-                        if (visited.Contains(r.destinationClass))
-                        {
-                            return false;
-                        }
-                        else
-                        {
-                            if (!todo.Contains(r.destinationClass))
-                                todo.Add(r.destinationClass);
-                            break;
-                        }
+                        message = "IML does not allow multiple inheritances; a class can only inherit from one other class. (" + src.name + ")";
+                        return false;
                     }
+                    dict.Add(r.source, r.destination);
                 }
             }
-        }
-        message = "IML Class " + source.name + " already contains, inherits, or is inherited by a Class with an attribute/relation with the name \"" + name + "\". Please select a unique relation name.";
-        foreach (Relation r in source.relations)
-        {
-            if (r.sourceClass.Equals(source) && r != this && r.name.Equals(name))
+            string target = dest.id;
+            bool found = true;
+            while (found)
             {
-                if(type.Equals("INHERITENCE")) // only inheritences have null names, and they're always the same
-                    message = "IML does not allow multiple inheritance; a class can only inherit from one other class.";
-                return false;
-            }
-            if (r.sourceClass.Equals(source) && r.type.Equals("INHERITENCE"))
-            {
-                if (!CanAttach(r.sourceClass, destination, out message))
+                if (target.Equals(src.id))
+                {
+                    message = "Adding this relation would create a cycle of inheritance; insertion aborted.";
                     return false;
+                }
+                found = dict.TryGetValue(target, out target);
             }
+
         }
-        foreach (UserAttribute a in source.attributes)
-        {
-            if (a.name.Equals(name))
-                return false;
-        }
+        //message = "IML Class " + source.name + " already contains, inherits, or is inherited by a Class with an attribute/relation with the name \"" + name + "\". Please select a unique relation name.";
+        //foreach (Relation r in source.relations)
+        //{
+        //    if (r.sourceClass.Equals(source) && r != this && r.name.Equals(name))
+        //    {
+        //        if (type.Equals("INHERITENCE")) // only inheritences have null names, and they're always the same
+        //            message = "IML does not allow multiple inheritance; a class can only inherit from one other class.";
+        //        return false;
+        //    }
+        //    if (r.sourceClass.Equals(source) && r.type.Equals("INHERITENCE"))
+        //    {
+        //        if (!CanAttach(r.sourceClass, destination, out message))
+        //            return false;
+        //    }
+        //}
+        //foreach (UserAttribute a in source.attributes)
+        //{
+        //    if (a.name.Equals(name))
+        //        return false;
+        //}
         message = "";
         return true;
     }
