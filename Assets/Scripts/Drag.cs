@@ -68,7 +68,7 @@ public class Drag : MonoBehaviour
 
     public void Grabbed(SelectEnterEventArgs args)
     {
-        if(interactable == null)
+        if (interactable == null)
             Start();
         grabbed = true;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = false;
@@ -84,8 +84,13 @@ public class Drag : MonoBehaviour
             }
             if (transform.parent.name.Equals("Arrow"))
             {
-                storage = relation.destinationClass;
-                relation.destinationClass = null;
+                if (relation.destinationClass != null) // this check is to fix a bug with "new" relations, can be removed if source of bug found
+                {
+                    storage = relation.destinationClass;
+                    relation.destinationClass = null;
+                    errorPanel.gameObject.SetActive(true);
+                    errorPanel.GetChild(1).GetComponent<Text>().text = "Saved destination to " + storage.name;
+                }
             }
             else
             {
@@ -160,8 +165,8 @@ public class Drag : MonoBehaviour
             if (!placed)
             {
                 Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
-                //errorPanel.gameObject.SetActive(true);
-                //errorPanel.GetChild(1).GetComponent<Text>().text = "Relations can only be added to IML Classes.";
+                errorPanel.gameObject.SetActive(true);
+                errorPanel.GetChild(1).GetComponent<Text>().text = "Storage " + storage;
                 if (storage != null)
                 {
                     if (transform.parent.name.Equals("Arrow"))
@@ -176,7 +181,14 @@ public class Drag : MonoBehaviour
                 }
                 else
                 {
-                    Destroy(relation.gameObject);
+                    if (relation.sourceClass != null && relation.destinationClass != null)  // this statement is to fix a bug with "new" relations, can be removed if source of bug found
+                    {
+                        relation.AttachToClass(relation.sourceClass, relation.destinationClass);
+                    }
+                    else
+                    {
+                        Destroy(relation.gameObject);
+                    }
                 }
             }
 
@@ -242,6 +254,8 @@ public class Drag : MonoBehaviour
                 if (transform.parent.name.Equals("Arrow"))
                 {
                     relation.AttachToClass(relation.sourceClass, newClass);
+                    errorPanel.gameObject.SetActive(true);
+                    errorPanel.GetChild(1).GetComponent<Text>().text = "Relation from " + relation.sourceClass.name + " to " + relation.destinationClass.name;
                 }
                 else
                 {
