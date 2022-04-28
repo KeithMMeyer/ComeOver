@@ -125,7 +125,10 @@ public class EditAttribute : EditObject
     private void SaveValue(string value)
     {
         string message = attributeReference.SetValue(value);
-        if(message != null)
+        if (message != null)
+        {
             PrintError(message);
+            editPanel.GetChild(5).GetChild(1).GetComponent<InputField>().text = attributeReference.value;
+        }
     }
 }

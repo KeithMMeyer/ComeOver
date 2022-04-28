@@ -164,9 +164,4 @@ public class EditRelation : EditObject
             PrintError(message);
         }
     }
-
-    public void attemptAttach()
-    {
-        OpenDrawer(null);
-    }
 }

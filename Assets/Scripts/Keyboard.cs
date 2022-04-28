@@ -13,26 +13,38 @@ public class Keyboard : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (Application.isEditor)
+            Destroy(this);
         field = GetComponent<InputField>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (field.isFocused && waiting) {
+        if (field.isFocused && waiting)
+        {
             overlayKeyboard = TouchScreenKeyboard.Open(field.text, TouchScreenKeyboardType.Default);
             waiting = false;
         }
         if (overlayKeyboard != null && overlayKeyboard.active)
         {
             field.text = overlayKeyboard.text;
-        } else
+        }
+        else
         {
             if (waiting == false)
             {
                 field.DeactivateInputField();
                 waiting = true;
+                overlayKeyboard = null;
             }
         }
     }
+
+    //public void ForceQuit()
+    //{
+    //    overlayKeyboard.active = false;
+    //    field.DeactivateInputField();
+    //    waiting = true;
+    //}
 }

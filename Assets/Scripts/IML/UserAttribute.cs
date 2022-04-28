@@ -111,7 +111,7 @@ public class UserAttribute
         string newValue = ConvertValue(value, true, out message);
         if (newValue != null)
         {
-            this.value = value;
+            this.value = newValue;
             GenerateDisplayString();
             return null;
         }
@@ -132,13 +132,20 @@ public class UserAttribute
         }
         display += visibility.Equals("PUBLIC") ? "+" : visibility.Equals("PRIVATE") ? "-" : "#";
         display += " " + name + " : " + type;
-        display += value != null && !value.Equals("") ? " = " + value : "";
+        if (value != null && !value.Equals("")) {
+            display += " = ";
+            string seperator = type.Equals("STRING") ? "\",\"" : ",";
+            int length = (value.Length - value.Replace(seperator, "").Length) / (type.Equals("STRING") ? 3 : 1) + 1; // fast way of counting length
+            display += length < 5 ? value : type + "[" + length + "]";
+        }
 
         if (gameObject != null)
         {
             gameObject.name = "Attribute : " + name;
             gameObject.transform.GetChild(1).gameObject.GetComponent<TextMesh>().text = display;
         }
+        if(parent != null)
+            parent.Resize();
     }
 
     public float GetWidth()
@@ -162,7 +169,7 @@ public class UserAttribute
     private string ConvertValue(string value, bool throwErrors, out string message)
     {
         message = null;
-        if (value.Equals(""))
+        if (value == null || value.Equals(""))
             return "";
         if (value.StartsWith("[") && value.EndsWith("]"))
         {
@@ -243,12 +250,15 @@ public class UserAttribute
             if (value.Contains("\""))
                 value = value.Substring(1, value.Length - 2);
             value = ConvertValue(value);
-            if (type.Equals("STRING"))
+            if (value != null)
             {
-                value = "\"" + value + "\"";
+                //if (type.Equals("STRING"))
+                //{
+                //    value = "\"" + value + "\"";
+                //}
+                value = PadValue(value, 1);
+                return value;
             }
-            value = PadValue(value, 1);
-            return value;
         }
         return null;
     }
