@@ -39,7 +39,7 @@ public class EditRelation : EditObject
             nameField.onEndEdit.RemoveAllListeners();
             nameField.placeholder.GetComponent<Text>().text = relationReference.name;
             nameField.text = relationReference.name;
-            nameField.onEndEdit.AddListener(delegate (string name) { relationReference.SetName(name); });
+            nameField.onEndEdit.AddListener(delegate (string name) { if (ValidateName(name)){ relationReference.SetName(name); } else { nameField.text = relationReference.name; } });
             SetUpBounds();
         }
 
@@ -163,5 +163,18 @@ public class EditRelation : EditObject
             relationReference.destinationClass.relations.Add(relationReference);
             PrintError(message);
         }
+    }
+
+    protected override bool ValidateName(string candidateName)
+    {
+        if (candidateName == relationReference.name)
+            return true;
+        if (relationReference.sourceClass.FindAttribute(candidateName) != null || relationReference.sourceClass.FindRelation(candidateName) != null)
+        {
+            PrintError("IML Class " + relationReference.sourceClass.name + " already contains, inherits, or is inherited by a Class with an attribute/relation with the name \"" + candidateName + "\". Please select a unique relation name.");
+            return false;
+        }
+
+        return base.ValidateName(candidateName);
     }
 }

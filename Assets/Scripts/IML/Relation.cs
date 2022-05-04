@@ -89,7 +89,7 @@ public class Relation
         {
             lineRenderer = gameObject.AddComponent<LineRenderer>();
             lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-            Color color = type.Equals("REFERENCE") ? new Color(255, 0, 0) : type.Equals("COMPOSITION") ? new Color(0, 255, 0) : new Color(0, 0, 255);
+            Color color = type.Equals("REFERENCE") ? new Color(0, 0, 0) : type.Equals("COMPOSITION") ? new Color(0, 0, 0) : new Color(255, 255, 255);
             lineRenderer.startColor = color;
             lineRenderer.endColor = color;
             gameObject.transform.GetChild(0).GetChild(1).GetComponent<TextMesh>().color = color;
@@ -254,27 +254,16 @@ public class Relation
             }
 
         }
-        //message = "IML Class " + source.name + " already contains, inherits, or is inherited by a Class with an attribute/relation with the name \"" + name + "\". Please select a unique relation name.";
-        //foreach (Relation r in source.relations)
-        //{
-        //    if (r.sourceClass.Equals(source) && r != this && r.name.Equals(name))
-        //    {
-        //        if (type.Equals("INHERITENCE")) // only inheritences have null names, and they're always the same
-        //            message = "IML does not allow multiple inheritance; a class can only inherit from one other class.";
-        //        return false;
-        //    }
-        //    if (r.sourceClass.Equals(source) && r.type.Equals("INHERITENCE"))
-        //    {
-        //        if (!CanAttach(r.sourceClass, destination, out message))
-        //            return false;
-        //    }
-        //}
-        //foreach (UserAttribute a in source.attributes)
-        //{
-        //    if (a.name.Equals(name))
-        //        return false;
-        //}
-        message = "";
+        if (name != null)
+        {
+            Relation other = src.FindRelation(name);
+            if (src.FindAttribute(name) != null || (other != null && other != this))
+            {
+                message = "Changing this relation would result a duplicate name for attributes and/or relations; update aborted.";
+                return false;
+            }
+        }
+    message = "";
         return true;
     }
 }

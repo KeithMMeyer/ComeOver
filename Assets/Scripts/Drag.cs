@@ -75,7 +75,7 @@ public class Drag : MonoBehaviour
 
     public void Grabbed(SelectEnterEventArgs args)
     {
-        if(interactable == null)
+        if (interactable == null)
             init();
         grabbed = true;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = false;
@@ -197,6 +197,14 @@ public class Drag : MonoBehaviour
             if (c.gameObject.layer == 6) //classes
             {
                 UserAttribute attribute = gameObject.GetComponentInParent<Identity>().attributeReference;
+                //UserAttribute other = attribute.parent.FindAttribute(name);
+                //if (attribute.parent.FindRelation(name) != null || (other != null && other != attribute))
+                //{
+                //    errorPanel.gameObject.SetActive(true);
+                //    errorPanel.GetChild(1).GetComponent<Text>().text = "Changing this attribute would result a duplicate name for attributes and/or relations; update aborted.";
+                //    return false;
+                //}
+
                 if (attribute.parent != null)
                 {
                     UserClass oldClass = attribute.parent;
@@ -241,7 +249,7 @@ public class Drag : MonoBehaviour
 
                 bool isArrow = transform.parent.name.Equals("Arrow");
                 string message;
-                if ((isArrow && !relation.CanAttach(relation.sourceClass, newClass, out message)) || ( !isArrow && !relation.CanAttach(newClass, relation.destinationClass, out message)))
+                if ((isArrow && !relation.CanAttach(relation.sourceClass, newClass, out message)) || (!isArrow && !relation.CanAttach(newClass, relation.destinationClass, out message)))
                 {
                     errorPanel.gameObject.SetActive(true);
                     errorPanel.GetChild(1).GetComponent<Text>().text = message;

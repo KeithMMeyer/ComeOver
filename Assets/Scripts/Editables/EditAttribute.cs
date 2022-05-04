@@ -32,7 +32,7 @@ public class EditAttribute : EditObject
         nameField.onEndEdit.RemoveAllListeners();
         nameField.placeholder.GetComponent<Text>().text = attributeReference.name;
         nameField.text = attributeReference.name;
-        nameField.onEndEdit.AddListener(delegate (string name) { attributeReference.SetName(name); });
+        nameField.onEndEdit.AddListener(delegate (string name) { if (ValidateName(name)) { attributeReference.SetName(name); } else { nameField.text = attributeReference.name; } });
 
         Dropdown typeField = editPanel.GetChild(2).GetChild(1).GetComponent<Dropdown>();
         typeField.onValueChanged.RemoveAllListeners();
@@ -130,5 +130,23 @@ public class EditAttribute : EditObject
             PrintError(message);
             editPanel.GetChild(5).GetChild(1).GetComponent<InputField>().text = attributeReference.value;
         }
+    }
+
+    protected override bool ValidateName(string candidateName)
+    {
+        if (candidateName == attributeReference.name)
+            return true;
+        if (attributeReference.parent.FindAttribute(candidateName) != null || attributeReference.parent.FindRelation(candidateName) != null)
+        {
+            PrintError("IML Class " + attributeReference.parent.name + " already contains, inherits, or is inherited by a Class with an attribute/relation with the name \"" + candidateName + "\". Please select a unique attribute name.");
+            return false;
+        }
+
+        return base.ValidateName(candidateName);
+    }
+
+    public void OpenSesame()
+    {
+        OpenDrawer(null);
     }
 }

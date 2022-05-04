@@ -31,7 +31,8 @@ public class EditClass : EditObject
             nameField.onEndEdit.RemoveAllListeners();
             nameField.placeholder.GetComponent<Text>().text = classReference.name;
             nameField.text = classReference.name;
-            nameField.onEndEdit.AddListener(delegate (string name) { classReference.SetName(name); });
+            nameField.onEndEdit.AddListener(delegate (string name) { if(ValidateName(name)){ classReference.SetName(name); } else { nameField.text = classReference.name; }
+        });
 
             Dropdown abstractField = editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>();
             abstractField.onValueChanged.RemoveAllListeners();
@@ -39,4 +40,16 @@ public class EditClass : EditObject
             abstractField.onValueChanged.AddListener(delegate (int isAbstract) { classReference.SetAbstract(isAbstract == 1); });
         }
     }
+
+    protected override bool ValidateName(string candidateName)
+    {
+        foreach (UserClass c in Iml.GetSingleton().structuralModel.classes)
+            if (c.name.Equals(candidateName) && !c.Equals(classReference))
+            {
+                PrintError("IML Structural Model already contains a Class with the name " + candidateName + ". Please use unqiue Class names.");
+                return false;
+            }
+        return base.ValidateName(candidateName);
+    }
+
 }

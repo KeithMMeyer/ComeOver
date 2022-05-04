@@ -79,7 +79,7 @@ public class UserClass
         gameObject.transform.GetChild(1).localPosition = namePosition;
         this.height = height;
         this.width = width;
-        
+
         ReattachAttributes();
         //updateRelations();
     }
@@ -161,11 +161,86 @@ public class UserClass
         }
     }
 
+    public UserAttribute FindAttribute(string name)
+    {
+        UserAttribute result = FindAttributeUp(name);
+        if (result != null)
+            return result;
+        result = FindAttributeDown(name);
+        return result;
+
+    }
+    private UserAttribute FindAttributeUp(string name)
+    {
+        foreach (UserAttribute a in attributes)
+            if (a.name.Equals(name))
+                return a;
+        foreach (Relation r in relations)
+            if (r.type.Equals("INHERITENCE") && r.sourceClass.Equals(this))
+                return r.destinationClass.FindAttributeUp(name);
+        return null;
+    }
+
+    private UserAttribute FindAttributeDown(string name)
+    {
+        foreach (UserAttribute a in attributes)
+            if (a.name.Equals(name))
+                return a;
+        foreach (Relation r in relations)
+            if (r.type.Equals("INHERITENCE") && r.destinationClass.Equals(this))
+            {
+                UserAttribute result = r.sourceClass.FindAttributeDown(name);
+                if (result != null)
+                    return result;
+            }
+        return null;
+    }
+
+    public Relation FindRelation(string name)
+    {
+        Relation result = FindRelationUp(name);
+        if (result != null)
+            return result;
+        result = FindRelationDown(name);
+        return result;
+    }
+
+    private Relation FindRelationUp(string name)
+    {
+        UserClass dest = null;
+        foreach (Relation r in relations)
+        {
+            if (r.name != null && r.name.Equals(name))
+                return r;
+            if (r.type.Equals("INHERITENCE") && r.sourceClass.Equals(this))
+                dest = r.destinationClass;
+        }
+        if (dest != null)
+            return dest.FindRelationUp(name);
+        return null;
+    }
+
+    private Relation FindRelationDown(string name)
+    {
+        foreach (Relation r in relations)
+        {
+            if (r.name != null && r.name.Equals(name))
+                return r;
+            if (r.type.Equals("INHERITENCE") && r.destinationClass.Equals(this))
+            {
+                Relation result = r.sourceClass.FindRelationDown(name);
+                if (result != null)
+                    return result;
+            }
+        }
+        return null;
+    }
+
     public override bool Equals(object obj)
     {
         if (obj.GetType() != typeof(UserClass))
             return false;
-        UserClass other = (UserClass) obj;
+        UserClass other = (UserClass)obj;
 
         return id.Equals(other.id);
     }

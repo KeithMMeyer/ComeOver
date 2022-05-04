@@ -191,6 +191,12 @@ public class UserAttribute
 
                 foreach (string part in parts)
                 {
+                    if(throwErrors && !ValidateValue(part))
+                    {
+                        message = "The entered value \"" + part + "\" is not a valid input for type " + type + ".";
+                        return null;
+                    }
+
                     string departed = ConvertValue(part);
                     if (departed != null)
                     {
@@ -217,6 +223,11 @@ public class UserAttribute
 
                 foreach (string part in parts)
                 {
+                    if (throwErrors && !ValidateValue(part))
+                    {
+                        message = "The entered value \"" + part + "\" is not a valid input for type " + type + ".";
+                        return null;
+                    }
                     string departed = ConvertValue(part);
                     if (departed != null)
                     {
@@ -231,7 +242,7 @@ public class UserAttribute
             {
                 foreach (string finalValue in values)
                 {
-                    if (type.Equals("STRING"))
+                    if (type.Equals("STRING") && (upperBound.Equals("*") || int.Parse(upperBound) > 1))
                     {
                         value += ",\"" + finalValue + "\"";
                     }
@@ -249,13 +260,18 @@ public class UserAttribute
         {
             if (value.Contains("\""))
                 value = value.Substring(1, value.Length - 2);
+            if (throwErrors && !ValidateValue(value))
+            {
+                message = "The entered value \"" + value + "\" is not a valid input for type " + type + ".";
+                return null;
+            }
             value = ConvertValue(value);
             if (value != null)
             {
-                //if (type.Equals("STRING"))
-                //{
-                //    value = "\"" + value + "\"";
-                //}
+                if (type.Equals("STRING") && (upperBound.Equals("*") || int.Parse(upperBound) > 1))
+                {
+                    value = "\"" + value + "\"";
+                }
                 value = PadValue(value, 1);
                 return value;
             }
@@ -327,6 +343,31 @@ public class UserAttribute
                 break;
         }
         return null;
+    }
+
+    private bool ValidateValue(string value)
+    {
+        string[] boolStrings = { "TRUE", "T", "FALSE", "F" };
+        List<string> boolValues = boolStrings.ToList();
+
+        switch (type)
+        {
+            case "STRING":
+                return true;
+            case "BOOLEAN":
+                if (boolValues.IndexOf(value.ToUpper()) != -1)
+                    return true;
+                break;
+            case "DOUBLE":
+                if (int.TryParse(value, out _) || double.TryParse(value, out _))
+                    return true;
+                break;
+            case "INTEGER":
+                if (int.TryParse(value, out _))
+                    return true;
+                break;
+        }
+        return false;
     }
 
 }
