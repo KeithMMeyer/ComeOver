@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Photon.Pun;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
@@ -8,40 +9,56 @@ public class Main : MonoBehaviour
     public string inputfile;
 
     // Start is called before the first frame update
-    void Start()
+    public void Start()
     {
-        Iml iml = Importer.ImportXml(inputfile);
+        Iml iml = Iml.GetSingleton();
+        if (iml == null)
+        {
+            if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("Iml", out object output))
+            {
+                iml = (Iml)output;
+            } else {
+                iml = Importer.ImportXml(inputfile);
+                ExitGames.Client.Photon.Hashtable hash = new ExitGames.Client.Photon.Hashtable();
+                hash.Add("Iml", iml);
+                PhotonNetwork.CurrentRoom.SetCustomProperties(hash);
+            }
+        } else
+        {
+            if (iml.structuralModel.classes.Count > 0 && iml.structuralModel.classes[0].gameObject != null)
+                return;
+        }
 
         GenerateClasses(iml);
 
-        foreach (Relation relation in iml.structuralModel.relations)
-        {
-            string source = relation.source;
-            UserClass start = null;
-            foreach (UserClass classXml in iml.structuralModel.classes)
+            foreach (Relation relation in iml.structuralModel.relations)
             {
-                if (classXml.id.Equals(source))
+                string source = relation.source;
+                UserClass start = null;
+                foreach (UserClass classXml in iml.structuralModel.classes)
                 {
-                    start = classXml;
-                    classXml.AddRelation(relation);
-                    break;
+                    if (classXml.id.Equals(source))
+                    {
+                        start = classXml;
+                        classXml.AddRelation(relation);
+                        break;
+                    }
                 }
-            }
 
-            string destination = relation.destination;
-            UserClass end = null;
-            foreach (UserClass classXml in iml.structuralModel.classes)
-            {
-                if (classXml.id.Equals(destination))
+                string destination = relation.destination;
+                UserClass end = null;
+                foreach (UserClass classXml in iml.structuralModel.classes)
                 {
-                    end = classXml;
-                    classXml.AddRelation(relation);
-                    break;
+                    if (classXml.id.Equals(destination))
+                    {
+                        end = classXml;
+                        classXml.AddRelation(relation);
+                        break;
+                    }
                 }
+                relation.CreateGameObject();
+                relation.AttachToClass(start, end);
             }
-            relation.CreateGameObject();
-            relation.AttachToClass(start, end);
-        }
     }
 
     private void GenerateClasses(Iml iml)

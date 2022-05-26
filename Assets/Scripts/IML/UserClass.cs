@@ -212,7 +212,7 @@ public class UserClass
         {
             if (r.name != null && r.name.Equals(name))
                 return r;
-            if (r.type.Equals("INHERITENCE") && r.sourceClass.Equals(this))
+            if (r.type.Equals("INHERITENCE") && r.sourceClass.Equals(this) && r.sourceClass.Equals(this))
                 dest = r.destinationClass;
         }
         if (dest != null)
@@ -224,7 +224,7 @@ public class UserClass
     {
         foreach (Relation r in relations)
         {
-            if (r.name != null && r.name.Equals(name))
+            if (r.name != null && r.sourceClass.Equals(this) && r.name.Equals(name))
                 return r;
             if (r.type.Equals("INHERITENCE") && r.destinationClass.Equals(this))
             {
