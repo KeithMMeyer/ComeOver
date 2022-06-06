@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using UnityEngine;
@@ -34,9 +35,11 @@ public class UserClass
     public void CreateGameObject()
     {
         GameObject container = new GameObject("Classes");
-        GameObject templateClass = Resources.Load<GameObject>("ClassObject");
 
-        GameObject classObject = UnityEngine.Object.Instantiate(templateClass);
+        //GameObject templateClass = Resources.Load<GameObject>("ClassObject");
+        //GameObject classObject = UnityEngine.Object.Instantiate(templateClass);
+        GameObject classObject = PhotonNetwork.Instantiate("ClassObject", new Vector3(0, 0, 0), Quaternion.identity, 0);
+
         classObject.transform.position = Iml.To3dPosition(x, y, 3);
         classObject.transform.Rotate(-90.0f, 0.0f, 0.0f, Space.Self);
         classObject.GetComponent<Identity>().classReference = this;

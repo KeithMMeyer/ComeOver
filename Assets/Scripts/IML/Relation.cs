@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using UnityEngine;
@@ -38,9 +39,10 @@ public class Relation
 
     public void CreateGameObject()
     {
-        GameObject templateRelation = Resources.Load<GameObject>("RelationObject");
-
-        GameObject relationObject = UnityEngine.Object.Instantiate(templateRelation);
+        //GameObject templateRelation = Resources.Load<GameObject>("RelationObject");
+        //GameObject relationObject = UnityEngine.Object.Instantiate(templateRelation);
+        GameObject relationObject = PhotonNetwork.Instantiate("RelationObject", new Vector3(0, 0, 0), Quaternion.identity, 0);
+        relationObject.transform.Rotate(new Vector3(-90, 0, 0));
 
         relationObject.GetComponent<Identity>().relationReference = this;
 
@@ -48,12 +50,12 @@ public class Relation
 
         if (!type.Equals("COMPOSITION"))
         {
-            GameObject.Destroy(gameObject.transform.GetChild(1).GetChild(1).gameObject);
+            PhotonNetwork.Destroy(gameObject.transform.GetChild(1).GetChild(1).gameObject);
         }
         if (type.Equals("INHERITENCE"))
         {
-            GameObject.Destroy(gameObject.transform.GetChild(2).gameObject);
-            GameObject.Destroy(gameObject.transform.GetChild(2).gameObject);
+            PhotonNetwork.Destroy(gameObject.transform.GetChild(2).gameObject);
+            PhotonNetwork.Destroy(gameObject.transform.GetChild(2).gameObject);
         }
 
         BuildStrings();
@@ -87,8 +89,7 @@ public class Relation
     {
         if (lineRenderer == null)
         {
-            lineRenderer = gameObject.AddComponent<LineRenderer>();
-            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+            lineRenderer = gameObject.GetComponent<LineRenderer>();
             Color color = type.Equals("REFERENCE") ? new Color(0, 0, 0) : type.Equals("COMPOSITION") ? new Color(0, 0, 0) : new Color(255, 255, 255);
             lineRenderer.startColor = color;
             lineRenderer.endColor = color;
@@ -97,7 +98,6 @@ public class Relation
             {
                 gameObject.transform.GetChild(1).GetChild(1).GetComponent<TextMesh>().color = color;
             }
-            lineRenderer.widthMultiplier = 0.01f;
         }
         lineRenderer.positionCount = 2;
 

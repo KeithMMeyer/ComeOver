@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Photon.Pun;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using UnityEngine;
@@ -28,9 +29,9 @@ public class UserAttribute
 
     public void CreateGameObject()
     {
-        GameObject templateAttribute = Resources.Load<GameObject>("AttributeObject");
-
-        GameObject attributeObject = UnityEngine.Object.Instantiate(templateAttribute);
+        //GameObject templateAttribute = Resources.Load<GameObject>("AttributeObject");
+        //GameObject attributeObject = UnityEngine.Object.Instantiate(templateAttribute);
+        GameObject attributeObject = PhotonNetwork.Instantiate("AttributeObject", new Vector3(0, 0, 0), Quaternion.identity, 0);
 
         attributeObject.GetComponent<Identity>().attributeReference = this;
         attributeObject.name = "Attribute : " + name;

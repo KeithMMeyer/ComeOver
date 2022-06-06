@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -73,10 +74,23 @@ public class Drag : MonoBehaviour
         trash.GetComponent<MeshRenderer>().forceRenderingOff = true;
     }
 
+    public void Grabbed()
+    {
+        Grabbed(null);
+    }
+
     public void Grabbed(SelectEnterEventArgs args)
     {
         if (interactable == null)
             init();
+        if (dragParent)
+        {
+            transform.GetComponentInParent<PhotonView>().RequestOwnership();
+        }
+        else
+        {
+            transform.GetComponent<PhotonView>().RequestOwnership();
+        }
         grabbed = true;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = false;
         active = args.interactorObject.transform;
