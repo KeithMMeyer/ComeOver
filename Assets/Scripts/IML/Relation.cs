@@ -50,7 +50,7 @@ public class Relation
 
         if (!type.Equals("COMPOSITION"))
         {
-            PhotonNetwork.Destroy(gameObject.transform.GetChild(1).GetChild(1).gameObject);
+            GameObject.Destroy(gameObject.transform.GetChild(1).GetChild(1).gameObject);
         }
         if (type.Equals("INHERITENCE"))
         {

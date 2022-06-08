@@ -43,7 +43,15 @@ public class Drag : MonoBehaviour
                 movable.position = position;
                 if (gameObject.layer == 6) //classes
                 {
-                    UpdateRelations(position);
+                    if (PhotonNetwork.IsMasterClient)
+                    {
+                        UpdateRelations(position);
+                    }
+                    else
+                    {
+                        PhotonView photonView = PhotonView.Get(this);
+                        photonView.RPC("UpdateRelations", RpcTarget.MasterClient, position);
+                    }
                 }
                 if (gameObject.layer == 8) //relations
                 {
@@ -118,6 +126,14 @@ public class Drag : MonoBehaviour
 
     public void Dropped(SelectExitEventArgs args)
     {
+        if (dragParent)
+        {
+            transform.GetComponentInParent<PhotonView>().TransferOwnership(PhotonNetwork.MasterClient);
+        }
+        else
+        {
+            transform.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.MasterClient);
+        }
         grabbed = false;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = true;
         if (gameObject.layer == 6) //classes

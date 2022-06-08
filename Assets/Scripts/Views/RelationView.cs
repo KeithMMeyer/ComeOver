@@ -22,7 +22,7 @@ public class RelationView : LineView
             {
                 if (!type.Equals("COMPOSITION"))
                 {
-                    //PhotonNetwork.Destroy(transform.GetChild(1).GetChild(1).gameObject);
+                    GameObject.Destroy(transform.GetChild(1).GetChild(1).gameObject);
                 }
                 if (type.Equals("INHERITENCE"))
                 {
