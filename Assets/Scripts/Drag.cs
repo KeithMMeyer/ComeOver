@@ -162,7 +162,7 @@ public class Drag : MonoBehaviour
                     return;
                 }
             }
-            bool placed = placeAttribute(collisionList);
+            bool placed = PlaceAttribute(collisionList);
 
             if (!placed)
             {
@@ -220,52 +220,102 @@ public class Drag : MonoBehaviour
         }
     }
 
-    private bool placeAttribute(List<Collider> collisionList)
+    private bool PlaceAttribute(List<Collider> collisionList)
     {
+        GameObject classObject = null;
+        GameObject attributeObject = null;
+
         foreach (Collider c in collisionList)
         {
-            if (c.gameObject.layer == 6) //classes
+            if (classObject == null && c.gameObject.layer == 6) //classes
             {
-                UserAttribute attribute = gameObject.GetComponentInParent<Identity>().attributeReference;
-                //UserAttribute other = attribute.parent.FindAttribute(name);
-                //if (attribute.parent.FindRelation(name) != null || (other != null && other != attribute))
-                //{
-                //    errorPanel.gameObject.SetActive(true);
-                //    errorPanel.GetChild(1).GetComponent<Text>().text = "Changing this attribute would result a duplicate name for attributes and/or relations; update aborted.";
-                //    return false;
-                //}
-
-                if (attribute.parent != null)
-                {
-                    UserClass oldClass = attribute.parent;
-                    oldClass.attributes.Remove(attribute);
-                    oldClass.Resize();
-                }
-
-                UserClass newClass = c.gameObject.GetComponentInParent<Identity>().classReference;
-
-                int position = 0;
-
-                if (c.transform.position.y > interactable.transform.position.y)
-                    position = newClass.attributes.Count;
-                foreach (Collider c2 in collisionList)
-                {
-                    if (c2.gameObject.layer == 7) //attributes
-                    {
-                        if (newClass.attributes.Contains(c2.transform.parent.GetComponent<Identity>().attributeReference) && c2.transform.position.y > interactable.transform.position.y)
-                        {
-                            position = newClass.attributes.IndexOf(c2.transform.parent.GetComponent<Identity>().attributeReference) + 1;
-                            break;
-                        }
-                    }
-                }
-                newClass.attributes.Insert(position, attribute);
-                newClass.Resize();
-
-                return true;
+                classObject = c.gameObject;
+            }
+            if (attributeObject == null && c.gameObject.layer == 7) //attributes
+            {
+                attributeObject = c.gameObject;
             }
         }
-        return false;
+
+        if (classObject == null)
+            return false;
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PlacingAttribute(classObject, attributeObject);
+        }
+        else
+        {
+            string id = classObject.GetComponentInParent<ClassView>().id;
+            string text = null;
+            if(attributeObject != null)
+                text = attributeObject.transform.parent.GetChild(1).GetComponent<Text>().text;
+
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("PlacingAttribute", RpcTarget.MasterClient, id, text);
+            return true;
+        }
+
+        return true;
+    }
+
+    public void PlacingAttribute(string classId, string attributeText)
+    {
+        UserClass classRefence = null;
+        GameObject attributeObject = null;
+
+        foreach (UserClass c in Iml.GetSingleton().structuralModel.classes)
+        {
+            if (c.id.Equals(classId))
+            {
+                classRefence = c;
+                break;
+            }
+        }
+        if (classRefence == null)
+            Debug.LogError("Tried to place attribute but no class match found! ID:'" + classId + "'");
+        foreach (UserAttribute a in classRefence.attributes)
+        {
+            if (a.displayString.Equals(attributeText))
+            {
+                attributeObject = a.gameObject.transform.GetChild(0).gameObject;
+                break;
+            }
+        }
+        PlacingAttribute(classRefence.gameObject.transform.GetChild(0).gameObject, attributeObject);
+    }
+
+    private void PlacingAttribute(GameObject classObject, GameObject attributeObject)
+    {
+        UserAttribute attribute = gameObject.GetComponentInParent<Identity>().attributeReference;
+        //UserAttribute other = attribute.parent.FindAttribute(name);
+        //if (attribute.parent.FindRelation(name) != null || (other != null && other != attribute))
+        //{
+        //    errorPanel.gameObject.SetActive(true);
+        //    errorPanel.GetChild(1).GetComponent<Text>().text = "Changing this attribute would result a duplicate name for attributes and/or relations; update aborted.";
+        //    return false;
+        //}
+
+        if (attribute.parent != null)
+        {
+            UserClass oldClass = attribute.parent;
+            oldClass.attributes.Remove(attribute);
+            oldClass.Resize();
+        }
+
+        UserClass newClass = classObject.gameObject.GetComponentInParent<Identity>().classReference;
+
+        int position = 0;
+
+        if (classObject.transform.position.y > interactable.transform.position.y)
+            position = newClass.attributes.Count;
+
+        if (attributeObject != null)
+            if (newClass.attributes.Contains(attributeObject.transform.parent.GetComponent<Identity>().attributeReference) && attributeObject.transform.position.y > interactable.transform.position.y)
+                position = newClass.attributes.IndexOf(attributeObject.transform.parent.GetComponent<Identity>().attributeReference) + 1;
+
+        newClass.attributes.Insert(position, attribute);
+        newClass.Resize();
     }
 
     private bool placeRelation(List<Collider> collisionList)
@@ -321,6 +371,12 @@ public class Drag : MonoBehaviour
     public void TrashObject()
     {
         GameObject.Find("ToolBox").GetComponent<ToolBox>().closeAll();
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("TrashObject", RpcTarget.MasterClient);
+            return;
+        }
         if (gameObject.layer == 6) //classes
         {
             UserClass classReference = gameObject.GetComponentInParent<Identity>().classReference;
@@ -329,7 +385,8 @@ public class Drag : MonoBehaviour
         if (gameObject.layer == 7) //attributes
         {
             UserAttribute attribute = gameObject.GetComponentInParent<Identity>().attributeReference;
-            Destroy(attribute.gameObject);
+            //Destroy(attribute.gameObject);
+            PhotonNetwork.Destroy(attribute.gameObject);
             List<UserClass> imlClasses = Iml.GetSingleton().structuralModel.classes;
             foreach (UserClass uc in imlClasses)
             {
@@ -350,10 +407,12 @@ public class Drag : MonoBehaviour
 
     private void TrashClass(UserClass classReference)
     {
-        Destroy(classReference.gameObject);
+        //Destroy(classReference.gameObject);
+        PhotonNetwork.Destroy(classReference.gameObject);
         foreach (UserAttribute ua in classReference.attributes)
         {
-            Destroy(ua.gameObject);
+            //Destroy(ua.gameObject);
+            PhotonNetwork.Destroy(ua.gameObject);
         }
         Iml.GetSingleton().structuralModel.classes.Remove(classReference);
         List<Relation> imlRelations = Iml.GetSingleton().structuralModel.relations;
@@ -369,7 +428,8 @@ public class Drag : MonoBehaviour
 
     private void TrashRelation(Relation relation)
     {
-        Destroy(relation.gameObject);
+        //Destroy(relation.gameObject);
+        PhotonNetwork.Destroy(relation.gameObject);
         Iml.GetSingleton().structuralModel.relations.Remove(relation);
         relation.sourceClass.relations.Remove(relation);
         relation.destinationClass.relations.Remove(relation);
@@ -400,5 +460,10 @@ public class Drag : MonoBehaviour
 
         else
             return false;
+    }
+
+    public void Dropped()
+    {
+        Dropped(null);
     }
 }

@@ -36,7 +36,7 @@ public class LineView : MonoBehaviour, IPunObservable
             if (lineRenderer == null)
                 if (transform.GetComponent<TextMesh>() != null)
                 {
-                    lineRenderer = transform.GetComponent<LineRenderer>();
+                    SetRenderer();
                     if (lineRenderer.positionCount != 2)
                         lineRenderer.positionCount = 2;
                 }
@@ -54,11 +54,11 @@ public class LineView : MonoBehaviour, IPunObservable
     // Start is called before the first frame update
     void Start()
     {
-        lineRenderer = transform.GetComponent<LineRenderer>();
+        SetRenderer();
     }
 
-    // Update is called once per frame
-    void Update()
+    protected virtual void SetRenderer()
     {
+        lineRenderer = transform.GetComponent<LineRenderer>();
     }
 }

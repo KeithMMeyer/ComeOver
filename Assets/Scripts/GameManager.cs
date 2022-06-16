@@ -86,12 +86,12 @@ namespace Com.MyCompany.MyGame
 
         #endregion
 
-        //public void OnLevelWasLoaded()
-        //{
-        //    if (PhotonNetwork.IsMasterClient)
-        //    {
-        //        GameObject.Find("Main").GetComponent<Main>().LoadModel();
-        //    }
-        //}
+        public void OnSceneLoaded()
+        {
+            if (Application.isEditor) return;
+
+            GameObject pointerTracker = PhotonNetwork.Instantiate("PointerTracker", new Vector3(0, 0, 0), Quaternion.identity, 0);
+            pointerTracker.transform.parent = GameObject.Find("Pointers").transform;
+        }
     }
 }

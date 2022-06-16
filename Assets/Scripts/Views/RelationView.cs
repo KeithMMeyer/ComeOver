@@ -38,11 +38,6 @@ public class RelationView : LineView
             }
         }
     }
-        // Start is called before the first frame update
-    void Start()
-    {
-        lineRenderer = transform.GetComponent<LineRenderer>();
-    }
 
     // Update is called once per frame
     void Update()

@@ -1,4 +1,6 @@
+using Photon.Pun;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -26,7 +28,25 @@ public class EditRelation : EditObject
     {
         base.OpenDrawer(args);
 
-        if (relationReference.type.Equals("INHERITENCE"))
+        string name = null;
+        string type;
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            name = relationReference.name;
+            type = relationReference.type;
+        }
+        else
+        {
+            type = transform.GetComponentInParent<RelationView>().type;
+            type ??= "";
+            if (type != "INHERITENCE")
+            {
+                name = transform.parent.GetChild(2).GetComponent<TextMesh>().text;
+            }
+        }
+
+        if (type.Equals("INHERITENCE"))
         {
             editPanel.GetChild(0).gameObject.SetActive(false);
             editPanel.GetChild(3).gameObject.SetActive(false);
@@ -37,8 +57,8 @@ public class EditRelation : EditObject
             InputField nameField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
             nameField.transform.parent.gameObject.SetActive(true);
             nameField.onEndEdit.RemoveAllListeners();
-            nameField.placeholder.GetComponent<Text>().text = relationReference.name;
-            nameField.text = relationReference.name;
+            nameField.placeholder.GetComponent<Text>().text = name;
+            nameField.text = name;
             nameField.onEndEdit.AddListener(delegate (string name) { if (ValidateName(name)){ relationReference.SetName(name); } else { nameField.text = relationReference.name; } });
             SetUpBounds();
         }

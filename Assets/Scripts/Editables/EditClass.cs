@@ -1,3 +1,4 @@
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -27,16 +28,30 @@ public class EditClass : EditObject
         {
             base.OpenDrawer(args);
 
+            string name;
+            int isAbstract;
+            if (PhotonNetwork.IsMasterClient)
+            {
+                name = classReference.name;
+                isAbstract = classReference.isAbstract.Equals("TRUE") ? 1 : 0;
+            }
+            else
+            {
+                name = transform.parent.GetChild(1).GetComponent<TextMesh>().text;
+                bool? isAbs = transform.GetComponentInParent<ClassView>().isAbstract;
+                isAbstract = isAbs != null ? isAbs.Value ? 1 : 0 : 0;
+            }
+
             InputField nameField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
             nameField.onEndEdit.RemoveAllListeners();
-            nameField.placeholder.GetComponent<Text>().text = classReference.name;
-            nameField.text = classReference.name;
+            nameField.placeholder.GetComponent<Text>().text = name;
+            nameField.text = name;
             nameField.onEndEdit.AddListener(delegate (string name) { if(ValidateName(name)){ classReference.SetName(name); } else { nameField.text = classReference.name; }
         });
 
             Dropdown abstractField = editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>();
             abstractField.onValueChanged.RemoveAllListeners();
-            abstractField.value = classReference.isAbstract.Equals("TRUE") ? 1 : 0;
+            abstractField.value = isAbstract;
             abstractField.onValueChanged.AddListener(delegate (int isAbstract) { classReference.SetAbstract(isAbstract == 1); });
         }
     }
@@ -52,4 +67,4 @@ public class EditClass : EditObject
         return base.ValidateName(candidateName);
     }
 
-}
+    }

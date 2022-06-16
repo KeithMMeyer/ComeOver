@@ -14,4 +14,10 @@ public class ClassAdapter : MonoBehaviour
         classReference.UpdateRelations();
 
     }
+
+    [PunRPC]
+    public void TrashObject()
+    {
+        transform.GetComponentInChildren<Drag>().TrashObject();
+    }
 }

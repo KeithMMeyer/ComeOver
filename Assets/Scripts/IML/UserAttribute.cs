@@ -23,6 +23,8 @@ public class UserAttribute
     public int position = 1;
 
     [XmlIgnore]
+    public string displayString { get; private set; }
+    [XmlIgnore]
     public GameObject gameObject;
     [XmlIgnore]
     public UserClass parent;
@@ -76,13 +78,6 @@ public class UserAttribute
     {
         this.name = name;
         GenerateDisplayString();
-    }
-
-    public int GetTypeNumber()
-    {
-        string[] typeArray = { "STRING", "BOOLEAN", "DOUBLE", "INTEGER" };
-        List<string> types = typeArray.ToList();
-        return types.IndexOf(type);
     }
 
     public void SetType(int type)
@@ -139,6 +134,8 @@ public class UserAttribute
             int length = (value.Length - value.Replace(seperator, "").Length) / (type.Equals("STRING") ? 3 : 1) + 1; // fast way of counting length
             display += length < 5 ? value : type + "[" + length + "]";
         }
+
+        displayString = display;
 
         if (gameObject != null)
         {

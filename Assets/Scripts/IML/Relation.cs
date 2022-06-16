@@ -19,13 +19,13 @@ public class Relation
     [XmlAttribute]
     public string lowerBound = "0";
     [XmlAttribute]
-    public double nameDistance;
+    public string nameDistance = "0.5";
     [XmlAttribute]
-    public double boundDistance;
+    public string boundDistance = "0.9";
     [XmlAttribute]
-    public double nameOffset;
+    public string nameOffset = "30";
     [XmlAttribute]
-    public double boundOffset;
+    public string boundOffset = "-30";
 
     [XmlIgnore]
     public UserClass sourceClass;
@@ -266,4 +266,5 @@ public class Relation
     message = "";
         return true;
     }
+
 }
