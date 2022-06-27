@@ -53,7 +53,7 @@ public class Drag : MonoBehaviour
                         photonView.RPC("UpdateRelations", RpcTarget.MasterClient, position);
                     }
                 }
-                if (gameObject.layer == 8) //relations
+                if (PhotonNetwork.IsMasterClient && gameObject.layer == 8) //relations
                 {
                     if (transform.parent.name.Equals("Arrow"))
                     {
@@ -106,7 +106,7 @@ public class Drag : MonoBehaviour
         grabbed = true;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = false;
         transform.GetChild(0).gameObject.SetActive(true); // enable collider
-        if (gameObject.layer == 8) //relations
+        if (PhotonNetwork.IsMasterClient && gameObject.layer == 8) //relations
         {
             Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
             if (relation.sourceClass != null && relation.destinationClass != null && relation.sourceClass.Equals(relation.destinationClass))

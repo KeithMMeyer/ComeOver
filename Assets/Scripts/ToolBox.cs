@@ -1,6 +1,8 @@
 using Photon.Pun;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -17,7 +19,6 @@ public class ToolBox : MonoBehaviour
 
     private int classCount = 0;
     private int attrCount = 0;
-    private int relationCount = 0;
 
 
     void Start()
@@ -46,12 +47,12 @@ public class ToolBox : MonoBehaviour
 
     public void OnSecondaryButtonEvent(bool pressed)
     {
-        closeAll();
-
         SecondaryPressed = pressed;
 
         if (pressed)
         {
+            closeAll();
+
             Transform editPanel = transform.GetChild(0).GetChild(4);
             editPanel.gameObject.SetActive(true);
             relationMode = null;
@@ -59,15 +60,21 @@ public class ToolBox : MonoBehaviour
             //modelField.onEndEdit.RemoveAllListeners();
             modelField.placeholder.GetComponent<Text>().text = Iml.GetSingleton().structuralModel.name;
             modelField.text = Iml.GetSingleton().structuralModel.name;
-            //modelField.onEndEdit.AddListener(delegate (string name) { classReference.SetName(name); });
+            modelField.onEndEdit.AddListener(delegate (string name) { Iml.GetSingleton().structuralModel.name = name; }); //likely need to add error checking
 
             InputField fileField = editPanel.GetChild(1).GetChild(1).GetComponent<InputField>();
             //modelField.onEndEdit.RemoveAllListeners();
             fileField.placeholder.GetComponent<Text>().text = Iml.GetSingleton().structuralModel.name + ".iml";
             fileField.text = Iml.GetSingleton().structuralModel.name + ".iml";
             //modelField.onEndEdit.AddListener(delegate (string name) { classReference.SetName(name); });
-        }
 
+            string[] routeArray = { "simpleRoute", "orthogonalRoute", "manhattanRoute", "metroRoute" };
+            List<string> routes = routeArray.ToList();
+            Dropdown routeField = editPanel.GetChild(2).GetChild(1).GetComponent<Dropdown>();
+            routeField.onValueChanged.RemoveAllListeners();
+            routeField.value = routes.IndexOf(Iml.GetSingleton().structuralModel.routingMode);
+            routeField.onValueChanged.AddListener(delegate (int route) { Iml.GetSingleton().structuralModel.routingMode = routeArray[route]; });
+        }
     }
 
     public void closeAll()
@@ -171,7 +178,7 @@ public class ToolBox : MonoBehaviour
         }
         Relation relation = new Relation
         {
-            name = relationMode.Equals("INHERITENCE") ? null : "newRelation" + (relationCount > 0 ? "" + relationCount : ""),
+            name = relationMode.Equals("INHERITENCE") ? null : "newRelation",
             type = relationMode
         };
         relation.CreateGameObject();
@@ -189,7 +196,7 @@ public class ToolBox : MonoBehaviour
             relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<Drag>().Grabbed(args);
             relationMode = null;
         }
-        
+
         return;
     }
 

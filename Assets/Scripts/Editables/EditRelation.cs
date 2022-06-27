@@ -10,6 +10,8 @@ public class EditRelation : EditObject
 
     Relation relationReference;
 
+    private List<string> options;
+
     // Start is called before the first frame update
     protected override void Start()
     {
@@ -60,7 +62,7 @@ public class EditRelation : EditObject
             nameField.onEndEdit.RemoveAllListeners();
             nameField.placeholder.GetComponent<Text>().text = name;
             nameField.text = name;
-            nameField.onEndEdit.AddListener(delegate (string name) { if (ValidateName(name)) { relationReference.SetName(name); } else { nameField.text = relationReference.name; } });
+            nameField.onEndEdit.AddListener(SaveName);
             SetUpBounds();
         }
 
@@ -69,31 +71,55 @@ public class EditRelation : EditObject
 
     public void SetUpPositions()
     {
-        if (!PhotonNetwork.IsMasterClient)
-        {
-            return;
-        }
         Dropdown sourceField = editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>();
         sourceField.onValueChanged.RemoveAllListeners();
         Dropdown destField = editPanel.GetChild(2).GetChild(1).GetComponent<Dropdown>();
         destField.onValueChanged.RemoveAllListeners();
 
-        //if (sourceField.options.Count != Iml.GetSingleton().structuralModel.classes.Count)
-        //{
-        List<string> options = new List<string>();
-        foreach (UserClass classRef in Iml.GetSingleton().structuralModel.classes)
+        options = new List<string>();
+        int sourceNum = 0;
+        int destNum = 0;
+
+        if (PhotonNetwork.IsMasterClient)
         {
-            options.Add(classRef.name);
+
+            //if (sourceField.options.Count != Iml.GetSingleton().structuralModel.classes.Count)
+            //{
+            foreach (UserClass classRef in Iml.GetSingleton().structuralModel.classes)
+            {
+                options.Add(classRef.name);
+            }
+
+            //}
+
+            sourceNum = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.sourceClass);
+            destNum = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.destinationClass);
+
+        } else
+        {
+
+            string sourceId = transform.GetComponentInParent<RelationView>().source;
+            string destId = transform.GetComponentInParent<RelationView>().destination;
+            ClassView[] classes = GameObject.FindObjectsOfType<ClassView>();
+
+            for (int i = 0; i < classes.Length; i++)
+            {
+                if (sourceId.Equals(classes[i].id))
+                    sourceNum = i;
+                if (destId.Equals(classes[i].id))
+                    destNum = i;
+                options.Add(classes[i].transform.GetChild(1).GetComponent<TextMesh>().text);
+            }
         }
+
         sourceField.ClearOptions();
         sourceField.AddOptions(options);
         destField.ClearOptions();
         destField.AddOptions(options);
-        //}
 
-        sourceField.value = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.sourceClass);
+        sourceField.value = sourceNum;
         sourceField.onValueChanged.AddListener(SaveSource);
-        destField.value = Iml.GetSingleton().structuralModel.classes.IndexOf(relationReference.destinationClass);
+        destField.value = destNum;
         destField.onValueChanged.AddListener(SaveDestination);
     }
 
@@ -136,8 +162,14 @@ public class EditRelation : EditObject
         editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.AddListener(delegate { BumpField(upperBound, false); });
     }
 
-    private void SaveLower(string s)
+    public void SaveLower(string s)
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("EditRelation", RpcTarget.MasterClient, "LOWER", s);
+            return;
+        }
         string message;
         if (ValidateBounds(s, relationReference.upperBound, out message))
         {
@@ -158,8 +190,14 @@ public class EditRelation : EditObject
         }
     }
 
-    private void SaveUpper(string s)
+    public void SaveUpper(string s)
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("EditRelation", RpcTarget.MasterClient, "UPPER", s);
+            return;
+        }
         string message;
         if (ValidateBounds(relationReference.lowerBound, s, out message))
         {
@@ -172,8 +210,14 @@ public class EditRelation : EditObject
         }
     }
 
-    private void SaveSource(int i)
+    public void SaveSource(int i)
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("EditRelation", RpcTarget.MasterClient, "SOURCE", options[i]);
+            return;
+        }
         relationReference.sourceClass.relations.Remove(relationReference);
         UserClass classRef = Iml.GetSingleton().structuralModel.classes[i];
         if (relationReference.CanAttach(classRef, relationReference.destinationClass, out string message))
@@ -188,8 +232,14 @@ public class EditRelation : EditObject
         }
     }
 
-    private void SaveDestination(int i)
+    public void SaveDestination(int i)
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("EditRelation", RpcTarget.MasterClient, "DEST", options[i]);
+            return;
+        }
         relationReference.destinationClass.relations.Remove(relationReference);
         UserClass classRef = Iml.GetSingleton().structuralModel.classes[i];
         if (relationReference.CanAttach(relationReference.sourceClass, classRef, out string message))
@@ -202,6 +252,18 @@ public class EditRelation : EditObject
             relationReference.destinationClass.relations.Add(relationReference);
             PrintError(message);
         }
+    }
+
+    public void SaveName(string name)
+    {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("EditRelation", RpcTarget.MasterClient, "NAME", name);
+            return;
+        }
+        InputField nameField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
+        if (ValidateName(name)) { relationReference.SetName(name); } else { nameField.text = relationReference.name; }
     }
 
     protected override bool ValidateName(string candidateName)

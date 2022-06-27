@@ -1407,6 +1407,7 @@ GameObject:
   - component: {fileID: 8103842262141583018}
   - component: {fileID: 3275650777851393624}
   - component: {fileID: 5406840244287766281}
+  - component: {fileID: 6436095040693001567}
   m_Layer: 8
   m_Name: RelationObject
   m_TagString: Untagged
@@ -1604,6 +1605,20 @@ MonoBehaviour:
   end: {x: 0, y: 0, z: 0}
   color: {r: 0, g: 0, b: 0, a: 0}
   type: 
+  source: 
+  destination: 
+--- !u!114 &6436095040693001567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7245055645199246563}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bbe1711780b1b8408fab4d13bcb752e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8539233387187863609
 GameObject:
   m_ObjectHideFlags: 0

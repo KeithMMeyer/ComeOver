@@ -6,6 +6,8 @@ using UnityEngine;
 public class RelationView : LineView
 {
     public string type;
+    public string source;
+    public string destination;
 
     private bool firstPass = true;
 
@@ -14,10 +16,21 @@ public class RelationView : LineView
         base.OnPhotonSerializeView(stream, info);
         if (stream.IsWriting)
         {
+            string sourceRef = transform.GetComponent<Identity>().relationReference.source;
+            string destRef = transform.GetComponent<Identity>().relationReference.destination;
             stream.SendNext(transform.GetComponent<Identity>().relationReference.type);
+            stream.SendNext(sourceRef != null ? sourceRef : "NULL");
+            stream.SendNext(destRef != null ? destRef : "NULL");
         } else
         {
             type = (string)stream.ReceiveNext();
+            string output1 = (string)stream.ReceiveNext();
+            if (!output1.Equals("NULL"))
+                source = output1;
+            string output2 = (string)stream.ReceiveNext();
+            if (!output2.Equals("NULL"))
+                destination = output2;
+
             if (firstPass)
             {
                 if (!type.Equals("COMPOSITION"))
