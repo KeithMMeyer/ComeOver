@@ -57,7 +57,7 @@ public class EditAttribute : EditObject
         nameField.onEndEdit.RemoveAllListeners();
         nameField.placeholder.GetComponent<Text>().text = name;
         nameField.text = name;
-        nameField.onEndEdit.AddListener(delegate (string name) { if (ValidateName(name)) { attributeReference.SetName(name); } else { nameField.text = attributeReference.name; } });
+        nameField.onEndEdit.AddListener(SaveName);
 
         Dropdown typeField = editPanel.GetChild(2).GetChild(1).GetComponent<Dropdown>();
         typeField.onValueChanged.RemoveAllListeners();
@@ -84,8 +84,8 @@ public class EditAttribute : EditObject
         }
         else
         {
-            lower = "0";
-            upper = "1"; //fix to be not fake
+            lower = transform.GetComponentInParent<AttributeView>().lowerBound;
+            upper = transform.GetComponentInParent<AttributeView>().upperBound;
         }
         InputField lowerBound = editPanel.GetChild(3).GetChild(1).GetComponent<InputField>();
         lowerBound.onEndEdit.RemoveAllListeners();
@@ -108,8 +108,14 @@ public class EditAttribute : EditObject
         editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.AddListener(delegate { BumpField(upperBound, false); });
     }
 
-    private void SaveLower(string s)
+    public void SaveLower(string s)
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("EditAttribute", RpcTarget.MasterClient, "LOWER", s);
+            return;
+        }
         string message;
         if (ValidateBounds(s, attributeReference.upperBound, out message))
         {
@@ -131,8 +137,14 @@ public class EditAttribute : EditObject
         editPanel.GetChild(5).GetChild(1).GetComponent<InputField>().text = attributeReference.value;
     }
 
-    private void SaveUpper(string s)
+    public void SaveUpper(string s)
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("EditAttribute", RpcTarget.MasterClient, "UPPER", s);
+            return;
+        }
         string message;
         if (ValidateBounds(attributeReference.lowerBound, s, out message))
         {
@@ -146,21 +158,51 @@ public class EditAttribute : EditObject
         }
     }
 
-    private void SaveVisibility(int i)
+    public void SaveVisibility(int i)
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("EditAttribute", RpcTarget.MasterClient, "VISIBILITY", i.ToString());
+            return;
+        }
         string[] visibilityArray = { "PUBLIC", "PRIVATE", "PROTECTED" };
         attributeReference.visibility = visibilityArray[i];
         attributeReference.GenerateDisplayString();
     }
 
-    private void SaveType(int i)
+    public void SaveName(string name)
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("EditAttribute", RpcTarget.MasterClient, "NAME", name);
+            return;
+        }
+        InputField nameField = editPanel.GetChild(1).GetChild(1).GetComponent<InputField>();
+        if (ValidateName(name)) { attributeReference.SetName(name); } else { nameField.text = attributeReference.name; }
+    }
+
+    public void SaveType(int i)
+    {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("EditAttribute", RpcTarget.MasterClient, "TYPE", i.ToString());
+            return;
+        }
         attributeReference.SetType(i);
         editPanel.GetChild(5).GetChild(1).GetComponent<InputField>().text = attributeReference.value;
     }
 
-    private void SaveValue(string value)
+    public void SaveValue(string value)
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("EditAttribute", RpcTarget.MasterClient, "VALUE", value);
+            return;
+        }
         string message = attributeReference.SetValue(value);
         if (message != null)
         {
@@ -187,10 +229,5 @@ public class EditAttribute : EditObject
         string[] typeArray = { "STRING", "BOOLEAN", "DOUBLE", "INTEGER" };
         List<string> types = typeArray.ToList();
         return types.IndexOf(type);
-    }
-
-    public void OpenSesame()
-    {
-        OpenDrawer(null);
     }
 }

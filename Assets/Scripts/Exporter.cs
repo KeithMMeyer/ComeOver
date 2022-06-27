@@ -39,8 +39,10 @@ public class Exporter : MonoBehaviour
     IEnumerator Upload()
     {
         string output = SerializeObject(Iml.GetSingleton());
-        output = output.Replace("type=\"INHERITENCE\" upperBound=\"1\" lowerBound=\"0\" nameDistance=\"0\" boundDistance=\"0\" nameOffset=\"0\" boundOffset=\"0\" /", "type=\"INHERITENCE\" /");
-        output = output.Replace("value=\"\" ", "");
+        //output = output.Replace("type=\"INHERITENCE\" lowerBound=\"0\" upperBound=\"1\" nameDistance=\"0.5\" boundDistance=\"0.9\" nameOffset=\"30\" boundOffset=\"-30\" /", "type=\"INHERITENCE\" /");
+        //output = output.Replace("value=\"\" ", "");
+        output = output.Replace("\r", "");
+
 
         WWWForm form = new WWWForm();
         form.AddField("iml", output);
@@ -71,7 +73,7 @@ public class Exporter : MonoBehaviour
         var settings = new XmlWriterSettings
         {
             Indent = true,
-            IndentChars = "    ",
+            IndentChars = "\t",
             OmitXmlDeclaration = true
         };
 

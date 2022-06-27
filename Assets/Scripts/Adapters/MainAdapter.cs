@@ -13,4 +13,21 @@ public class MainAdapter : MonoBehaviour
         toolBox.CreateObject(type);
 
     }
+
+    [PunRPC]
+    public void InsertRelation(string id)
+    {
+        ToolBox toolBox = GameObject.Find("ToolBox").GetComponent<ToolBox>();
+        UserClass target = null;
+        foreach(UserClass c in Iml.GetSingleton().structuralModel.classes)
+            if (c.id.Equals(id))
+            {
+                target = c;
+                break;
+            }
+
+        toolBox.InsertRelation(target, null);
+
+    }
+
 }

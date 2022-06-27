@@ -1,4 +1,5 @@
 using Photon.Pun;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -103,7 +104,7 @@ public class ToolBox : MonoBehaviour
 
     public void CreateObject(string type)
     {
-        if (!PhotonNetwork.IsMasterClient)
+        if (!PhotonNetwork.IsMasterClient && (type.Equals("CLASS") || type.Equals("ATTRIBUTE")))
         {
             PhotonView photonView = PhotonView.Get(GameObject.Find("Main"));
             photonView.RPC("CreateObject", RpcTarget.MasterClient, type);
@@ -112,7 +113,7 @@ public class ToolBox : MonoBehaviour
         {
             UserClass newClass = new UserClass();
             newClass.SetName("NewClass" + (classCount > 0 ? "" + classCount : ""));
-            newClass.id = ((int)Random.Range(0, 500)).ToString(); //need to update
+            newClass.id = Guid.NewGuid().ToString(); // update (if possible) to match parity with flat version
             newClass.SetPosition(new Vector3(0, 0, 3));
             classCount++;
             Iml.GetSingleton().structuralModel.classes.Add(newClass);
@@ -161,6 +162,13 @@ public class ToolBox : MonoBehaviour
 
     public void InsertRelation(UserClass classReference, SelectEnterEventArgs args)
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(GameObject.Find("Main"));
+            photonView.RPC("InsertRelation", RpcTarget.MasterClient, classReference.id);
+            GameObject.Find("XR Interaction Manager").GetComponent<XRInteractionManager>().SelectExit(args.interactorObject, args.interactableObject);
+            relationMode = null;
+        }
         Relation relation = new Relation
         {
             name = relationMode.Equals("INHERITENCE") ? null : "newRelation" + (relationCount > 0 ? "" + relationCount : ""),
@@ -172,12 +180,16 @@ public class ToolBox : MonoBehaviour
         other.x += 1;
         relation.SetPoints(classReference.gameObject.transform.position, other);
         //relation.AttachToClass(classReference, Iml.GetSingleton().structuralModel.classes[0]);
-        GameObject.Find("XR Interaction Manager").GetComponent<XRInteractionManager>().SelectExit(args.interactorObject, args.interactableObject);
-        GameObject.Find("XR Interaction Manager").GetComponent<XRInteractionManager>().SelectEnter(
-            args.interactorObject, relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<XRSimpleInteractable>());
-        relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<EditRelation>().Init(); // so edit listeners will be called first
-        relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<Drag>().Grabbed(args);
-        relationMode = null;
+        if (args != null)
+        {
+            GameObject.Find("XR Interaction Manager").GetComponent<XRInteractionManager>().SelectExit(args.interactorObject, args.interactableObject);
+            GameObject.Find("XR Interaction Manager").GetComponent<XRInteractionManager>().SelectEnter(
+                args.interactorObject, relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<XRSimpleInteractable>());
+            relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<EditRelation>().Init(); // so edit listeners will be called first
+            relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<Drag>().Grabbed(args);
+            relationMode = null;
+        }
+        
         return;
     }
 

@@ -7,7 +7,7 @@ using UnityEngine;
 public class Iml
 {
     [XmlAttribute]
-    public string version;
+    public string version = "0.1";
     [XmlElement(ElementName = "StructuralModel")]
     public StructuralModel structuralModel;
 
@@ -43,6 +43,8 @@ public class StructuralModel
     public string name;
     [XmlAttribute]
     public string conformsTo;
+    [XmlAttribute]
+    public string routingMode = "simpleRoute";
     [XmlArray("Classes")]
     [XmlArrayItem("Class")]
     public List<UserClass> classes;

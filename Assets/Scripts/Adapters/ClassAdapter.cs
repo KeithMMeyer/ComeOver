@@ -20,4 +20,14 @@ public class ClassAdapter : MonoBehaviour
     {
         transform.GetComponentInChildren<Drag>().TrashObject();
     }
+
+    [PunRPC]
+    public void EditClass(string type, string value)
+    {
+        EditClass ec = transform.GetComponentInChildren<EditClass>();
+        if (type.Equals("NAME"))
+            ec.SaveName(value);
+        if (type.Equals("ISABSTRACT"))
+            ec.SaveIsAbstract(int.Parse(value));
+    }
 }

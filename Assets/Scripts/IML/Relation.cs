@@ -7,17 +7,17 @@ using UnityEngine;
 public class Relation
 {
     [XmlAttribute]
-    public string name;
-    [XmlAttribute]
     public string source;
     [XmlAttribute]
     public string destination;
     [XmlAttribute]
     public string type;
     [XmlAttribute]
-    public string upperBound = "1";
+    public string name;
     [XmlAttribute]
     public string lowerBound = "0";
+    [XmlAttribute]
+    public string upperBound = "1";
     [XmlAttribute]
     public string nameDistance = "0.5";
     [XmlAttribute]
@@ -56,6 +56,7 @@ public class Relation
         {
             PhotonNetwork.Destroy(gameObject.transform.GetChild(2).gameObject);
             PhotonNetwork.Destroy(gameObject.transform.GetChild(2).gameObject);
+            lowerBound = upperBound = nameDistance = boundDistance = nameOffset = boundOffset = null;
         }
 
         BuildStrings();

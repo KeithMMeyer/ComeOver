@@ -8,17 +8,17 @@ using UnityEngine;
 public class UserAttribute
 {
     [XmlAttribute]
-    public string name = "";
+    public string visibility = "PUBLIC";
+    [XmlAttribute]
+    public string name;
     [XmlAttribute]
     public string type = "STRING";
     [XmlAttribute]
-    public string value = "";
-    [XmlAttribute]
-    public string visibility = "PUBLIC";
-    [XmlAttribute]
-    public string upperBound = "1";
+    public string value;
     [XmlAttribute]
     public string lowerBound = "0";
+    [XmlAttribute]
+    public string upperBound = "1";
     [XmlAttribute]
     public int position = 1;
 

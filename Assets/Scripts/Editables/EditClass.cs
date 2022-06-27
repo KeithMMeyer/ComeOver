@@ -21,7 +21,16 @@ public class EditClass : EditObject
     {
         if (toolbox.relationMode != null)
         {
-            toolbox.InsertRelation(classReference, args);
+            if (PhotonNetwork.IsMasterClient)
+            {
+                UserClass dummyClass = new UserClass();
+                dummyClass.id = transform.GetComponentInParent<ClassView>().id;
+                toolbox.InsertRelation(dummyClass, args);
+            }
+            else
+            {
+                toolbox.InsertRelation(classReference, args);
+            }
             return;
         }
         else
@@ -46,14 +55,43 @@ public class EditClass : EditObject
             nameField.onEndEdit.RemoveAllListeners();
             nameField.placeholder.GetComponent<Text>().text = name;
             nameField.text = name;
-            nameField.onEndEdit.AddListener(delegate (string name) { if(ValidateName(name)){ classReference.SetName(name); } else { nameField.text = classReference.name; }
-        });
+            nameField.onEndEdit.AddListener(SaveName);
 
             Dropdown abstractField = editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>();
             abstractField.onValueChanged.RemoveAllListeners();
             abstractField.value = isAbstract;
-            abstractField.onValueChanged.AddListener(delegate (int isAbstract) { classReference.SetAbstract(isAbstract == 1); });
+            abstractField.onValueChanged.AddListener(SaveIsAbstract);
         }
+    }
+
+    public void SaveName(string name)
+    {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("EditClass", RpcTarget.MasterClient, "NAME", name);
+            return;
+        }
+        InputField nameField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
+        if (ValidateName(name))
+        {
+            classReference.SetName(name);
+        }
+        else
+        {
+            nameField.text = classReference.name;
+        }
+    }
+
+    public void SaveIsAbstract(int isAbstract)
+    {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("EditClass", RpcTarget.MasterClient, "ISABSTRACT", isAbstract.ToString());
+            return;
+        }
+        classReference.SetAbstract(isAbstract == 1);
     }
 
     protected override bool ValidateName(string candidateName)
@@ -67,4 +105,4 @@ public class EditClass : EditObject
         return base.ValidateName(candidateName);
     }
 
-    }
+}

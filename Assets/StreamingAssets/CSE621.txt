@@ -12,7 +12,7 @@
                 <Attribute visibility="PUBLIC" name="major" type="STRING" lowerBound="1" upperBound="*" position="1" />
             </Class>
             <Class name="Course" isAbstract="FALSE" x="377" y="395" id="924d71c0-495e-40b2-a6d9-6295f89de32e">
-                <Attribute visibility="PUBLIC" name="courseNumber" type="INTEGER" value="2" lowerBound="1" upperBound="1" position="1" />
+                <Attribute visibility="PUBLIC" name="courseNumber" type="INTEGER" lowerBound="1" upperBound="1" position="1" />
                 <Attribute visibility="PUBLIC" name="title" type="STRING" lowerBound="1" upperBound="1" position="2" />
             </Class>
             <Class name="Department" isAbstract="FALSE" x="51" y="398" id="a9c34ba8-98c0-4ea6-8a63-a5ae8b115f99">

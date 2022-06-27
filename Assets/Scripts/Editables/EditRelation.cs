@@ -1,4 +1,5 @@
 using Photon.Pun;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -42,7 +43,7 @@ public class EditRelation : EditObject
             type ??= "";
             if (type != "INHERITENCE")
             {
-                name = transform.parent.GetChild(2).GetComponent<TextMesh>().text;
+                name = transform.parent.parent.GetChild(2).GetComponent<TextMesh>().text;
             }
         }
 
@@ -59,7 +60,7 @@ public class EditRelation : EditObject
             nameField.onEndEdit.RemoveAllListeners();
             nameField.placeholder.GetComponent<Text>().text = name;
             nameField.text = name;
-            nameField.onEndEdit.AddListener(delegate (string name) { if (ValidateName(name)){ relationReference.SetName(name); } else { nameField.text = relationReference.name; } });
+            nameField.onEndEdit.AddListener(delegate (string name) { if (ValidateName(name)) { relationReference.SetName(name); } else { nameField.text = relationReference.name; } });
             SetUpBounds();
         }
 
@@ -68,6 +69,10 @@ public class EditRelation : EditObject
 
     public void SetUpPositions()
     {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            return;
+        }
         Dropdown sourceField = editPanel.GetChild(1).GetChild(1).GetComponent<Dropdown>();
         sourceField.onValueChanged.RemoveAllListeners();
         Dropdown destField = editPanel.GetChild(2).GetChild(1).GetComponent<Dropdown>();
@@ -94,11 +99,25 @@ public class EditRelation : EditObject
 
     private void SetUpBounds()
     {
+        string lower;
+        string upper;
+        if (PhotonNetwork.IsMasterClient)
+        {
+            lower = relationReference.lowerBound;
+            upper = relationReference.upperBound;
+        }
+        else
+        {
+            string[] bounds = transform.parent.parent.GetChild(3).GetComponent<TextMesh>().text.Split(new string[] { ".." }, StringSplitOptions.None);
+            lower = bounds[0].Substring(1);
+            upper = bounds[1].Substring(0, (bounds[1].Length - 1));
+        }
+
         InputField lowerBound = editPanel.GetChild(3).GetChild(1).GetComponent<InputField>();
         lowerBound.transform.parent.gameObject.SetActive(true);
         lowerBound.onEndEdit.RemoveAllListeners();
-        lowerBound.placeholder.GetComponent<Text>().text = relationReference.lowerBound;
-        lowerBound.text = relationReference.lowerBound;
+        lowerBound.placeholder.GetComponent<Text>().text = lower;
+        lowerBound.text = lower;
         lowerBound.onEndEdit.AddListener(SaveLower);
         editPanel.GetChild(3).GetChild(2).GetComponent<Button>().onClick.RemoveAllListeners();
         editPanel.GetChild(3).GetChild(2).GetComponent<Button>().onClick.AddListener(delegate { BumpField(lowerBound, true); });
@@ -108,8 +127,8 @@ public class EditRelation : EditObject
         InputField upperBound = editPanel.GetChild(4).GetChild(1).GetComponent<InputField>();
         upperBound.transform.parent.gameObject.SetActive(true);
         upperBound.onEndEdit.RemoveAllListeners();
-        upperBound.placeholder.GetComponent<Text>().text = relationReference.upperBound;
-        upperBound.text = relationReference.upperBound;
+        upperBound.placeholder.GetComponent<Text>().text = upper;
+        upperBound.text = upper;
         upperBound.onEndEdit.AddListener(SaveUpper);
         editPanel.GetChild(4).GetChild(2).GetComponent<Button>().onClick.RemoveAllListeners();
         editPanel.GetChild(4).GetChild(2).GetComponent<Button>().onClick.AddListener(delegate { BumpField(upperBound, true); });

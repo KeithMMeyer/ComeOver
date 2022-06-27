@@ -74,7 +74,7 @@ public class Drag : MonoBehaviour
     {
         interactable = GetComponent<XRSimpleInteractable>();
 
-        interactable.selectEntered.AddListener(Grabbed);
+        interactable.selectEntered.AddListener(delegate (SelectEnterEventArgs args) { if (!grabbed) { active = args.interactorObject.transform; Invoke(nameof(Grabbed), 0.25f); } else { Grabbed(args); } });
         interactable.selectExited.AddListener(Dropped);
 
         errorPanel = GameObject.Find("Main Canvas").transform.GetChild(1);
@@ -89,8 +89,12 @@ public class Drag : MonoBehaviour
 
     public void Grabbed(SelectEnterEventArgs args)
     {
+        if (!interactable.isSelected && !Application.isEditor)
+            return;
         if (interactable == null)
             init();
+        //if (args != null)
+        //    active = args.interactorObject.transform;
         if (dragParent)
         {
             transform.GetComponentInParent<PhotonView>().RequestOwnership();
@@ -101,7 +105,6 @@ public class Drag : MonoBehaviour
         }
         grabbed = true;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = false;
-        active = args.interactorObject.transform;
         transform.GetChild(0).gameObject.SetActive(true); // enable collider
         if (gameObject.layer == 8) //relations
         {
@@ -134,6 +137,9 @@ public class Drag : MonoBehaviour
         {
             transform.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.MasterClient);
         }
+
+        if (!grabbed)
+            return;
         grabbed = false;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = true;
         if (gameObject.layer == 6) //classes
@@ -248,7 +254,7 @@ public class Drag : MonoBehaviour
         {
             string id = classObject.GetComponentInParent<ClassView>().id;
             string text = null;
-            if(attributeObject != null)
+            if (attributeObject != null)
                 text = attributeObject.transform.parent.GetChild(1).GetComponent<Text>().text;
 
             PhotonView photonView = PhotonView.Get(this);
