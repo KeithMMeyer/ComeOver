@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PointerTracker : LineView
 {
+    public override bool useColor { get; set; } = false;
 
     // Update is called once per frame
     void Update()

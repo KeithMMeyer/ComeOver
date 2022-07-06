@@ -27,12 +27,12 @@ public class Iml
 
     public static Vector3 To3dPosition(float x, float y, float z)
     {
-        return new Vector3((float)(x / 200.0) - 2, (float)(y / 200.0) + 1, z);
+        return new Vector3((float)(x / 175.0) - 2, (float)(y / -175.0) + 3.5f, z);
     }
 
     public static Vector2 To2dPosition(Vector3 position)
     {
-        return new Vector3(position.x, position.y);
+        return new Vector3((position.x + 2)* 175, (position.y - 3.5f)*-175);
     }
 }
 

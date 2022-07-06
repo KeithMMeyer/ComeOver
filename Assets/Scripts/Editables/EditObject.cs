@@ -25,12 +25,12 @@ public class EditObject : MonoBehaviour
         errorPanel = GameObject.Find("Main Canvas").transform.GetChild(1);
     }
 
-    protected virtual bool ValidateName(string candidateName)
+    protected virtual bool ValidateName(string candidateName, string type)
     {
         if (candidateName == null || candidateName.Equals("") || !ValidIdentifier(candidateName))
         {
             //should say type of thingy
-            string text = "\"" + candidateName + "\" is not a valid " + "" + " name; valid identifiers contain only: letters, digits, underscores, or dollar signs, and must not begin with a digit. Keywords must also not be used.";
+            string text = "\"" + candidateName + "\" is not a valid " + type + " name; valid identifiers contain only: letters, digits, underscores, or dollar signs, and must not begin with a digit. Keywords must also not be used.";
             PrintError(text);
             return false;
         }
@@ -101,7 +101,13 @@ public class EditObject : MonoBehaviour
         field.onEndEdit.Invoke(field.text);
     }
 
-    protected void PrintError(string message)
+    protected void StarField(InputField field)
+    {
+        field.text = "*";
+        field.onEndEdit.Invoke(field.text);
+    }
+
+        protected void PrintError(string message)
     {
         errorPanel.gameObject.SetActive(true);
         errorPanel.GetChild(1).GetComponent<Text>().text = message;

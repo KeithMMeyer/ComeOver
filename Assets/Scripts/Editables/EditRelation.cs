@@ -160,6 +160,8 @@ public class EditRelation : EditObject
         editPanel.GetChild(4).GetChild(2).GetComponent<Button>().onClick.AddListener(delegate { BumpField(upperBound, true); });
         editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.RemoveAllListeners();
         editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.AddListener(delegate { BumpField(upperBound, false); });
+        editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.RemoveAllListeners();
+        editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.AddListener(delegate { StarField(upperBound); });
     }
 
     public void SaveLower(string s)
@@ -266,7 +268,7 @@ public class EditRelation : EditObject
         if (ValidateName(name)) { relationReference.SetName(name); } else { nameField.text = relationReference.name; }
     }
 
-    protected override bool ValidateName(string candidateName)
+    private bool ValidateName(string candidateName)
     {
         if (candidateName == relationReference.name)
             return true;
@@ -276,6 +278,6 @@ public class EditRelation : EditObject
             return false;
         }
 
-        return base.ValidateName(candidateName);
+        return ValidateName(candidateName, "Relation");
     }
 }

@@ -94,7 +94,7 @@ public class EditClass : EditObject
         classReference.SetAbstract(isAbstract == 1);
     }
 
-    protected override bool ValidateName(string candidateName)
+    private bool ValidateName(string candidateName)
     {
         foreach (UserClass c in Iml.GetSingleton().structuralModel.classes)
             if (c.name.Equals(candidateName) && !c.Equals(classReference))
@@ -102,7 +102,7 @@ public class EditClass : EditObject
                 PrintError("IML Structural Model already contains a Class with the name " + candidateName + ". Please use unqiue Class names.");
                 return false;
             }
-        return base.ValidateName(candidateName);
+        return ValidateName(candidateName, "Class");
     }
 
 }

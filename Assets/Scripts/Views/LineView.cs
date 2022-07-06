@@ -6,12 +6,12 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
 public class LineView : MonoBehaviour, IPunObservable
 {
-    [SerializeField]
     public Vector3 start;
-    [SerializeField]
     public Vector3 end;
-    [SerializeField]
+    public virtual bool useColor { get; set; } = true ;
     public Color color;
+
+
 
     protected LineRenderer lineRenderer;
 
@@ -46,8 +46,11 @@ public class LineView : MonoBehaviour, IPunObservable
                 }
             lineRenderer.SetPosition(0, start);
             lineRenderer.SetPosition(1, end);
-            lineRenderer.startColor = color;
-            lineRenderer.endColor = color;
+            if (useColor)
+            {
+                lineRenderer.startColor = color;
+                lineRenderer.endColor = color;
+            }
         }
     }
 

@@ -106,6 +106,8 @@ public class EditAttribute : EditObject
         editPanel.GetChild(4).GetChild(2).GetComponent<Button>().onClick.AddListener(delegate { BumpField(upperBound, true); });
         editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.RemoveAllListeners();
         editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.AddListener(delegate { BumpField(upperBound, false); });
+        editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.RemoveAllListeners();
+        editPanel.GetChild(4).GetChild(3).GetComponent<Button>().onClick.AddListener(delegate { StarField(upperBound); });
     }
 
     public void SaveLower(string s)
@@ -211,7 +213,7 @@ public class EditAttribute : EditObject
         }
     }
 
-    protected override bool ValidateName(string candidateName)
+    private bool ValidateName(string candidateName)
     {
         if (candidateName == attributeReference.name)
             return true;
@@ -221,7 +223,7 @@ public class EditAttribute : EditObject
             return false;
         }
 
-        return base.ValidateName(candidateName);
+        return ValidateName(candidateName, "Attribute");
     }
 
     public int GetTypeNumber(string type)

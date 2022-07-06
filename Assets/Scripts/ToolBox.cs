@@ -17,10 +17,6 @@ public class ToolBox : MonoBehaviour
     public bool SecondaryPressed = false; // used to display button state in the Unity Inspector window
     public string relationMode;
 
-    private int classCount = 0;
-    private int attrCount = 0;
-
-
     void Start()
     {
         relationMode = null;
@@ -118,11 +114,20 @@ public class ToolBox : MonoBehaviour
         }
         if (type.Equals("CLASS"))
         {
+            int num = 0;
+            bool match = true;
+            while (match)
+            {
+                num++;
+                match = false;
+                foreach (UserClass uc in Iml.GetSingleton().structuralModel.classes)
+                    if (("NewClass" + num).Equals(uc.name))
+                        match = true;
+            }
             UserClass newClass = new UserClass();
-            newClass.SetName("NewClass" + (classCount > 0 ? "" + classCount : ""));
+            newClass.SetName("NewClass" + num);
             newClass.id = Guid.NewGuid().ToString(); // update (if possible) to match parity with flat version
             newClass.SetPosition(new Vector3(0, 0, 3));
-            classCount++;
             Iml.GetSingleton().structuralModel.classes.Add(newClass);
             newClass.CreateGameObject();
 
@@ -134,10 +139,11 @@ public class ToolBox : MonoBehaviour
         {
             if (type.Equals("ATTRIBUTE"))
             {
+                int num = 0;
+                bool match = true;
+
                 UserAttribute newAttribute = new UserAttribute();
-                newAttribute.name = "newAttr";
-                newAttribute.name += attrCount > 0 ? "" + attrCount : "";
-                attrCount++;
+                newAttribute.name = "newAttr1";
                 newAttribute.value = "";
                 newAttribute.CreateGameObject();
 
@@ -176,9 +182,18 @@ public class ToolBox : MonoBehaviour
             GameObject.Find("XR Interaction Manager").GetComponent<XRInteractionManager>().SelectExit(args.interactorObject, args.interactableObject);
             relationMode = null;
         }
+        int num = 0;
+        bool match = true;
+        while (match) {
+            num++;
+            match = false;
+            foreach (Relation r in classReference.relations)
+                if (("newRelation" + num).Equals(r.name))
+                    match = true;
+        }
         Relation relation = new Relation
         {
-            name = relationMode.Equals("INHERITENCE") ? null : "newRelation",
+            name = relationMode.Equals("INHERITENCE") ? null : "newRelation" + num,
             type = relationMode
         };
         relation.CreateGameObject();
