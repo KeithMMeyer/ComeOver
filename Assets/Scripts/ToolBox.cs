@@ -1,4 +1,5 @@
 using Photon.Pun;
+using Photon.Voice.Unity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,12 +11,15 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class ToolBox : MonoBehaviour
 {
     public Camera viewCamera;
+    public Recorder recorder;
 
     private PrimaryButtonWatcher primary;
     private SecondaryButtonWatcher secondary;
     public bool PrimaryPressed = false; // used to display button state in the Unity Inspector window
     public bool SecondaryPressed = false; // used to display button state in the Unity Inspector window
     public string relationMode;
+    private bool micStatus = true;
+    private bool speakerStatus = true;
 
     void Start()
     {
@@ -70,6 +74,16 @@ public class ToolBox : MonoBehaviour
             routeField.onValueChanged.RemoveAllListeners();
             routeField.value = routes.IndexOf(Iml.GetSingleton().structuralModel.routingMode);
             routeField.onValueChanged.AddListener(delegate (int route) { Iml.GetSingleton().structuralModel.routingMode = routeArray[route]; });
+
+            Dropdown micField = editPanel.GetChild(3).GetChild(1).GetComponent<Dropdown>();
+            micField.onValueChanged.RemoveAllListeners();
+            micField.value = micStatus ? 0 : 1;
+            micField.onValueChanged.AddListener(delegate (int mic) { micStatus = mic == 0; recorder.TransmitEnabled = micStatus; });
+
+            Dropdown speakerField = editPanel.GetChild(3).GetChild(2).GetComponent<Dropdown>();
+            speakerField.onValueChanged.RemoveAllListeners();
+            speakerField.value = speakerStatus ? 0 : 1;
+            speakerField.onValueChanged.AddListener(delegate (int speaker) { speakerStatus = speaker == 0; AudioListener.volume = speaker; });
         }
     }
 
@@ -139,9 +153,6 @@ public class ToolBox : MonoBehaviour
         {
             if (type.Equals("ATTRIBUTE"))
             {
-                int num = 0;
-                bool match = true;
-
                 UserAttribute newAttribute = new UserAttribute();
                 newAttribute.name = "newAttr1";
                 newAttribute.value = "";

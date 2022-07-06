@@ -8,7 +8,7 @@ public class LineView : MonoBehaviour, IPunObservable
 {
     public Vector3 start;
     public Vector3 end;
-    public virtual bool useColor { get; set; } = true ;
+    public bool useColor = true;
     public Color color;
 
 

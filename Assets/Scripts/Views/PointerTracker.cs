@@ -5,12 +5,18 @@ using UnityEngine;
 
 public class PointerTracker : LineView
 {
-    public override bool useColor { get; set; } = false;
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        useColor = false;
+        SetRenderer();
     }
 
     protected override void SetRenderer()

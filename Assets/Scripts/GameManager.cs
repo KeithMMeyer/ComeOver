@@ -33,6 +33,11 @@ namespace Com.MyCompany.MyGame
 
         #region Public Methods
 
+        public override void OnEnable()
+        {
+            Debug.Log("OnEnable called");
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
 
         public void LeaveRoom()
         {
@@ -86,8 +91,12 @@ namespace Com.MyCompany.MyGame
 
         #endregion
 
-        public void OnSceneLoaded()
+        public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
+            Debug.LogWarning("Loaded!!!!!!!1!!!!1!!");
+            GameObject voiceView = PhotonNetwork.Instantiate("VoiceView", new Vector3(0, 0, 0), Quaternion.identity, 0);
+            voiceView.transform.parent = GameObject.Find("Camera Offset").transform;
+
             if (Application.isEditor) return;
 
             GameObject pointerTracker = PhotonNetwork.Instantiate("PointerTracker", new Vector3(0, 0, 0), Quaternion.identity, 0);
