@@ -97,6 +97,9 @@ namespace Com.MyCompany.MyGame
             GameObject voiceView = PhotonNetwork.Instantiate("VoiceView", new Vector3(0, 0, 0), Quaternion.identity, 0);
             voiceView.transform.parent = GameObject.Find("Camera Offset").transform;
 
+            GameObject playerTracker = PhotonNetwork.Instantiate("PlayerTracker", new Vector3(0, 0, 0), Quaternion.identity, 0);
+            playerTracker.transform.parent = GameObject.Find("Main Camera").transform;
+
             if (Application.isEditor) return;
 
             GameObject pointerTracker = PhotonNetwork.Instantiate("PointerTracker", new Vector3(0, 0, 0), Quaternion.identity, 0);
