@@ -12,6 +12,7 @@ public class Drag : MonoBehaviour
     private Transform active;
     private Transform trash;
     private UserClass storage;
+    private LockView lockView;
 
     Transform errorPanel;
 
@@ -77,9 +78,10 @@ public class Drag : MonoBehaviour
         interactable.selectEntered.AddListener(delegate (SelectEnterEventArgs args) { if (!grabbed) { active = args.interactorObject.transform; Invoke(nameof(Grabbed), 0.25f); } else { Grabbed(args); } });
         interactable.selectExited.AddListener(Dropped);
 
-        errorPanel = GameObject.Find("Main Canvas").transform.GetChild(1);
         trash = GameObject.Find("Trash").transform;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = true;
+        errorPanel = GameObject.Find("Main Canvas").transform.GetChild(1);
+        lockView = GetComponentInParent<LockView>();
     }
 
     public void Grabbed()
@@ -93,6 +95,8 @@ public class Drag : MonoBehaviour
             return;
         if (interactable == null)
             init();
+        if (!lockView.HasLock)
+            return;
         //if (args != null)
         //    active = args.interactorObject.transform;
         if (dragParent)

@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,20 +10,38 @@ public class EditObject : MonoBehaviour
     protected XRSimpleInteractable interactable;
     protected ToolBox toolbox;
     protected Transform editPanel;
+    private LockView lockView;
     private Transform errorPanel;
+
+
 
     // Start is called before the first frame update
     protected virtual void Start()
     {
         toolbox = GameObject.Find("ToolBox").GetComponent<ToolBox>();
         interactable = GetComponent<XRSimpleInteractable>();
+        lockView = transform.GetComponentInParent<LockView>();
+        lockView.OnUnlocked.AddListener(delegate { UpdateColor(false); });
     }
 
     protected virtual void OpenDrawer(SelectEnterEventArgs args)
     {
-        toolbox.closeAll();
-        editPanel.gameObject.SetActive(true);
-        errorPanel = GameObject.Find("Main Canvas").transform.GetChild(1);
+        if (!lockView.IsLocked || lockView.HasLock)
+        {
+            if (PhotonNetwork.IsMasterClient)
+            {
+                lockView.RequestLock();
+            }
+            else
+            {
+                PhotonView photonView = PhotonView.Get(this);
+                photonView.RPC("RemoteLock", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
+            }
+            toolbox.closeAll();
+            toolbox.closedWindows.AddListener(Unlock);
+            editPanel.gameObject.SetActive(true);
+            errorPanel = GameObject.Find("Main Canvas").transform.GetChild(1);
+        }
     }
 
     protected virtual bool ValidateName(string candidateName, string type)
@@ -107,10 +126,35 @@ public class EditObject : MonoBehaviour
         field.onEndEdit.Invoke(field.text);
     }
 
-        protected void PrintError(string message)
+    protected void PrintError(string message)
     {
         errorPanel.gameObject.SetActive(true);
         errorPanel.GetChild(1).GetComponent<Text>().text = message;
+    }
+
+    private void Unlock()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            lockView.Unlock();
+        }
+        else
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("RemoteUnlock", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
+            UpdateColor(false);
+        }
+        toolbox.closedWindows.RemoveListener(Unlock);
+    }
+
+    protected virtual void UpdateColor(bool isLocked)
+    {
+        // dummy method
+    }
+
+    public void OpenSesame()
+    {
+        OpenDrawer(null);
     }
 
 }

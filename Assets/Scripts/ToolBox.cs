@@ -5,11 +5,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 
 public class ToolBox : MonoBehaviour
 {
+    public UnityEvent closedWindows;
     public Camera viewCamera;
     public Recorder recorder;
 
@@ -89,6 +91,7 @@ public class ToolBox : MonoBehaviour
 
     public void closeAll()
     {
+        closedWindows.Invoke();
         transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
         transform.GetChild(0).GetChild(1).gameObject.SetActive(false);
         transform.GetChild(0).GetChild(2).gameObject.SetActive(false);
@@ -140,7 +143,7 @@ public class ToolBox : MonoBehaviour
             }
             UserClass newClass = new UserClass();
             newClass.SetName("NewClass" + num);
-            newClass.id = Guid.NewGuid().ToString(); // update (if possible) to match parity with flat version
+            newClass.id = Guid.NewGuid().ToString();
             newClass.SetPosition(new Vector3(0, 0, 3));
             Iml.GetSingleton().structuralModel.classes.Add(newClass);
             newClass.CreateGameObject();

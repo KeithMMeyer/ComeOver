@@ -17,7 +17,8 @@ public class ClassView : MonoBehaviour, IPunObservable
             {
                 stream.SendNext(transform.GetComponent<Identity>().classReference.id);
                 stream.SendNext(transform.GetComponent<Identity>().classReference.isAbstract.Equals("TRUE") ? 1 : 0);
-            } else
+            }
+            else
             {
                 stream.SendNext("NULL");
                 stream.SendNext(3);
@@ -34,14 +35,17 @@ public class ClassView : MonoBehaviour, IPunObservable
 
             isAbstract = output2 == 1;
 
-            if (isAbstract)
+            if (!transform.GetComponent<LockView>().IsLocked)
             {
-                gameObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/AbstractColor");
+                if (isAbstract)
+                {
+                    gameObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/AbstractColor");
 
-            }
-            else
-            {
-                gameObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/UIColor");
+                }
+                else
+                {
+                    gameObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/UIColor");
+                }
             }
         }
     }

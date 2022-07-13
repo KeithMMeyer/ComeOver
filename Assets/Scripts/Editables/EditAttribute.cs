@@ -10,6 +10,7 @@ public class EditAttribute : EditObject
 {
 
     UserAttribute attributeReference;
+    private Material defaultMaterial;
 
     // Start is called before the first frame update
     protected override void Start()
@@ -17,6 +18,7 @@ public class EditAttribute : EditObject
         base.Start();
         editPanel = toolbox.transform.GetChild(0).GetChild(2);
         interactable.selectEntered.AddListener(OpenDrawer);
+        defaultMaterial = transform.GetChild(0).GetComponent<MeshRenderer>().material;
         attributeReference = transform.GetComponentInParent<Identity>().attributeReference;
     }
 
@@ -71,6 +73,8 @@ public class EditAttribute : EditObject
         valueField.placeholder.GetComponent<Text>().text = value;
         valueField.text = value;
         valueField.onEndEdit.AddListener(SaveValue);
+
+        UpdateColor(true);
     }
 
     private void SetUpBounds()
@@ -231,5 +235,17 @@ public class EditAttribute : EditObject
         string[] typeArray = { "STRING", "BOOLEAN", "DOUBLE", "INTEGER" };
         List<string> types = typeArray.ToList();
         return types.IndexOf(type);
+    }
+
+    protected override void UpdateColor(bool isLocked)
+    {
+        if (isLocked)
+        {
+            transform.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/LockedColor");
+        }
+        else
+        {
+            transform.GetComponent<MeshRenderer>().material = defaultMaterial;
+        }
     }
 }

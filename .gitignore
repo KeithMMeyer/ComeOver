@@ -13,6 +13,7 @@
 /[Aa]ssets/Standard Assets/
 /[Aa]ssets/SampleScenes/
 /[Aa]ssets/Photon/
+/[Aa]ssets/Oculus/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta

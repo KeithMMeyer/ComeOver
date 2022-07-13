@@ -139,6 +139,7 @@ GameObject:
   - component: {fileID: 6257449316971332377}
   - component: {fileID: 6767935590288932845}
   - component: {fileID: 4561023203616167329}
+  - component: {fileID: 1209628129926585818}
   - component: {fileID: 473393669597080838}
   m_Layer: 6
   m_Name: ClassObject
@@ -196,6 +197,7 @@ MonoBehaviour:
   ObservedComponents:
   - {fileID: 6767935590288932845}
   - {fileID: 4561023203616167329}
+  - {fileID: 1209628129926585818}
   - {fileID: 8477901590252927703}
   - {fileID: 3495824907802288204}
   - {fileID: 1302927251824054824}
@@ -232,6 +234,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 
   isAbstract: 0
+--- !u!114 &1209628129926585818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2328143202460933817}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 278a16d7d736ff44e861324934797dc0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnUnlocked:
+    m_PersistentCalls:
+      m_Calls: []
+  owner: -1
+  IsLocked: 0
 --- !u!114 &473393669597080838
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -354,7 +373,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   text: 
-  color: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &1302927251824054824
 MonoBehaviour:
   m_ObjectHideFlags: 0

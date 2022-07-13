@@ -6,10 +6,8 @@ using UnityEngine;
 [RequireComponent(typeof(TextMesh))]
 public class TextView : MonoBehaviour, IPunObservable
 {
-    [SerializeField]
     public string text;
-    [SerializeField]
-    public Color color;
+    //public Color color;
 
     TextMesh mesh;
 

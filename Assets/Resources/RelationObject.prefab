@@ -327,7 +327,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   text: 
-  color: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &2017202270450672865
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -834,7 +833,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   text: 
-  color: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &1893813983015096500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1406,6 +1404,7 @@ GameObject:
   - component: {fileID: 7230582742497679738}
   - component: {fileID: 8103842262141583018}
   - component: {fileID: 3275650777851393624}
+  - component: {fileID: 1750110656920569949}
   - component: {fileID: 5406840244287766281}
   - component: {fileID: 6436095040693001567}
   m_Layer: 8
@@ -1563,6 +1562,7 @@ MonoBehaviour:
   observableSearch: 0
   ObservedComponents:
   - {fileID: 3275650777851393624}
+  - {fileID: 1750110656920569949}
   - {fileID: 5406840244287766281}
   - {fileID: 7684301595350045079}
   - {fileID: 2378712657823004639}
@@ -1589,6 +1589,23 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
   m_UseLocal: 1
+--- !u!114 &1750110656920569949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7245055645199246563}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 278a16d7d736ff44e861324934797dc0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnUnlocked:
+    m_PersistentCalls:
+      m_Calls: []
+  owner: -1
+  IsLocked: 0
 --- !u!114 &5406840244287766281
 MonoBehaviour:
   m_ObjectHideFlags: 0

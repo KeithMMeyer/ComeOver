@@ -23,20 +23,19 @@ public class EditClass : EditObject
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                UserClass dummyClass = new UserClass();
-                dummyClass.id = transform.GetComponentInParent<ClassView>().id;
-                toolbox.InsertRelation(dummyClass, args);
+                toolbox.InsertRelation(classReference, args);
             }
             else
             {
-                toolbox.InsertRelation(classReference, args);
+                UserClass dummyClass = new UserClass();
+                dummyClass.id = transform.GetComponentInParent<ClassView>().id;
+                toolbox.InsertRelation(dummyClass, args);
             }
             return;
         }
         else
         {
             base.OpenDrawer(args);
-
             string name;
             int isAbstract;
             if (PhotonNetwork.IsMasterClient)
@@ -61,6 +60,8 @@ public class EditClass : EditObject
             abstractField.onValueChanged.RemoveAllListeners();
             abstractField.value = isAbstract;
             abstractField.onValueChanged.AddListener(SaveIsAbstract);
+
+            UpdateColor(true);
         }
     }
 
@@ -103,6 +104,36 @@ public class EditClass : EditObject
                 return false;
             }
         return ValidateName(candidateName, "Class");
+    }
+
+    protected override void UpdateColor(bool isLocked)
+    {
+        bool isAbstract;
+        if (PhotonNetwork.IsMasterClient)
+            isAbstract = classReference.isAbstract.Equals("TRUE");
+        else
+        {
+            isAbstract = transform.GetComponentInParent<ClassView>().isAbstract;
+        }
+
+        if (isLocked)
+        {
+            transform.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/LockedColor");
+        }
+        else
+        {
+            if (isAbstract)
+            {
+                transform.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/AbstractColor");
+
+            }
+            else
+            {
+                transform.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/UIColor");
+            }
+
+
+        }
     }
 
 }
