@@ -128,8 +128,15 @@ public class EditObject : MonoBehaviour
 
     protected void PrintError(string message)
     {
-        errorPanel.gameObject.SetActive(true);
-        errorPanel.GetChild(1).GetComponent<Text>().text = message;
+        if (lockView.IsLocked && lockView.HasLock)
+        {
+            errorPanel.gameObject.SetActive(true);
+            errorPanel.GetChild(1).GetComponent<Text>().text = message;
+        } else
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("PrintError", RpcTarget.Others, message);
+        }
     }
 
     private void Unlock()

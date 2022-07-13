@@ -176,8 +176,16 @@ public class Drag : MonoBehaviour
 
             if (!placed)
             {
-                errorPanel.gameObject.SetActive(true);
-                errorPanel.GetChild(1).GetComponent<Text>().text = "Attributes can only be added to IML Classes.";
+                if (lockView.IsLocked && lockView.HasLock)
+                {
+                    errorPanel.gameObject.SetActive(true);
+                    errorPanel.GetChild(1).GetComponent<Text>().text = "Attributes can only be added to IML Classes.";
+                }
+                else
+                {
+                    PhotonView photonView = PhotonView.Get(this);
+                    photonView.RPC("PrintError", RpcTarget.Others, "Attributes can only be added to IML Classes.");
+                }
                 if (gameObject.GetComponentInParent<Identity>().attributeReference.parent != null)
                 {
                     gameObject.GetComponentInParent<Identity>().attributeReference.parent.Resize();
@@ -341,8 +349,16 @@ public class Drag : MonoBehaviour
                 string message;
                 if ((isArrow && !relation.CanAttach(relation.sourceClass, newClass, out message)) || (!isArrow && !relation.CanAttach(newClass, relation.destinationClass, out message)))
                 {
-                    errorPanel.gameObject.SetActive(true);
-                    errorPanel.GetChild(1).GetComponent<Text>().text = message;
+                    if (lockView.IsLocked && lockView.HasLock)
+                    {
+                        errorPanel.gameObject.SetActive(true);
+                        errorPanel.GetChild(1).GetComponent<Text>().text = message;
+                    }
+                    else
+                    {
+                        PhotonView photonView = PhotonView.Get(this);
+                        photonView.RPC("PrintError", RpcTarget.Others, message);
+                    }
                     return false;
                 }
 

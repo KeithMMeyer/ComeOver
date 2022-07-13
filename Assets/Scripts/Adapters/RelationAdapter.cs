@@ -3,14 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RelationAdapter : MonoBehaviour
+public class RelationAdapter : ObjectAdapter
 {
-    [PunRPC]
-    public void TrashObject()
-    {
-        transform.GetComponentInChildren<Drag>().TrashObject();
-    }
-
     [PunRPC]
     public void EditRelation(string type, string value)
     {

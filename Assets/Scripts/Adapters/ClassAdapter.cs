@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ClassAdapter : MonoBehaviour
+public class ClassAdapter : ObjectAdapter
 {
 
     [PunRPC]
@@ -13,12 +13,6 @@ public class ClassAdapter : MonoBehaviour
         //TODO update stored position
         classReference.UpdateRelations();
 
-    }
-
-    [PunRPC]
-    public void TrashObject()
-    {
-        transform.GetComponentInChildren<Drag>().TrashObject();
     }
 
     [PunRPC]
