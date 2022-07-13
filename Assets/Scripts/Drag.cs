@@ -91,14 +91,14 @@ public class Drag : MonoBehaviour
 
     public void Grabbed(SelectEnterEventArgs args)
     {
-        if (!interactable.isSelected && !Application.isEditor)
-            return;
         if (interactable == null)
             init();
+        if (!interactable.isSelected && !Application.isEditor && args == null)
+            return;
         if (!lockView.HasLock)
             return;
-        //if (args != null)
-        //    active = args.interactorObject.transform;
+        if (args != null)
+           active = args.interactorObject.transform;
         if (dragParent)
         {
             transform.GetComponentInParent<PhotonView>().RequestOwnership();

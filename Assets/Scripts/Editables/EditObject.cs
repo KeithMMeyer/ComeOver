@@ -28,6 +28,7 @@ public class EditObject : MonoBehaviour
     {
         if (!lockView.IsLocked || lockView.HasLock)
         {
+            toolbox.closeAll();
             if (PhotonNetwork.IsMasterClient)
             {
                 lockView.RequestLock();
@@ -37,7 +38,6 @@ public class EditObject : MonoBehaviour
                 PhotonView photonView = PhotonView.Get(this);
                 photonView.RPC("RemoteLock", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
             }
-            toolbox.closeAll();
             toolbox.closedWindows.AddListener(Unlock);
             editPanel.gameObject.SetActive(true);
             errorPanel = GameObject.Find("Main Canvas").transform.GetChild(1);
@@ -147,8 +147,8 @@ public class EditObject : MonoBehaviour
         }
         else
         {
-            PhotonView photonView = PhotonView.Get(this);
-            photonView.RPC("RemoteUnlock", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
+            //PhotonView photonView = PhotonView.Get(this);
+            //photonView.RPC("RemoteUnlock", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
             UpdateColor(false);
         }
         toolbox.closedWindows.RemoveListener(Unlock);

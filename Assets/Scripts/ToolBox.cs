@@ -227,6 +227,7 @@ public class ToolBox : MonoBehaviour
             GameObject.Find("XR Interaction Manager").GetComponent<XRInteractionManager>().SelectEnter(
                 args.interactorObject, relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<XRSimpleInteractable>());
             relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<EditRelation>().Init(); // so edit listeners will be called first
+            relation.gameObject.GetComponent<LockView>().RequestLock(); // need to update for remote clients
             relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<Drag>().Grabbed(args);
             relationMode = null;
         }
