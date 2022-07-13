@@ -40,7 +40,11 @@ public class RelationView : LineView
                 if (type.Equals("INHERITENCE"))
                 {
                     //PhotonNetwork.Destroy(transform.GetChild(2).gameObject);
-                    //PhotonNetwork.Destroy(transform.GetChild(2).gameObject);
+                    //Destroy(transform.GetChild(2).gameObject);
+                    gameObject.transform.GetChild(2).GetComponent<MeshRenderer>().forceRenderingOff = true;
+                    //PhotonNetwork.Destroy(transform.GetChild(3).gameObject);
+                    //Destroy(transform.GetChild(3).gameObject);
+                    gameObject.transform.GetChild(3).GetComponent<MeshRenderer>().forceRenderingOff = true;
                 }
                 firstPass = false;
             }

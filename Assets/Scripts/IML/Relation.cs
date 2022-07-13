@@ -54,8 +54,12 @@ public class Relation
         }
         if (type.Equals("INHERITENCE"))
         {
-            PhotonNetwork.Destroy(gameObject.transform.GetChild(2).gameObject);
-            PhotonNetwork.Destroy(gameObject.transform.GetChild(2).gameObject);
+            //PhotonNetwork.Destroy(gameObject.transform.GetChild(2).gameObject);
+            //GameObject.Destroy(gameObject.transform.GetChild(2).gameObject);
+            gameObject.transform.GetChild(2).GetComponent<MeshRenderer>().forceRenderingOff = true;
+            //PhotonNetwork.Destroy(gameObject.transform.GetChild(3).gameObject);
+            //GameObject.Destroy(gameObject.transform.GetChild(3).gameObject);
+            gameObject.transform.GetChild(3).GetComponent<MeshRenderer>().forceRenderingOff = true;
             lowerBound = upperBound = nameDistance = boundDistance = nameOffset = boundOffset = null;
         }
 
@@ -264,7 +268,7 @@ public class Relation
                 return false;
             }
         }
-    message = "";
+        message = "";
         return true;
     }
 

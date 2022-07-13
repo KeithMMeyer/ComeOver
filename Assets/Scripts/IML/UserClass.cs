@@ -95,7 +95,8 @@ public class UserClass
         {
             if (attribute.gameObject != null)
             {
-                GameObject.Destroy(attribute.gameObject);
+                //GameObject.Destroy(attribute.gameObject);
+                PhotonNetwork.Destroy(attribute.gameObject);
                 attribute.gameObject = null;
             }
             attribute.CreateGameObject();
