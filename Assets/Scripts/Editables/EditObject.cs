@@ -147,8 +147,8 @@ public class EditObject : MonoBehaviour
         }
         else
         {
-            //PhotonView photonView = PhotonView.Get(this);
-            //photonView.RPC("RemoteUnlock", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("RemoteUnlock", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
             UpdateColor(false);
         }
         toolbox.closedWindows.RemoveListener(Unlock);
