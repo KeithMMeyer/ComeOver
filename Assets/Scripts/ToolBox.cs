@@ -31,6 +31,7 @@ public class ToolBox : MonoBehaviour
         primary.primaryButtonPress.AddListener(OnPrimaryButtonEvent);
         secondary.secondaryButtonPress.AddListener(OnSecondaryButtonEvent);
         closeAll();
+        transform.parent.GetChild(1).gameObject.SetActive(true);
     }
 
     public void OnPrimaryButtonEvent(bool pressed)
@@ -43,6 +44,9 @@ public class ToolBox : MonoBehaviour
         {
             transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
             relationMode = null;
+        } else
+        {
+            transform.parent.GetChild(1).gameObject.SetActive(true);
         }
 
     }
@@ -97,6 +101,7 @@ public class ToolBox : MonoBehaviour
         transform.GetChild(0).GetChild(2).gameObject.SetActive(false);
         transform.GetChild(0).GetChild(3).gameObject.SetActive(false);
         transform.GetChild(0).GetChild(4).gameObject.SetActive(false);
+        transform.parent.GetChild(1).gameObject.SetActive(false);
     }
 
     private void Update()
