@@ -29,7 +29,14 @@ public class LockView : MonoBehaviour, IPunObservable
             IsLocked = (bool)stream.ReceiveNext();
 
             if (IsLocked)
-                gameObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/LockedColor");
+                if (HasLock)
+                {
+                    gameObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/EditColor");
+                }
+                else
+                {
+                    gameObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/LockedColor");
+                }
         }
     }
 

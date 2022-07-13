@@ -241,7 +241,7 @@ public class EditAttribute : EditObject
     {
         if (isLocked)
         {
-            transform.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/LockedColor");
+            transform.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/EditColor");
         }
         else
         {
