@@ -15,7 +15,7 @@ public class MainAdapter : MonoBehaviour
     }
 
     [PunRPC]
-    public void InsertRelation(string id)
+    public void InsertRelation(string id, string relationMode)
     {
         ToolBox toolBox = GameObject.Find("ToolBox").GetComponent<ToolBox>();
         UserClass target = null;
@@ -25,7 +25,7 @@ public class MainAdapter : MonoBehaviour
                 target = c;
                 break;
             }
-
+        toolBox.relationMode = relationMode;
         toolBox.InsertRelation(target, null);
 
     }

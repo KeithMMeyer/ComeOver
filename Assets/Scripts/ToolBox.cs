@@ -197,7 +197,7 @@ public class ToolBox : MonoBehaviour
         if (!PhotonNetwork.IsMasterClient)
         {
             PhotonView photonView = PhotonView.Get(GameObject.Find("Main"));
-            photonView.RPC("InsertRelation", RpcTarget.MasterClient, classReference.id);
+            photonView.RPC("InsertRelation", RpcTarget.MasterClient, classReference.id, relationMode);
             GameObject.Find("XR Interaction Manager").GetComponent<XRInteractionManager>().SelectExit(args.interactorObject, args.interactableObject);
             relationMode = null;
         }

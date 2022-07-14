@@ -503,8 +503,10 @@ public class Drag : MonoBehaviour
         //Destroy(relation.gameObject);
         PhotonNetwork.Destroy(relation.gameObject);
         Iml.GetSingleton().structuralModel.relations.Remove(relation);
-        relation.sourceClass.relations.Remove(relation);
-        relation.destinationClass.relations.Remove(relation);
+        if (relation.sourceClass != null)
+            relation.sourceClass.relations.Remove(relation);
+        if (relation.destinationClass != null)
+            relation.destinationClass.relations.Remove(relation);
     }
 
     private static bool LinePlaneIntersection(out Vector3 intersection, Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint)
