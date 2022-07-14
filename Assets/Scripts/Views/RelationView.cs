@@ -13,6 +13,7 @@ public class RelationView : LineView
 
     public override void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
+        useColor = true;
         base.OnPhotonSerializeView(stream, info);
         if (stream.IsWriting)
         {
@@ -54,11 +55,5 @@ public class RelationView : LineView
                 transform.GetChild(1).GetChild(1).GetComponent<TextMesh>().color = color;
             }
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

@@ -29,15 +29,16 @@ public class LockView : MonoBehaviour, IPunObservable
             IsLocked = (bool)stream.ReceiveNext();
         }
 
-        if (IsLocked)
-            if (HasLock)
-            {
-                gameObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/EditColor");
-            }
-            else
-            {
-                gameObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/LockedColor");
-            }
+        if (gameObject.layer == 6 || gameObject.layer == 7) //classes and attributes
+            if (IsLocked)
+                if (HasLock)
+                {
+                    gameObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/EditColor");
+                }
+                else
+                {
+                    gameObject.transform.GetChild(0).GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/LockedColor");
+                }
     }
 
     public bool RequestLock()
@@ -90,17 +91,5 @@ public class LockView : MonoBehaviour, IPunObservable
         owner = -1;
         OnUnlocked.Invoke();
         return true;
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 }

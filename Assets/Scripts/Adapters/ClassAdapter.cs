@@ -7,7 +7,7 @@ public class ClassAdapter : ObjectAdapter
 {
 
     [PunRPC]
-    public void UpdateRelations(Vector3 position)
+    public void UpdateClassRelations(Vector3 position)
     {
         UserClass classReference = transform.GetComponent<Identity>().classReference;
         //TODO update stored position

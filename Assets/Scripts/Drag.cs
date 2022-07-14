@@ -23,7 +23,7 @@ public class Drag : MonoBehaviour
     {
         if (interactable == null)
         {
-            init();
+            Init();
         }
     }
 
@@ -46,23 +46,24 @@ public class Drag : MonoBehaviour
                 {
                     if (PhotonNetwork.IsMasterClient)
                     {
-                        UpdateRelations(position);
+                        UpdateClassRelations(position);
                     }
                     else
                     {
                         PhotonView photonView = PhotonView.Get(this);
-                        photonView.RPC("UpdateRelations", RpcTarget.MasterClient, position);
+                        photonView.RPC("UpdateClassRelations", RpcTarget.MasterClient, position);
                     }
                 }
-                if (PhotonNetwork.IsMasterClient && gameObject.layer == 8) //relations
+                if (gameObject.layer == 8) //relations
                 {
-                    if (transform.parent.name.Equals("Arrow"))
+                    if (PhotonNetwork.IsMasterClient)
                     {
-                        gameObject.GetComponentInParent<Identity>().relationReference.UpdatePoints(null, position);
+                        UpdateRelation(position);
                     }
                     else
                     {
-                        gameObject.GetComponentInParent<Identity>().relationReference.UpdatePoints(position, null);
+                        PhotonView photonView = PhotonView.Get(this);
+                        photonView.RPC("UpdateRelation", RpcTarget.MasterClient, position);
                     }
 
                 }
@@ -71,7 +72,7 @@ public class Drag : MonoBehaviour
 
     }
 
-    private void init()
+    private void Init()
     {
         interactable = GetComponent<XRSimpleInteractable>();
 
@@ -86,19 +87,21 @@ public class Drag : MonoBehaviour
 
     public void Grabbed()
     {
-        Grabbed(null);
+        SelectEnterEventArgs args = new SelectEnterEventArgs();
+        args.interactorObject = GameObject.Find("RightHand Controller").GetComponent<IXRSelectInteractor>();
+        Grabbed(args);
     }
 
     public void Grabbed(SelectEnterEventArgs args)
     {
         if (interactable == null)
-            init();
+            Init();
         if (!interactable.isSelected && !Application.isEditor && args == null)
             return;
         if (!lockView.HasLock)
             return;
         if (args != null)
-           active = args.interactorObject.transform;
+            active = args.interactorObject.transform;
         if (dragParent)
         {
             transform.GetComponentInParent<PhotonView>().RequestOwnership();
@@ -110,24 +113,37 @@ public class Drag : MonoBehaviour
         grabbed = true;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = false;
         transform.GetChild(0).gameObject.SetActive(true); // enable collider
-        if (PhotonNetwork.IsMasterClient && gameObject.layer == 8) //relations
+        if (gameObject.layer == 8) //relations
         {
-            Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
-            if (relation.sourceClass != null && relation.destinationClass != null && relation.sourceClass.Equals(relation.destinationClass))
+            if (PhotonNetwork.IsMasterClient)
             {
-                //Destroy(transform.parent.gameObject);
-                relation.UpdatePoints(relation.sourceClass.gameObject.transform.position, null);
-            }
-            if (transform.parent.name.Equals("Arrow"))
-            {
-                storage = relation.destinationClass;
-                relation.destinationClass = null;
+                GrabRelation();
             }
             else
             {
-                storage = relation.sourceClass;
-                relation.sourceClass = null;
+                PhotonView photonView = PhotonView.Get(this);
+                photonView.RPC("GrabRelation", RpcTarget.MasterClient);
             }
+        }
+    }
+
+    public void GrabRelation()
+    {
+        Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
+        if (relation.sourceClass != null && relation.destinationClass != null && relation.sourceClass.Equals(relation.destinationClass))
+        {
+            //Destroy(transform.parent.gameObject);
+            relation.UpdatePoints(relation.sourceClass.gameObject.transform.position, null);
+        }
+        if (transform.parent.name.Equals("Arrow"))
+        {
+            storage = relation.destinationClass;
+            relation.destinationClass = null;
+        }
+        else
+        {
+            storage = relation.sourceClass;
+            relation.sourceClass = null;
         }
     }
 
@@ -210,31 +226,7 @@ public class Drag : MonoBehaviour
                 }
             }
 
-            bool placed = placeRelation(collisionList);
-
-            if (!placed)
-            {
-                Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
-                //errorPanel.gameObject.SetActive(true);
-                //errorPanel.GetChild(1).GetComponent<Text>().text = "Relations can only be added to IML Classes.";
-                if (storage != null)
-                {
-                    if (transform.parent.name.Equals("Arrow"))
-                    {
-                        relation.AttachToClass(relation.sourceClass, storage);
-                    }
-                    else
-                    {
-                        relation.AttachToClass(storage, relation.destinationClass);
-                    }
-                    storage = null;
-                }
-                else
-                {
-                    Destroy(relation.gameObject);
-                }
-            }
-
+            PlaceRelation(collisionList);
         }
     }
 
@@ -291,7 +283,7 @@ public class Drag : MonoBehaviour
             }
         }
         if (classRefence == null)
-            Debug.LogError("Tried to place attribute but no class match found! ID:'" + classId + "'");
+            Debug.LogError("Tried to place attribute but no class match found! ID:'" + classId + "'!");
         foreach (UserAttribute a in classRefence.attributes)
         {
             if (a.displayString.Equals(attributeText))
@@ -321,7 +313,7 @@ public class Drag : MonoBehaviour
             oldClass.Resize();
         }
 
-        UserClass newClass = classObject.gameObject.GetComponentInParent<Identity>().classReference;
+        UserClass newClass = classObject.GetComponentInParent<Identity>().classReference;
 
         int position = 0;
 
@@ -336,62 +328,116 @@ public class Drag : MonoBehaviour
         newClass.Resize();
     }
 
-    private bool placeRelation(List<Collider> collisionList)
+    private bool PlaceRelation(List<Collider> collisionList)
     {
+        GameObject classObject = null;
+
         foreach (Collider c in collisionList)
         {
-            if (c.gameObject.layer == 6) //classes
+            if (classObject == null && c.gameObject.layer == 6) //classes
             {
-                Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
-                UserClass newClass = c.gameObject.GetComponentInParent<Identity>().classReference;
-
-                bool isArrow = transform.parent.name.Equals("Arrow");
-                string message;
-                if ((isArrow && !relation.CanAttach(relation.sourceClass, newClass, out message)) || (!isArrow && !relation.CanAttach(newClass, relation.destinationClass, out message)))
-                {
-                    if (lockView.IsLocked && lockView.HasLock)
-                    {
-                        errorPanel.gameObject.SetActive(true);
-                        errorPanel.GetChild(1).GetComponent<Text>().text = message;
-                    }
-                    else
-                    {
-                        PhotonView photonView = PhotonView.Get(this);
-                        photonView.RPC("PrintError", RpcTarget.Others, message);
-                    }
-                    return false;
-                }
-
-                if (storage != null)
-                {
-                    storage.relations.Remove(relation);
-                }
-                else
-                {
-                    Iml.GetSingleton().structuralModel.relations.Add(relation);
-                }
-                if (isArrow)
-                {
-                    relation.AttachToClass(relation.sourceClass, newClass);
-                }
-                else
-                {
-                    relation.AttachToClass(newClass, relation.destinationClass);
-                }
-                gameObject.GetComponent<EditRelation>().SetUpPositions();
-                storage = null;
-                return true;
+                classObject = c.gameObject;
+                break;
             }
         }
-        return false;
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PlacingRelation(classObject);
+        }
+        else
+        {
+            string id = classObject == null ? "NULL" : classObject.GetComponentInParent<ClassView>().id;
+
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("PlacingRelation", RpcTarget.MasterClient, id);
+            return true;
+        }
+
+        return true;
     }
 
-    private void UpdateRelations(Vector3 position)
+    public void PlacingRelation(GameObject classObject)
+    {
+        Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
+
+        if (classObject == null)
+        {
+            if (storage != null)
+            {
+                if (transform.parent.name.Equals("Arrow"))
+                {
+                    relation.AttachToClass(relation.sourceClass, storage);
+                }
+                else
+                {
+                    relation.AttachToClass(storage, relation.destinationClass);
+                }
+                storage = null;
+            }
+            else
+            {
+                Destroy(relation.gameObject);
+            }
+            return;
+        }
+
+        UserClass newClass = classObject.GetComponentInParent<Identity>().classReference;
+
+        bool isArrow = transform.parent.name.Equals("Arrow");
+        string message;
+        if ((isArrow && !relation.CanAttach(relation.sourceClass, newClass, out message)) || (!isArrow && !relation.CanAttach(newClass, relation.destinationClass, out message)))
+        {
+            if (lockView.IsLocked && lockView.HasLock)
+            {
+                errorPanel.gameObject.SetActive(true);
+                errorPanel.GetChild(1).GetComponent<Text>().text = message;
+            }
+            else
+            {
+                PhotonView photonView = PhotonView.Get(this);
+                photonView.RPC("PrintError", RpcTarget.Others, message);
+            }
+            return;
+        }
+
+        if (storage != null)
+        {
+            storage.relations.Remove(relation);
+        }
+        else
+        {
+            Iml.GetSingleton().structuralModel.relations.Add(relation);
+        }
+        if (isArrow)
+        {
+            relation.AttachToClass(relation.sourceClass, newClass);
+        }
+        else
+        {
+            relation.AttachToClass(newClass, relation.destinationClass);
+        }
+        gameObject.GetComponent<EditRelation>().SetUpPositions();
+        storage = null;
+        return;
+    }
+    private void UpdateClassRelations(Vector3 position)
     {
         UserClass classReference = transform.parent.GetComponent<Identity>().classReference;
-        //TODO update stored position
         classReference.UpdateRelations();
 
+    }
+
+    public void UpdateRelation(Vector3 position)
+    {
+        if (transform.parent.name.Equals("Arrow"))
+        {
+            gameObject.GetComponentInParent<Identity>().relationReference.UpdatePoints(null, position);
+        }
+        else
+        {
+            gameObject.GetComponentInParent<Identity>().relationReference.UpdatePoints(position, null);
+        }
     }
 
     public void TrashObject()
