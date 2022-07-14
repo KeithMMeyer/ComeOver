@@ -1,4 +1,5 @@
 using Photon.Pun;
+using Photon.Voice.PUN;
 using Photon.Voice.Unity;
 using System;
 using System.Collections;
@@ -62,34 +63,36 @@ public class ToolBox : MonoBehaviour
             Transform editPanel = transform.GetChild(0).GetChild(4);
             editPanel.gameObject.SetActive(true);
             relationMode = null;
-            InputField modelField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
-            //modelField.onEndEdit.RemoveAllListeners();
-            modelField.placeholder.GetComponent<Text>().text = Iml.GetSingleton().structuralModel.name;
-            modelField.text = Iml.GetSingleton().structuralModel.name;
-            modelField.onEndEdit.AddListener(delegate (string name) { Iml.GetSingleton().structuralModel.name = name; }); //likely need to add error checking
+            //InputField modelField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
+            ////modelField.onEndEdit.RemoveAllListeners();
+            //modelField.placeholder.GetComponent<Text>().text = Iml.GetSingleton().structuralModel.name;
+            //modelField.text = Iml.GetSingleton().structuralModel.name;
+            //modelField.onEndEdit.AddListener(delegate (string name) { Iml.GetSingleton().structuralModel.name = name; }); //likely need to add error checking
 
-            InputField fileField = editPanel.GetChild(1).GetChild(1).GetComponent<InputField>();
-            //modelField.onEndEdit.RemoveAllListeners();
-            fileField.placeholder.GetComponent<Text>().text = Iml.GetSingleton().structuralModel.name + ".iml";
-            fileField.text = Iml.GetSingleton().structuralModel.name + ".iml";
-            //modelField.onEndEdit.AddListener(delegate (string name) { classReference.SetName(name); });
+            //InputField fileField = editPanel.GetChild(1).GetChild(1).GetComponent<InputField>();
+            ////modelField.onEndEdit.RemoveAllListeners();
+            //fileField.placeholder.GetComponent<Text>().text = Iml.GetSingleton().structuralModel.name + ".iml";
+            //fileField.text = Iml.GetSingleton().structuralModel.name + ".iml";
+            ////modelField.onEndEdit.AddListener(delegate (string name) { classReference.SetName(name); });
 
-            string[] routeArray = { "simpleRoute", "orthogonalRoute", "manhattanRoute", "metroRoute" };
-            List<string> routes = routeArray.ToList();
-            Dropdown routeField = editPanel.GetChild(2).GetChild(1).GetComponent<Dropdown>();
-            routeField.onValueChanged.RemoveAllListeners();
-            routeField.value = routes.IndexOf(Iml.GetSingleton().structuralModel.routingMode);
-            routeField.onValueChanged.AddListener(delegate (int route) { Iml.GetSingleton().structuralModel.routingMode = routeArray[route]; });
+            //string[] routeArray = { "simpleRoute", "orthogonalRoute", "manhattanRoute", "metroRoute" };
+            //List<string> routes = routeArray.ToList();
+            //Dropdown routeField = editPanel.GetChild(2).GetChild(1).GetComponent<Dropdown>();
+            //routeField.onValueChanged.RemoveAllListeners();
+            //routeField.value = routes.IndexOf(Iml.GetSingleton().structuralModel.routingMode);
+            //routeField.onValueChanged.AddListener(delegate (int route) { Iml.GetSingleton().structuralModel.routingMode = routeArray[route]; });
 
             Dropdown micField = editPanel.GetChild(3).GetChild(1).GetComponent<Dropdown>();
             micField.onValueChanged.RemoveAllListeners();
             micField.value = micStatus ? 0 : 1;
-            micField.onValueChanged.AddListener(delegate (int mic) { micStatus = mic == 0; recorder.TransmitEnabled = micStatus; });
+            //micField.onValueChanged.AddListener(delegate (int mic) { Debug.LogError("Mic");  micStatus = mic == 0; recorder.TransmitEnabled = micStatus; });
+            micField.onValueChanged.AddListener(delegate (int mic) { Debug.LogError("Mic"); micStatus = mic == 0; recorder.IsRecording = micStatus; });
+
 
             Dropdown speakerField = editPanel.GetChild(3).GetChild(2).GetComponent<Dropdown>();
             speakerField.onValueChanged.RemoveAllListeners();
             speakerField.value = speakerStatus ? 0 : 1;
-            speakerField.onValueChanged.AddListener(delegate (int speaker) { speakerStatus = speaker == 0; AudioListener.volume = speaker; });
+            speakerField.onValueChanged.AddListener(delegate (int speaker) { Debug.LogError("Speaker"); speakerStatus = speaker == 0; AudioListener.volume = 1.0f-speaker; });
         }
     }
 
