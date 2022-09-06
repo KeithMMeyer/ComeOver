@@ -87,9 +87,9 @@ public class Drag : MonoBehaviour
 
     public void Grabbed()
     {
-        SelectEnterEventArgs args = new SelectEnterEventArgs();
-        args.interactorObject = GameObject.Find("RightHand Controller").GetComponent<IXRSelectInteractor>();
-        Grabbed(args);
+        //SelectEnterEventArgs args = new SelectEnterEventArgs();
+        //args.interactorObject = GameObject.Find("RightHand Controller").GetComponent<IXRSelectInteractor>();
+        Grabbed(null);
     }
 
     public void Grabbed(SelectEnterEventArgs args)

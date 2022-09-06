@@ -168,7 +168,7 @@ public class UserAttribute
     {
         message = null;
         if (value == null || value.Equals(""))
-            return "";
+            return value;
         if (value.StartsWith("[") && value.EndsWith("]"))
         {
             List<string> values = new List<string>();

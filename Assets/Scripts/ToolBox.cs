@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -45,7 +46,8 @@ public class ToolBox : MonoBehaviour
         {
             transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
             relationMode = null;
-        } else
+        }
+        else
         {
             transform.parent.GetChild(1).gameObject.SetActive(true);
         }
@@ -63,24 +65,41 @@ public class ToolBox : MonoBehaviour
             Transform editPanel = transform.GetChild(0).GetChild(4);
             editPanel.gameObject.SetActive(true);
             relationMode = null;
-            //InputField modelField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
-            ////modelField.onEndEdit.RemoveAllListeners();
-            //modelField.placeholder.GetComponent<Text>().text = Iml.GetSingleton().structuralModel.name;
-            //modelField.text = Iml.GetSingleton().structuralModel.name;
-            //modelField.onEndEdit.AddListener(delegate (string name) { Iml.GetSingleton().structuralModel.name = name; }); //likely need to add error checking
 
-            //InputField fileField = editPanel.GetChild(1).GetChild(1).GetComponent<InputField>();
-            ////modelField.onEndEdit.RemoveAllListeners();
-            //fileField.placeholder.GetComponent<Text>().text = Iml.GetSingleton().structuralModel.name + ".iml";
-            //fileField.text = Iml.GetSingleton().structuralModel.name + ".iml";
-            ////modelField.onEndEdit.AddListener(delegate (string name) { classReference.SetName(name); });
 
-            //string[] routeArray = { "simpleRoute", "orthogonalRoute", "manhattanRoute", "metroRoute" };
-            //List<string> routes = routeArray.ToList();
-            //Dropdown routeField = editPanel.GetChild(2).GetChild(1).GetComponent<Dropdown>();
-            //routeField.onValueChanged.RemoveAllListeners();
-            //routeField.value = routes.IndexOf(Iml.GetSingleton().structuralModel.routingMode);
-            //routeField.onValueChanged.AddListener(delegate (int route) { Iml.GetSingleton().structuralModel.routingMode = routeArray[route]; });
+
+            string modelName;
+            string route;
+            if (PhotonNetwork.IsMasterClient)
+            {
+                modelName = Iml.GetSingleton().structuralModel.name;
+                route = Iml.GetSingleton().structuralModel.routingMode;
+            }
+            else
+            {
+                Main main = GameObject.Find("Main").GetComponent<Main>();
+                modelName = main.modelName;
+                route = main.routingMode;
+            }
+
+            InputField modelField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
+            modelField.onEndEdit.RemoveAllListeners();
+            modelField.placeholder.GetComponent<Text>().text = modelName;
+            modelField.text = modelName;
+            modelField.onEndEdit.AddListener(SaveName); //likely need to add error checking
+
+            InputField fileField = editPanel.GetChild(1).GetChild(1).GetComponent<InputField>();
+            //modelField.onEndEdit.RemoveAllListeners();
+            fileField.placeholder.GetComponent<Text>().text = modelName + ".iml";
+            fileField.text = modelName + ".iml";
+            //modelField.onEndEdit.AddListener(delegate (string name) { classReference.SetName(name); });
+
+            string[] routeArray = { "simpleRoute", "orthogonalRoute", "manhattanRoute", "metroRoute" };
+            List<string> routes = routeArray.ToList();
+            Dropdown routeField = editPanel.GetChild(2).GetChild(1).GetComponent<Dropdown>();
+            routeField.onValueChanged.RemoveAllListeners();
+            routeField.value = routes.IndexOf(route);
+            routeField.onValueChanged.AddListener(SaveRoute);
 
             Dropdown micField = editPanel.GetChild(3).GetChild(1).GetComponent<Dropdown>();
             micField.onValueChanged.RemoveAllListeners();
@@ -92,11 +111,62 @@ public class ToolBox : MonoBehaviour
             Dropdown speakerField = editPanel.GetChild(3).GetChild(2).GetComponent<Dropdown>();
             speakerField.onValueChanged.RemoveAllListeners();
             speakerField.value = speakerStatus ? 0 : 1;
-            speakerField.onValueChanged.AddListener(delegate (int speaker) { Debug.LogError("Speaker"); speakerStatus = speaker == 0; AudioListener.volume = 1.0f-speaker; });
+            speakerField.onValueChanged.AddListener(delegate (int speaker) { Debug.LogError("Speaker"); speakerStatus = speaker == 0; AudioListener.volume = 1.0f - speaker; });
         }
     }
 
-    public void closeAll()
+    public void SaveName(string name)
+    {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(GameObject.Find("Main"));
+            photonView.RPC("EditModel", RpcTarget.MasterClient, "NAME", name);
+            return;
+        }
+        Transform editPanel = transform.GetChild(0).GetChild(4);
+        InputField modelField = editPanel.GetChild(0).GetChild(1).GetComponent<InputField>();
+        string[] JAVA_KEYWORDS = {"abstract", "assert", "boolean", "break", "byte", "case",
+                            "catch", "char", "class", "const", "continue", "default",
+                            "double", "do", "else", "enum", "extends", "false",
+                            "final", "finally", "float", "for", "goto", "if",
+                            "implements", "import", "instanceof", "int", "interface", "long",
+                            "native", "new", "null", "package", "private", "protected",
+                            "public", "return", "short", "static", "strictfp", "super",
+                            "switch", "synchronized", "this", "throw", "throws", "transient",
+                            "true", "try", "void", "volatile", "while" };
+        Regex regex = new Regex("^([a-zA-Z_$][a-zA-Z\\d_$]*)$"); // TODO should reuse EditObject validation
+        bool syntax = regex.IsMatch(name);
+        if (!syntax)
+        {
+            modelField.text = Iml.GetSingleton().structuralModel.name;
+            return;
+        }
+
+        for (int i = 0; i < JAVA_KEYWORDS.Length; i++)
+        {
+            if (name.ToLower().Equals(JAVA_KEYWORDS[i]))
+            {
+                modelField.text = Iml.GetSingleton().structuralModel.name;
+                return;
+            }
+        }
+
+        Iml.GetSingleton().structuralModel.name = name;
+    }
+
+    public void SaveRoute(int route)
+    {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            PhotonView photonView = PhotonView.Get(GameObject.Find("Main"));
+            photonView.RPC("EditModel", RpcTarget.MasterClient, "ROUTE", route.ToString());
+            return;
+        }
+        string[] routeArray = { "simpleRoute", "orthogonalRoute", "manhattanRoute", "metroRoute" };
+        Iml.GetSingleton().structuralModel.routingMode = routeArray[route];
+    }
+
+        public void closeAll()
     {
         closedWindows.Invoke();
         transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
@@ -136,6 +206,7 @@ public class ToolBox : MonoBehaviour
         {
             PhotonView photonView = PhotonView.Get(GameObject.Find("Main"));
             photonView.RPC("CreateObject", RpcTarget.MasterClient, type);
+            return;
         }
         if (type.Equals("CLASS"))
         {
@@ -166,7 +237,6 @@ public class ToolBox : MonoBehaviour
             {
                 UserAttribute newAttribute = new UserAttribute();
                 newAttribute.name = "newAttr1";
-                newAttribute.value = "";
                 newAttribute.CreateGameObject();
 
                 Vector3 position = Iml.To3dPosition(0, 0, 2.99f);
@@ -206,7 +276,8 @@ public class ToolBox : MonoBehaviour
         }
         int num = 0;
         bool match = true;
-        while (match) {
+        while (match)
+        {
             num++;
             match = false;
             foreach (Relation r in classReference.relations)

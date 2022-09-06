@@ -30,4 +30,14 @@ public class MainAdapter : MonoBehaviour
 
     }
 
+    [PunRPC]
+    public void EditModel(string type, string value)
+    {
+        ToolBox toolBox = GameObject.Find("ToolBox").GetComponent<ToolBox>();
+        if (type.Equals("NAME"))
+            toolBox.SaveName(value);
+        if (type.Equals("ROUTE"))
+            toolBox.SaveRoute(int.Parse(value));
+    }
+
 }

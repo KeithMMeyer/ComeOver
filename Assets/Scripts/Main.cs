@@ -8,17 +8,22 @@ public class Main : MonoBehaviour, IPunObservable
 {
     public string inputfile;
     Iml iml;
+    public string modelName;
+    public string routingMode;
+    public bool doImport = true;
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
         {
-            //stream.SendNext(iml.structuralModel);
+            stream.SendNext(iml.structuralModel.name);
+            stream.SendNext(iml.structuralModel.routingMode);
             //Debug.Log("Writing!");
         }
         else
         {
-            //iml.structuralModel = (StructuralModel)stream.ReceiveNext();
+            modelName = (string)stream.ReceiveNext();
+            routingMode = (string)stream.ReceiveNext();
         }
     }
 
@@ -28,7 +33,7 @@ public class Main : MonoBehaviour, IPunObservable
         iml = Iml.GetSingleton();
         if (PhotonNetwork.IsMasterClient)
         {
-            if (iml == null)
+            if (iml == null && doImport)
             {
                 iml = Importer.ImportXml(inputfile);
             }
@@ -36,6 +41,16 @@ public class Main : MonoBehaviour, IPunObservable
             {
                 if ((iml.structuralModel.classes.Count > 0 && iml.structuralModel.classes[0].gameObject != null))
                     return;
+                if (iml == null && !doImport)
+                {
+                    iml = new Iml();
+                    StructuralModel sm = new StructuralModel();
+                    List<UserClass> classes = new List<UserClass>();
+                    List<Relation> relations = new List<Relation>();
+                    sm.classes = classes;
+                    sm.relations = relations;
+                    iml.structuralModel = sm;
+                }
 
                 Debug.LogWarning("Rerendering Iml.");
             }

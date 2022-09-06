@@ -40,9 +40,9 @@ public class Iml
 public class StructuralModel
 {
     [XmlAttribute]
-    public string name;
+    public string name = "IML_Structural_Model";
     [XmlAttribute]
-    public string conformsTo;
+    public string conformsTo = "IML Definition";
     [XmlAttribute]
     public string routingMode = "simpleRoute";
     [XmlArray("Classes")]
