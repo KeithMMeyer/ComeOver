@@ -71,8 +71,7 @@ ScriptsOnlyBuild:
     - UnityEngine.InputSystem.XR.TrackedPoseDriver
     Unity.Rider.Editor.dll:
     - Packages.Rider.Editor.UnitTesting.CallbackData
-    Unity.Timeline.Editor.dll:
-    - TimelineProjectSettings
+    - Packages.Rider.Editor.UnitTesting.SyncTestRunEventsHandler
     Unity.XR.CoreUtils.dll:
     - Unity.XR.CoreUtils.XROrigin
     Unity.XR.Interaction.Toolkit.Editor.dll:
@@ -101,9 +100,20 @@ ScriptsOnlyBuild:
     - Unity.XR.Oculus.OculusLoader
     - Unity.XR.Oculus.OculusSettings
     UnityEditor.TestRunner.dll:
+    - TestRunner.Callbacks.WindowResultUpdaterDataHolder
+    - UnityEditor.TestRunner.TestLaunchers.RemotePlayerLogController
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
+    - UnityEditor.TestTools.TestRunner.CommandLineTest.RunData
+    - UnityEditor.TestTools.TestRunner.RerunCallbackData
     - UnityEditor.TestTools.TestRunner.TestListCacheData
     - UnityEditor.TestTools.TestRunner.TestRun.TestJobDataHolder
+    - UnityEditor.TestTools.TestRunner.TestRunnerWindow
+    UnityEngine.TestRunner.dll:
+    - UnityEngine.TestRunner.Utils.TestRunCallbackListener
+    - UnityEngine.TestTools.TestRunner.Callbacks.PlayModeRunnerCallback
+    - UnityEngine.TestTools.TestRunner.Callbacks.PlayerQuitHandler
+    - UnityEngine.TestTools.TestRunner.Callbacks.RemoteTestResultSender
+    - UnityEngine.TestTools.TestRunner.PlaymodeTestsController
     UnityEngine.UI.dll:
     - UnityEngine.EventSystems.EventSystem
     - UnityEngine.UI.Button
@@ -120,7 +130,7 @@ ScriptsOnlyBuild:
     - UnityEngine.UI.Text
     - UnityEngine.UI.Toggle
   sceneClasses:
-    Assets/Scenes/Launcher.unity:
+    Assets/InitTestScene637984127539795545.unity:
     - Class: 1
       Script: {instanceID: 0}
     - Class: 4
@@ -192,6 +202,8 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 2418}
     - Class: 114
+      Script: {instanceID: 2602}
+    - Class: 114
       Script: {instanceID: 2664}
     - Class: 114
       Script: {instanceID: 2734}
@@ -205,6 +217,8 @@ ScriptsOnlyBuild:
       Script: {instanceID: 3256}
     - Class: 114
       Script: {instanceID: 3390}
+    - Class: 114
+      Script: {instanceID: 3452}
     - Class: 114
       Script: {instanceID: 3468}
     - Class: 114
@@ -240,7 +254,9 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 4362}
     - Class: 114
-      Script: {instanceID: 4500}
+      Script: {instanceID: 4426}
+    - Class: 114
+      Script: {instanceID: 4604}
     - Class: 114
       Script: {instanceID: 4622}
     - Class: 114
@@ -249,6 +265,8 @@ ScriptsOnlyBuild:
       Script: {instanceID: 4728}
     - Class: 114
       Script: {instanceID: 4738}
+    - Class: 114
+      Script: {instanceID: 4842}
     - Class: 114
       Script: {instanceID: 4922}
     - Class: 114
@@ -296,11 +314,11 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 6660}
     - Class: 114
-      Script: {instanceID: 22402}
+      Script: {instanceID: 24520}
     - Class: 114
-      Script: {instanceID: 22404}
+      Script: {instanceID: 24522}
     - Class: 114
-      Script: {instanceID: 22406}
+      Script: {instanceID: 24524}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 120
@@ -336,6 +354,27 @@ ScriptsOnlyBuild:
     - Class: 224
       Script: {instanceID: 0}
     - Class: 225
+      Script: {instanceID: 0}
+    Assets/Scenes/Launcher.unity:
+    - Class: 1
+      Script: {instanceID: 0}
+    - Class: 4
+      Script: {instanceID: 0}
+    - Class: 21
+      Script: {instanceID: 0}
+    - Class: 28
+      Script: {instanceID: 0}
+    - Class: 48
+      Script: {instanceID: 0}
+    - Class: 104
+      Script: {instanceID: 0}
+    - Class: 114
+      Script: {instanceID: 4500}
+    - Class: 115
+      Script: {instanceID: 0}
+    - Class: 157
+      Script: {instanceID: 0}
+    - Class: 196
       Script: {instanceID: 0}
     Assets/Scenes/MainScene.unity:
     - Class: 1
@@ -2645,6 +2684,7 @@ ScriptsOnlyBuild:
     className: UserIdUiForm
   platform: 13
   scenePathNames:
+  - Assets/InitTestScene637984127539795545.unity
   - Assets/Scenes/Launcher.unity
   - Assets/Scenes/MainScene.unity
-  playerPath: C:/Users/koduf/Documents/Build/comovr/comovr.apk
+  playerPath: C:/Users/koduf/Documents/GitHub/test-unity-CICD/Temp/UnityTempFile-48658cf33de88604facb07115512e0f9/PlayerWithTests/PlayerWithTests.apk
