@@ -2,7 +2,7 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
 #
-# /[Ll]ibrary/
+/[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
 /[Bb]uild/
@@ -12,7 +12,7 @@
 /[Uu]serSettings
 /[Aa]ssets/Standard Assets/
 /[Aa]ssets/SampleScenes/
-# /[Aa]ssets/Photon/
+/[Aa]ssets/Photon/
 /[Aa]ssets/Oculus/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
