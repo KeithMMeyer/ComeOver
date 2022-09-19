@@ -1,5 +1,6 @@
 ﻿using Photon.Pun;
 using Photon.Realtime;
+using Photon.Voice.PUN;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -37,6 +38,27 @@ public class Main : MonoBehaviourPunCallbacks, IPunObservable
 		if (PhotonNetwork.InRoom)
 		{
 			masterClientID = PhotonNetwork.MasterClient.UserId;
+			if (PhotonNetwork.MasterClient.UserId == PhotonNetwork.LocalPlayer.UserId)
+			{
+				// The below code does not work in terms of muting output from the headless server
+				
+				// Gets all AudioListener components in the scene and deletes them
+				AudioListener[] audioListeners = FindObjectsOfType<AudioListener>();
+				Debug.Log("Destroying " + audioListeners.Length + " audio listeners");
+				foreach (Player player in PhotonNetwork.CurrentRoom.Players.Values)
+				{
+					PhotonVoiceView photonVoiceView = photonView.GetComponent<PhotonVoiceView>();
+					if (photonVoiceView != null && photonVoiceView.IsSpeaker)
+					{
+						Debug.Log("Muting headless output");
+						photonVoiceView.SpeakerInUse.GetComponent<AudioSource>().mute = true;
+					}
+				}
+				foreach (AudioListener audioListener in audioListeners)
+				{
+					Destroy(audioListener);
+				}
+			}
 		}
 		
 		iml = Iml.GetSingleton();
@@ -108,7 +130,6 @@ public class Main : MonoBehaviourPunCallbacks, IPunObservable
             classXml.CreateGameObject();
         }
     }
-
 
 	#region MonoBehaviourPunCallbacks Callbacks
 	public override void OnDisconnected(DisconnectCause cause)

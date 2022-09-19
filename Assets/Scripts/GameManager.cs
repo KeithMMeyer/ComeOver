@@ -10,15 +10,13 @@ using Photon.Pun;
 using Photon.Realtime;
 
 
-namespace Com.MyCompany.MyGame
+namespace Com.Mustang.CoMoVR
 {
     public class GameManager : MonoBehaviourPunCallbacks
     {
 
 
         #region Photon Callbacks
-
-
         /// <summary>
         /// Called when the local player left the room. We need to load the launcher scene.
         /// </summary>
@@ -26,13 +24,10 @@ namespace Com.MyCompany.MyGame
         {
             SceneManager.LoadScene(0);
         }
-
-
         #endregion
 
 
         #region Public Methods
-
         public override void OnEnable()
         {
             Debug.Log("OnEnable called");
@@ -43,12 +38,9 @@ namespace Com.MyCompany.MyGame
         {
             PhotonNetwork.LeaveRoom();
         }
-
-
         #endregion
 
         #region Private Methods
-
         void LoadArena()
         {
             if (!PhotonNetwork.IsMasterClient)
@@ -58,11 +50,9 @@ namespace Com.MyCompany.MyGame
             Debug.LogFormat("PhotonNetwork : Loading Level : MainScene");
             PhotonNetwork.LoadLevel("MainScene");
         }
-
         #endregion
 
         #region Photon Callbacks
-
         public override void OnPlayerEnteredRoom(Player other)
         {
             Debug.LogFormat("OnPlayerEnteredRoom() {0}", other.NickName); // not seen if you're the player connecting
@@ -88,22 +78,25 @@ namespace Com.MyCompany.MyGame
                 //LoadArena();
             }
         }
-
         #endregion
 
         public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            Debug.LogWarning("Loaded!!!!!!!1!!!!1!!");
-            GameObject voiceView = PhotonNetwork.Instantiate("VoiceView", new Vector3(0, 0, 0), Quaternion.identity, 0);
-            voiceView.transform.parent = GameObject.Find("Camera Offset").transform;
+			// Doesn't create a player for the headless server
+			if (PhotonNetwork.MasterClient.UserId != PhotonNetwork.LocalPlayer.UserId)
+			{
+				Debug.Log("Loaded!!!!!!!1!!!!1!!");
+				GameObject voiceView = PhotonNetwork.Instantiate("VoiceView", new Vector3(0, 0, 0), Quaternion.identity, 0);
+				voiceView.transform.parent = GameObject.Find("Camera Offset").transform;
 
-            GameObject playerTracker = PhotonNetwork.Instantiate("PlayerTracker", new Vector3(0, 0, 0), Quaternion.identity, 0);
-            playerTracker.transform.parent = GameObject.Find("Main Camera").transform;
+				GameObject playerTracker = PhotonNetwork.Instantiate("PlayerTracker", new Vector3(0, 0, 0), Quaternion.identity, 0);
+				playerTracker.transform.parent = GameObject.Find("Main Camera").transform;
 
-            if (Application.isEditor) return;
+				if (Application.isEditor) return;
 
-            GameObject pointerTracker = PhotonNetwork.Instantiate("PointerTracker", new Vector3(0, 0, 0), Quaternion.identity, 0);
-            pointerTracker.transform.parent = GameObject.Find("Pointers").transform;
+				GameObject pointerTracker = PhotonNetwork.Instantiate("PointerTracker", new Vector3(0, 0, 0), Quaternion.identity, 0);
+				pointerTracker.transform.parent = GameObject.Find("Pointers").transform;
+			}
         }
     }
 }
