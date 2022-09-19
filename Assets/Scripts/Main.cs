@@ -1,16 +1,19 @@
 ﻿using Photon.Pun;
+using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.XR;
 
-public class Main : MonoBehaviour, IPunObservable
+public class Main : MonoBehaviourPunCallbacks, IPunObservable
 {
     public string inputfile;
     Iml iml;
     public string modelName;
     public string routingMode;
     public bool doImport = true;
+	string masterClientID;
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
@@ -30,7 +33,13 @@ public class Main : MonoBehaviour, IPunObservable
     // Start is called before the first frame update
     public void Start()
     {
-        iml = Iml.GetSingleton();
+		// Caches the clientID of the headless server to check when they disconnect.
+		if (PhotonNetwork.InRoom)
+		{
+			masterClientID = PhotonNetwork.MasterClient.UserId;
+		}
+		
+		iml = Iml.GetSingleton();
         if (PhotonNetwork.IsMasterClient)
         {
             if (iml == null && doImport)
@@ -100,4 +109,22 @@ public class Main : MonoBehaviour, IPunObservable
         }
     }
 
+
+	#region MonoBehaviourPunCallbacks Callbacks
+	public override void OnDisconnected(DisconnectCause cause)
+	{
+		Debug.LogWarningFormat("PUN Basics Tutorial/Launcher: OnDisconnected() was called by PUN with reason {0}", cause);
+	}
+
+	public override void OnPlayerLeftRoom(Player otherPlayer)
+	{
+		Debug.Log($"Player {otherPlayer.NickName} left the room");
+		if (otherPlayer.UserId == masterClientID)
+		{
+			Debug.Log("Master client left the room. Returning to lobby.");
+			PhotonNetwork.LeaveRoom();
+			SceneManager.LoadScene("Launcher");
+		}
+	}
+	#endregion
 }
