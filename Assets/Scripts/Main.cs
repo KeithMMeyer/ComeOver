@@ -1,16 +1,20 @@
 ﻿using Photon.Pun;
+using Photon.Realtime;
+using Photon.Voice.PUN;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.XR;
 
-public class Main : MonoBehaviour, IPunObservable
+public class Main : MonoBehaviourPunCallbacks, IPunObservable
 {
     public string inputfile;
     Iml iml;
     public string modelName;
     public string routingMode;
     public bool doImport = true;
+	string masterClientID;
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
@@ -30,7 +34,34 @@ public class Main : MonoBehaviour, IPunObservable
     // Start is called before the first frame update
     public void Start()
     {
-        iml = Iml.GetSingleton();
+		// Caches the clientID of the headless server to check when they disconnect.
+		if (PhotonNetwork.InRoom)
+		{
+			masterClientID = PhotonNetwork.MasterClient.UserId;
+			if (PhotonNetwork.MasterClient.UserId == PhotonNetwork.LocalPlayer.UserId)
+			{
+				// The below code does not work in terms of muting output from the headless server
+				
+				// Gets all AudioListener components in the scene and deletes them
+				AudioListener[] audioListeners = FindObjectsOfType<AudioListener>();
+				Debug.Log("Destroying " + audioListeners.Length + " audio listeners");
+				foreach (Player player in PhotonNetwork.CurrentRoom.Players.Values)
+				{
+					PhotonVoiceView photonVoiceView = photonView.GetComponent<PhotonVoiceView>();
+					if (photonVoiceView != null && photonVoiceView.IsSpeaker)
+					{
+						Debug.Log("Muting headless output");
+						photonVoiceView.SpeakerInUse.GetComponent<AudioSource>().mute = true;
+					}
+				}
+				foreach (AudioListener audioListener in audioListeners)
+				{
+					Destroy(audioListener);
+				}
+			}
+		}
+		
+		iml = Iml.GetSingleton();
         if (PhotonNetwork.IsMasterClient)
         {
             if (iml == null && doImport)
@@ -100,4 +131,21 @@ public class Main : MonoBehaviour, IPunObservable
         }
     }
 
+	#region MonoBehaviourPunCallbacks Callbacks
+	public override void OnDisconnected(DisconnectCause cause)
+	{
+		Debug.LogWarningFormat("PUN Basics Tutorial/Launcher: OnDisconnected() was called by PUN with reason {0}", cause);
+	}
+
+	public override void OnPlayerLeftRoom(Player otherPlayer)
+	{
+		Debug.Log($"Player {otherPlayer.NickName} left the room");
+		if (otherPlayer.UserId == masterClientID)
+		{
+			Debug.Log("Master client left the room. Returning to lobby.");
+			PhotonNetwork.LeaveRoom();
+			SceneManager.LoadScene("Launcher");
+		}
+	}
+	#endregion
 }
