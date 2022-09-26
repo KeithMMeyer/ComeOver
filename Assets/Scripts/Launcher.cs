@@ -38,7 +38,7 @@ namespace Com.Mustang.CoMoVR
         void Start()
         {
 			// Determines if the application is running in server mode from the server flag
-			if (Environment.GetCommandLineArgs().Contains("server"))
+			if (Environment.GetCommandLineArgs().Contains("-server"))
 			{
 				Debug.LogError("Loading server");
 				SceneManager.LoadScene("HeadlessScene");
