@@ -35,7 +35,6 @@ ExportedObj/
 .consulo/
 *.csproj
 *.unityproj
-*.sln
 *.suo
 *.tmp
 *.user
@@ -113,3 +112,4 @@ packages
 *.tsv
 *.tsv
 
+comovr.sln
