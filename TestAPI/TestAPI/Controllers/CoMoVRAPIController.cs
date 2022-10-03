@@ -11,18 +11,32 @@ namespace TestAPI.Controllers
 	public class CoMoVRAPIController : ControllerBase
 	{
 		private readonly ILogger<CoMoVRAPIController> _logger;
-		DB database;
+
+		// Database singleton
+		DB _database;
+		
+		DB database
+		{
+			get 
+			{
+				if (_database == null || _database.connection.State == System.Data.ConnectionState.Closed)
+				{
+					_database = new DB();
+				}
+				return _database;
+			}
+		}
 
 		// A constructor that 
 		public CoMoVRAPIController(ILogger<CoMoVRAPIController> logger)
 		{
 			_logger = logger;
-			database = new DB();
 		}
 		// Gets the email of the user given their userID
 		[HttpGet("GetEmail")]
 		public string GetEmail(string userID)
 		{
+			Console.WriteLine(database);
 			if (database.TryGetUserFromID(userID, out User user))
 			{
 				return user.email;

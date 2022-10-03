@@ -112,3 +112,4 @@ packages
 *.tsv
 *.tsv
 
+TestAPI/TestAPI/Config/config.json

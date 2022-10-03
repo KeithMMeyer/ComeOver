@@ -22,10 +22,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Connects to the MySQL database with the username and password
-var connection = new MySqlConnection("server=localhost;user=root;password=root;database=mydb");
-
-// Opens the connection to the database
-connection.Open();
-
 app.Run();

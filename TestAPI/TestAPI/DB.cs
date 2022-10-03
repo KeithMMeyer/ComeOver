@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using Newtonsoft.Json;
 using TestAPI.Models;
 
 namespace TestAPI
@@ -6,11 +7,24 @@ namespace TestAPI
 	public class DB
 	{
 		public MySqlConnection connection { get; set; }
+		public Config config { get; set; }
 
 		public DB()
 		{
+			// Gets the config file
+			config = JsonConvert.DeserializeObject<Config>(System.IO.File.ReadAllText("Config" + Path.DirectorySeparatorChar + "config.json"));
+
+			if (Path.DirectorySeparatorChar != '\\')
+			{
+				// Linux
+				config.iml_root = config.iml_root.Replace("\\", Path.DirectorySeparatorChar.ToString());
+			}
+
+			// Creates the connection string
+			string connectionString = $"server={config.host};user={config.username};database={config.database};port=3306;password={config.password}";
+
 			// Connects to the MySQL database with the username and password
-			connection = new MySqlConnection("server=localhost;user=root;password=root;database=mydb");
+			connection = new MySqlConnection(connectionString);
 
 			// Opens the connection to the database
 			connection.Open();
@@ -67,9 +81,9 @@ namespace TestAPI
 
 			foreach (List<string> row in queryResults)
 			{
-				string filepath = row[1];
-				string diagramData = System.IO.File.ReadAllText(filepath);
-				string diagramName = Path.GetFileName(filepath);
+				string filename = row[1];
+				string diagramData = System.IO.File.ReadAllText(config.iml_root + Path.DirectorySeparatorChar + userID + Path.DirectorySeparatorChar + "metamodels" + Path.DirectorySeparatorChar + filename);
+				string diagramName = Path.GetFileName(filename);
 				
 				diagrams.Add(new IMLDiagram
 				{
