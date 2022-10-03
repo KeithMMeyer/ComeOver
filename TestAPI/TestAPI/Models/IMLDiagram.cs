@@ -2,9 +2,9 @@ namespace TestAPI.Models
 {
     public class IMLDiagram
     {
-        public string diagramID { get; set; }
+        public string metamodelId { get; set; }
 
-        public string userID { get; set; }
+        public string userId { get; set; }
 
         public string diagramName { get; set; }
 
@@ -14,8 +14,8 @@ namespace TestAPI.Models
 
 		public IMLDiagram(string diagramID, string userID, string diagramName, string diagramData)
 		{
-			this.diagramID = diagramID;
-			this.userID = userID;
+			this.metamodelId = diagramID;
+			this.userId = userID;
 			this.diagramName = diagramName;
 			this.diagramData = diagramData;
 		}

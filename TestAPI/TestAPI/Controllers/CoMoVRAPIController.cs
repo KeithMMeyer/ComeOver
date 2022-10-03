@@ -36,7 +36,6 @@ namespace TestAPI.Controllers
 		[HttpGet("GetEmail")]
 		public string GetEmail(string userID)
 		{
-			Console.WriteLine(database);
 			if (database.TryGetUserFromID(userID, out User user))
 			{
 				return user.email;
@@ -48,12 +47,26 @@ namespace TestAPI.Controllers
 			return "User not found";
 		}
 
+		[HttpGet("GetUser")]
+		public User GetUser(string userID)
+		{
+			if (database.TryGetUserFromID(userID, out User user))
+			{
+				return user;
+			}
+
+			// If the user is not found, throw a 404 error
+			Response.Clear();
+			Response.StatusCode = 404;
+			return null;
+		}
+
 		[HttpGet("GetModel")]
 		public string GetModel(string userID, string diagramID)
 		{
 			if (database.TryGetIMLDiagrams(userID, out List<IMLDiagram> diagrams))
 			{
-				diagrams = diagrams.Where(x => x.diagramID == diagramID).ToList();
+				diagrams = diagrams.Where(x => x.metamodelId == diagramID).ToList();
 				if (diagrams.Count > 0)
 				{
 					// Serializes the result

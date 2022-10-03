@@ -60,13 +60,18 @@ namespace TestAPI
 		public bool TryGetUserFromID(string userID, out User user)
 		{
 			user = null;
-			List<List<string>> results = ExecuteQuery($"SELECT * FROM users WHERE userID = '{userID}';");
+			List<List<string>> results = ExecuteQuery($"SELECT * FROM user WHERE userID = '{userID}';");
+			string[] metamodels = ExecuteQuery($"SELECT metamodelId FROM metamodels WHERE userID = '{userID}';").Select(x => x[0]).ToArray();
 			if (results.Count > 0)
 			{
 				user = new User
 				{
 					userID = results[0][0],
-					email = results[0][1]
+					first_name = results[0][1],
+					last_name = results[0][2],
+					email = results[0][3],
+					picture = results[0][4],
+					metamodels = metamodels
 				};
 				return true;
 			}
@@ -81,25 +86,21 @@ namespace TestAPI
 
 			foreach (List<string> row in queryResults)
 			{
-				string filename = row[1];
-				string diagramData = System.IO.File.ReadAllText(config.iml_root + Path.DirectorySeparatorChar + userID + Path.DirectorySeparatorChar + "metamodels" + Path.DirectorySeparatorChar + filename);
-				string diagramName = Path.GetFileName(filename);
+				string filePath = row[2];
+				//string diagramData = System.IO.File.ReadAllText(config.iml_root + Path.DirectorySeparatorChar + userID + Path.DirectorySeparatorChar + "metamodels" + Path.DirectorySeparatorChar + filename);
+				string diagramData = System.IO.File.ReadAllText(filePath);
+				string diagramName = Path.GetFileName(filePath);
 				
 				diagrams.Add(new IMLDiagram
 				{
-					diagramID = row[0],
-					userID = row[2],
+					metamodelId = row[0],
+					userId = row[1],
 					diagramName = diagramName,
 					diagramData = diagramData
 				});
 			}
 
-			if (diagrams.Count > 0)
-			{
-				return true;
-			}
-
-			return false;
+			return diagrams.Count > 0;
 		}
 
 		public void Close()
