@@ -28,13 +28,13 @@ public class RelationAdapter : ObjectAdapter
     [PunRPC]
     public void GrabRelation()
     {
-        transform.GetComponentInChildren<Drag>().GrabRelation();
+        transform.GetComponentInChildren<DragObject>().GrabRelation();
     }
 
     [PunRPC]
     public void UpdateRelation(Vector3 position)
     {
-        transform.GetComponentInChildren<Drag>().UpdateRelation(position);
+        transform.GetComponentInChildren<DragObject>().UpdateRelation(position);
     }
 
     [PunRPC]
@@ -46,13 +46,13 @@ public class RelationAdapter : ObjectAdapter
             {
                 if (id.Equals(c.id))
                 {
-                    transform.GetComponentInChildren<Drag>().PlacingRelation(c.gameObject);
+                    transform.GetComponentInChildren<DragObject>().PlacingRelation(c.gameObject);
                     return;
                 }
             }
         } else
         {
-            transform.GetComponentInChildren<Drag>().PlacingRelation(null);
+            transform.GetComponentInChildren<DragObject>().PlacingRelation(null);
         }
     }
 

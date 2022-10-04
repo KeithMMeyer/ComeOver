@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 
-public class Drag : MonoBehaviour
+public class DragObject : MonoBehaviour
 {
     public bool dragParent = false;
     private XRSimpleInteractable interactable;

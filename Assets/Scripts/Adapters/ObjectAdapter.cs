@@ -9,7 +9,7 @@ public class ObjectAdapter : MonoBehaviour
     [PunRPC]
     public void TrashObject()
     {
-        transform.GetComponentInChildren<Drag>().TrashObject();
+        transform.GetComponentInChildren<DragObject>().TrashObject();
     }
 
     [PunRPC]

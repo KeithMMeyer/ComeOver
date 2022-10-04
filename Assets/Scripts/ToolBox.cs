@@ -302,7 +302,7 @@ public class ToolBox : MonoBehaviour
                 args.interactorObject, relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<XRSimpleInteractable>());
             relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<EditRelation>().Init(); // so edit listeners will be called first
             relation.gameObject.GetComponent<LockView>().RequestLock(); // need to update for remote clients
-            relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<Drag>().Grabbed(args);
+            relation.gameObject.transform.GetChild(0).GetChild(0).GetComponent<DragObject>().Grabbed(args);
             relationMode = null;
         }
 
