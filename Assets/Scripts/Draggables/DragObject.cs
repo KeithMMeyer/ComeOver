@@ -170,7 +170,7 @@ public class DragObject : MonoBehaviour
             {
                 if (c.transform == trash)
                 {
-                    TrashObject();
+                    Trash();
                     return;
                 }
             }
@@ -184,7 +184,7 @@ public class DragObject : MonoBehaviour
             {
                 if (c.transform == trash)
                 {
-                    TrashObject();
+                    Trash();
                     return;
                 }
             }
@@ -221,7 +221,7 @@ public class DragObject : MonoBehaviour
             {
                 if (c.transform == trash)
                 {
-                    TrashObject();
+                    Trash();
                     return;
                 }
             }
@@ -440,73 +440,15 @@ public class DragObject : MonoBehaviour
         }
     }
 
-    public void TrashObject()
+    public virtual void Trash()
     {
         GameObject.Find("ToolBox").GetComponent<ToolBox>().closeAll();
         if (!PhotonNetwork.IsMasterClient)
         {
             PhotonView photonView = PhotonView.Get(this);
-            photonView.RPC("TrashObject", RpcTarget.MasterClient);
+            photonView.RPC("Trash", RpcTarget.MasterClient);
             return;
         }
-        if (gameObject.layer == 6) //classes
-        {
-            UserClass classReference = gameObject.GetComponentInParent<Identity>().classReference;
-            TrashClass(classReference);
-        }
-        if (gameObject.layer == 7) //attributes
-        {
-            UserAttribute attribute = gameObject.GetComponentInParent<Identity>().attributeReference;
-            //Destroy(attribute.gameObject);
-            PhotonNetwork.Destroy(attribute.gameObject);
-            List<UserClass> imlClasses = Iml.GetSingleton().structuralModel.classes;
-            foreach (UserClass uc in imlClasses)
-            {
-                if (uc.attributes.Contains(attribute))
-                {
-                    uc.attributes.Remove(attribute);
-                    uc.Resize();
-                    break;
-                }
-            }
-        }
-        if (gameObject.layer == 8) //relations
-        {
-            Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
-            TrashRelation(relation);
-        }
-    }
-
-    private void TrashClass(UserClass classReference)
-    {
-        //Destroy(classReference.gameObject);
-        PhotonNetwork.Destroy(classReference.gameObject);
-        foreach (UserAttribute ua in classReference.attributes)
-        {
-            //Destroy(ua.gameObject);
-            PhotonNetwork.Destroy(ua.gameObject);
-        }
-        Iml.GetSingleton().structuralModel.classes.Remove(classReference);
-        List<Relation> imlRelations = Iml.GetSingleton().structuralModel.relations;
-        for (int i = 0; i < imlRelations.Count; i++)
-        {
-            if (imlRelations[i].source.Equals(classReference.id) || imlRelations[i].destination.Equals(classReference.id))
-            {
-                TrashRelation(imlRelations[i]);
-                i--;
-            }
-        }
-    }
-
-    private void TrashRelation(Relation relation)
-    {
-        //Destroy(relation.gameObject);
-        PhotonNetwork.Destroy(relation.gameObject);
-        Iml.GetSingleton().structuralModel.relations.Remove(relation);
-        if (relation.sourceClass != null)
-            relation.sourceClass.relations.Remove(relation);
-        if (relation.destinationClass != null)
-            relation.destinationClass.relations.Remove(relation);
     }
 
     private static bool LinePlaneIntersection(out Vector3 intersection, Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint)
