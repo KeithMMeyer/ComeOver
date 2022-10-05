@@ -8,13 +8,13 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class DragObject : MonoBehaviour
 {
     public bool dragParent = false;
-    private XRSimpleInteractable interactable;
+    protected XRSimpleInteractable interactable;
     private Transform active;
-    private Transform trash;
-    private UserClass storage;
-    private LockView lockView;
+    protected Transform trash;
+    protected UserClass storage;
+    protected LockView lockView;
 
-    Transform errorPanel;
+    protected Transform errorPanel;
 
     private bool grabbed = false;
 
@@ -147,7 +147,7 @@ public class DragObject : MonoBehaviour
         }
     }
 
-    public void Dropped(SelectExitEventArgs args)
+    public virtual void Dropped(SelectExitEventArgs args)
     {
         if (dragParent)
         {
@@ -162,265 +162,8 @@ public class DragObject : MonoBehaviour
             return;
         grabbed = false;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = true;
-        if (gameObject.layer == 6) //classes
-        {
-            List<Collider> collisionList = GetComponentInChildren<Collision>().collisionList;
-            transform.GetChild(0).gameObject.SetActive(false); // turn off collider
-            foreach (Collider c in collisionList)
-            {
-                if (c.transform == trash)
-                {
-                    Trash();
-                    return;
-                }
-            }
-            gameObject.GetComponentInParent<Identity>().classReference.SetPosition(transform.position);
-        }
-        if (gameObject.layer == 7) //attributes
-        {
-            List<Collider> collisionList = GetComponentInChildren<Collision>().collisionList;
-            transform.GetChild(0).gameObject.SetActive(false); // turn off collider
-            foreach (Collider c in collisionList)
-            {
-                if (c.transform == trash)
-                {
-                    Trash();
-                    return;
-                }
-            }
-            bool placed = PlaceAttribute(collisionList);
-
-            if (!placed)
-            {
-                if (lockView.IsLocked && lockView.HasLock)
-                {
-                    errorPanel.gameObject.SetActive(true);
-                    errorPanel.GetChild(1).GetComponent<Text>().text = "Attributes can only be added to IML Classes.";
-                }
-                else
-                {
-                    PhotonView photonView = PhotonView.Get(this);
-                    photonView.RPC("PrintError", RpcTarget.Others, "Attributes can only be added to IML Classes.");
-                }
-                if (gameObject.GetComponentInParent<Identity>().attributeReference.parent != null)
-                {
-                    gameObject.GetComponentInParent<Identity>().attributeReference.parent.Resize();
-                }
-                else
-                {
-                    Destroy(gameObject.transform.parent.gameObject);
-                }
-            }
-
-        }
-        if (gameObject.layer == 8) //relations
-        {
-            List<Collider> collisionList = GetComponentInChildren<Collision>(true).collisionList;
-            transform.GetChild(0).gameObject.SetActive(false); // turn off collider
-            foreach (Collider c in collisionList)
-            {
-                if (c.transform == trash)
-                {
-                    Trash();
-                    return;
-                }
-            }
-
-            PlaceRelation(collisionList);
-        }
     }
 
-    private bool PlaceAttribute(List<Collider> collisionList)
-    {
-        GameObject classObject = null;
-        GameObject attributeObject = null;
-
-        foreach (Collider c in collisionList)
-        {
-            if (classObject == null && c.gameObject.layer == 6) //classes
-            {
-                classObject = c.gameObject;
-            }
-            if (attributeObject == null && c.gameObject.layer == 7) //attributes
-            {
-                attributeObject = c.gameObject;
-            }
-        }
-
-        if (classObject == null)
-            return false;
-
-        if (PhotonNetwork.IsMasterClient)
-        {
-            PlacingAttribute(classObject, attributeObject);
-        }
-        else
-        {
-            string id = classObject.GetComponentInParent<ClassView>().id;
-            string text = null;
-            if (attributeObject != null)
-                text = attributeObject.transform.parent.GetChild(1).GetComponent<Text>().text;
-
-            PhotonView photonView = PhotonView.Get(this);
-            photonView.RPC("PlacingAttribute", RpcTarget.MasterClient, id, text);
-            return true;
-        }
-
-        return true;
-    }
-
-    public void PlacingAttribute(string classId, string attributeText)
-    {
-        UserClass classRefence = null;
-        GameObject attributeObject = null;
-
-        foreach (UserClass c in Iml.GetSingleton().structuralModel.classes)
-        {
-            if (c.id.Equals(classId))
-            {
-                classRefence = c;
-                break;
-            }
-        }
-        if (classRefence == null)
-            Debug.LogError("Tried to place attribute but no class match found! ID:'" + classId + "'!");
-        foreach (UserAttribute a in classRefence.attributes)
-        {
-            if (a.displayString.Equals(attributeText))
-            {
-                attributeObject = a.gameObject.transform.GetChild(0).gameObject;
-                break;
-            }
-        }
-        PlacingAttribute(classRefence.gameObject.transform.GetChild(0).gameObject, attributeObject);
-    }
-
-    private void PlacingAttribute(GameObject classObject, GameObject attributeObject)
-    {
-        UserAttribute attribute = gameObject.GetComponentInParent<Identity>().attributeReference;
-        //UserAttribute other = attribute.parent.FindAttribute(name);
-        //if (attribute.parent.FindRelation(name) != null || (other != null && other != attribute))
-        //{
-        //    errorPanel.gameObject.SetActive(true);
-        //    errorPanel.GetChild(1).GetComponent<Text>().text = "Changing this attribute would result a duplicate name for attributes and/or relations; update aborted.";
-        //    return false;
-        //}
-
-        if (attribute.parent != null)
-        {
-            UserClass oldClass = attribute.parent;
-            oldClass.attributes.Remove(attribute);
-            oldClass.Resize();
-        }
-
-        UserClass newClass = classObject.GetComponentInParent<Identity>().classReference;
-
-        int position = 0;
-
-        if (classObject.transform.position.y > interactable.transform.position.y)
-            position = newClass.attributes.Count;
-
-        if (attributeObject != null)
-            if (newClass.attributes.Contains(attributeObject.transform.parent.GetComponent<Identity>().attributeReference) && attributeObject.transform.position.y > interactable.transform.position.y)
-                position = newClass.attributes.IndexOf(attributeObject.transform.parent.GetComponent<Identity>().attributeReference) + 1;
-
-        newClass.attributes.Insert(position, attribute);
-        newClass.Resize();
-    }
-
-    private bool PlaceRelation(List<Collider> collisionList)
-    {
-        GameObject classObject = null;
-
-        foreach (Collider c in collisionList)
-        {
-            if (classObject == null && c.gameObject.layer == 6) //classes
-            {
-                classObject = c.gameObject;
-                break;
-            }
-        }
-
-        if (PhotonNetwork.IsMasterClient)
-        {
-            PlacingRelation(classObject);
-        }
-        else
-        {
-            string id = classObject == null ? "NULL" : classObject.GetComponentInParent<ClassView>().id;
-
-            PhotonView photonView = PhotonView.Get(this);
-            photonView.RPC("PlacingRelation", RpcTarget.MasterClient, id);
-            return true;
-        }
-
-        return true;
-    }
-
-    public void PlacingRelation(GameObject classObject)
-    {
-        Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
-
-        if (classObject == null)
-        {
-            if (storage != null)
-            {
-                if (transform.parent.name.Equals("Arrow"))
-                {
-                    relation.AttachToClass(relation.sourceClass, storage);
-                }
-                else
-                {
-                    relation.AttachToClass(storage, relation.destinationClass);
-                }
-                storage = null;
-            }
-            else
-            {
-                Destroy(relation.gameObject);
-            }
-            return;
-        }
-
-        UserClass newClass = classObject.GetComponentInParent<Identity>().classReference;
-
-        bool isArrow = transform.parent.name.Equals("Arrow");
-        string message;
-        if ((isArrow && !relation.CanAttach(relation.sourceClass, newClass, out message)) || (!isArrow && !relation.CanAttach(newClass, relation.destinationClass, out message)))
-        {
-            if (lockView.IsLocked && lockView.HasLock)
-            {
-                errorPanel.gameObject.SetActive(true);
-                errorPanel.GetChild(1).GetComponent<Text>().text = message;
-            }
-            else
-            {
-                PhotonView photonView = PhotonView.Get(this);
-                photonView.RPC("PrintError", RpcTarget.Others, message);
-            }
-            return;
-        }
-
-        if (storage != null)
-        {
-            storage.relations.Remove(relation);
-        }
-        else
-        {
-            Iml.GetSingleton().structuralModel.relations.Add(relation);
-        }
-        if (isArrow)
-        {
-            relation.AttachToClass(relation.sourceClass, newClass);
-        }
-        else
-        {
-            relation.AttachToClass(newClass, relation.destinationClass);
-        }
-        gameObject.GetComponent<EditRelation>().SetUpPositions();
-        storage = null;
-        return;
-    }
     private void UpdateClassRelations(Vector3 position)
     {
         UserClass classReference = transform.parent.GetComponent<Identity>().classReference;

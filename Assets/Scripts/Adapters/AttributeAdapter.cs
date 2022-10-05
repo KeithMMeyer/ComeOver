@@ -8,7 +8,7 @@ public class AttributeAdapter : ObjectAdapter
     [PunRPC]
     public void PlacingAttribute(string classId, string attributeText)
     {
-        transform.GetComponentInChildren<DragObject>().PlacingAttribute(classId, attributeText);
+        transform.GetComponentInChildren<DragAttribute>().PlacingAttribute(classId, attributeText);
     }
 
     [PunRPC]

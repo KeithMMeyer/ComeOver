@@ -46,13 +46,13 @@ public class RelationAdapter : ObjectAdapter
             {
                 if (id.Equals(c.id))
                 {
-                    transform.GetComponentInChildren<DragObject>().PlacingRelation(c.gameObject);
+                    transform.GetComponentInChildren<DragRelation>().PlacingRelation(c.gameObject);
                     return;
                 }
             }
         } else
         {
-            transform.GetComponentInChildren<DragObject>().PlacingRelation(null);
+            transform.GetComponentInChildren<DragRelation>().PlacingRelation(null);
         }
     }
 
