@@ -16,7 +16,7 @@ public class DragObject : MonoBehaviour
 
     protected Transform errorPanel;
 
-    private bool grabbed = false;
+    protected bool grabbed = false;
 
     // Start is called before the first frame update
     void Start()
@@ -31,45 +31,21 @@ public class DragObject : MonoBehaviour
     void Update()
     {
         if (grabbed)
+            TryUpdatePosition(out _);
+    }
+
+    protected bool TryUpdatePosition(out Vector3 newPosition)
+    {
+        bool found = LinePlaneIntersection(out newPosition, active.transform.GetChild(2).position, active.transform.GetChild(2).forward, new Vector3(0, 0, -1), new Vector3(0, 0, 3));
+
+        if (found)
         {
-            Vector3 newPosition;
-            bool found = LinePlaneIntersection(out newPosition, active.transform.GetChild(2).position, active.transform.GetChild(2).forward, new Vector3(0, 0, -1), new Vector3(0, 0, 3));
-            //RaycastHit h;
-            //bool found = active.GetComponent<XRRayInteractor>().GetCurrentRaycastHit(out h);
-            if (found)
-            {
-                Transform movable = dragParent ? transform.parent : transform;
-                Vector3 position = newPosition;
-                position.z = movable.position.z;
-                movable.position = position;
-                if (gameObject.layer == 6) //classes
-                {
-                    if (PhotonNetwork.IsMasterClient)
-                    {
-                        UpdateClassRelations(position);
-                    }
-                    else
-                    {
-                        PhotonView photonView = PhotonView.Get(this);
-                        photonView.RPC("UpdateClassRelations", RpcTarget.MasterClient, position);
-                    }
-                }
-                if (gameObject.layer == 8) //relations
-                {
-                    if (PhotonNetwork.IsMasterClient)
-                    {
-                        UpdateRelation(position);
-                    }
-                    else
-                    {
-                        PhotonView photonView = PhotonView.Get(this);
-                        photonView.RPC("UpdateRelation", RpcTarget.MasterClient, position);
-                    }
-
-                }
-            }
+            Transform movable = dragParent ? transform.parent : transform;
+            Vector3 position = newPosition;
+            position.z = movable.position.z;
+            movable.position = position;
         }
-
+        return found;
     }
 
     private void Init()
@@ -92,7 +68,7 @@ public class DragObject : MonoBehaviour
         Grabbed(null);
     }
 
-    public void Grabbed(SelectEnterEventArgs args)
+    public virtual void Grabbed(SelectEnterEventArgs args)
     {
         if (interactable == null)
             Init();
@@ -113,38 +89,6 @@ public class DragObject : MonoBehaviour
         grabbed = true;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = false;
         transform.GetChild(0).gameObject.SetActive(true); // enable collider
-        if (gameObject.layer == 8) //relations
-        {
-            if (PhotonNetwork.IsMasterClient)
-            {
-                GrabRelation();
-            }
-            else
-            {
-                PhotonView photonView = PhotonView.Get(this);
-                photonView.RPC("GrabRelation", RpcTarget.MasterClient);
-            }
-        }
-    }
-
-    public void GrabRelation()
-    {
-        Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
-        if (relation.sourceClass != null && relation.destinationClass != null && relation.sourceClass.Equals(relation.destinationClass))
-        {
-            //Destroy(transform.parent.gameObject);
-            relation.UpdatePoints(relation.sourceClass.gameObject.transform.position, null);
-        }
-        if (transform.parent.name.Equals("Arrow"))
-        {
-            storage = relation.destinationClass;
-            relation.destinationClass = null;
-        }
-        else
-        {
-            storage = relation.sourceClass;
-            relation.sourceClass = null;
-        }
     }
 
     public virtual void Dropped(SelectExitEventArgs args)
@@ -162,25 +106,6 @@ public class DragObject : MonoBehaviour
             return;
         grabbed = false;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = true;
-    }
-
-    private void UpdateClassRelations(Vector3 position)
-    {
-        UserClass classReference = transform.parent.GetComponent<Identity>().classReference;
-        classReference.UpdateRelations();
-
-    }
-
-    public void UpdateRelation(Vector3 position)
-    {
-        if (transform.parent.name.Equals("Arrow"))
-        {
-            gameObject.GetComponentInParent<Identity>().relationReference.UpdatePoints(null, position);
-        }
-        else
-        {
-            gameObject.GetComponentInParent<Identity>().relationReference.UpdatePoints(position, null);
-        }
     }
 
     public virtual void Trash()

@@ -8,6 +8,71 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class DragRelation : DragObject
 {
 
+    void Update()
+    {
+        if (grabbed)
+        {
+            if (TryUpdatePosition(out Vector3 position))
+            {
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    UpdateRelation(position);
+                }
+                else
+                {
+                    PhotonView photonView = PhotonView.Get(this);
+                    photonView.RPC("UpdateRelation", RpcTarget.MasterClient, position);
+                }
+            }
+        }
+    }
+
+    public void UpdateRelation(Vector3 position)
+    {
+        if (transform.parent.name.Equals("Arrow"))
+        {
+            gameObject.GetComponentInParent<Identity>().relationReference.UpdatePoints(null, position);
+        }
+        else
+        {
+            gameObject.GetComponentInParent<Identity>().relationReference.UpdatePoints(position, null);
+        }
+    }
+
+    public override void Grabbed(SelectEnterEventArgs args)
+    {
+        base.Grabbed(args);
+        if (PhotonNetwork.IsMasterClient)
+        {
+            GrabRelation();
+        }
+        else
+        {
+            PhotonView photonView = PhotonView.Get(this);
+            photonView.RPC("GrabRelation", RpcTarget.MasterClient);
+        }
+    }
+
+    public void GrabRelation()
+    {
+        Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
+        if (relation.sourceClass != null && relation.destinationClass != null && relation.sourceClass.Equals(relation.destinationClass))
+        {
+            //Destroy(transform.parent.gameObject);
+            relation.UpdatePoints(relation.sourceClass.gameObject.transform.position, null);
+        }
+        if (transform.parent.name.Equals("Arrow"))
+        {
+            storage = relation.destinationClass;
+            relation.destinationClass = null;
+        }
+        else
+        {
+            storage = relation.sourceClass;
+            relation.sourceClass = null;
+        }
+    }
+
     public override void Dropped(SelectExitEventArgs args)
     {
         base.Dropped(args);

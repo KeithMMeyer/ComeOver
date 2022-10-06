@@ -28,13 +28,13 @@ public class RelationAdapter : ObjectAdapter
     [PunRPC]
     public void GrabRelation()
     {
-        transform.GetComponentInChildren<DragObject>().GrabRelation();
+        transform.GetComponentInChildren<DragRelation>().GrabRelation();
     }
 
     [PunRPC]
     public void UpdateRelation(Vector3 position)
     {
-        transform.GetComponentInChildren<DragObject>().UpdateRelation(position);
+        transform.GetComponentInChildren<DragRelation>().UpdateRelation(position);
     }
 
     [PunRPC]

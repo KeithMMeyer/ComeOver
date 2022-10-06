@@ -7,6 +7,33 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class DragClass : DragObject
 {
 
+    // Update is called once per frame
+    void Update()
+    {
+        if (grabbed)
+        {
+            if (TryUpdatePosition(out Vector3 position))
+            {
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    UpdateClassRelations(position);
+                }
+                else
+                {
+                    PhotonView photonView = PhotonView.Get(this);
+                    photonView.RPC("UpdateClassRelations", RpcTarget.MasterClient, position);
+                }
+            }
+        }
+    }
+
+    private void UpdateClassRelations(Vector3 position)
+    {
+        UserClass classReference = transform.parent.GetComponent<Identity>().classReference;
+        classReference.UpdateRelations();
+
+    }
+
     public override void Dropped(SelectExitEventArgs args)
     {
         base.Dropped(args);
