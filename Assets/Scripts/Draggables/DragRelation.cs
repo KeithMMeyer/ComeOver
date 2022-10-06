@@ -1,5 +1,4 @@
 using Photon.Pun;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +6,8 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 public class DragRelation : DragObject
 {
+
+    private UserClass storage;
 
     void Update()
     {
@@ -73,12 +74,8 @@ public class DragRelation : DragObject
         }
     }
 
-    public override void Dropped(SelectExitEventArgs args)
+    protected override void DropThis(List<Collider> collisionList)
     {
-        base.Dropped(args);
-
-        List<Collider> collisionList = GetComponentInChildren<Collision>(true).collisionList;
-        transform.GetChild(0).gameObject.SetActive(false); // turn off collider
         foreach (Collider c in collisionList)
         {
             if (c.transform == trash)
@@ -185,10 +182,8 @@ public class DragRelation : DragObject
         return;
     }
 
-    public override void Trash()
+    protected override void TrashThis()
     {
-        base.Trash();
-
         Relation relation = gameObject.GetComponentInParent<Identity>().relationReference;
         TrashRelation(relation);
     }

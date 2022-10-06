@@ -1,5 +1,4 @@
 using Photon.Pun;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,12 +7,8 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class DragAttribute : DragObject
 {
 
-    public override void Dropped(SelectExitEventArgs args)
+    protected override void DropThis(List<Collider> collisionList)
     {
-        base.Dropped(args);
-
-        List<Collider> collisionList = GetComponentInChildren<Collision>().collisionList;
-        transform.GetChild(0).gameObject.SetActive(false); // turn off collider
         foreach (Collider c in collisionList)
         {
             if (c.transform == trash)
@@ -134,27 +129,21 @@ public class DragAttribute : DragObject
 
         int position = 0;
 
-        if (classObject.transform.position.y > interactable.transform.position.y)
+        if (classObject.transform.position.y > transform.position.y)
             position = newClass.attributes.Count;
 
         if (attributeObject != null)
-            if (newClass.attributes.Contains(attributeObject.transform.parent.GetComponent<Identity>().attributeReference) && attributeObject.transform.position.y > interactable.transform.position.y)
+            if (newClass.attributes.Contains(attributeObject.transform.parent.GetComponent<Identity>().attributeReference) && attributeObject.transform.position.y > transform.position.y)
                 position = newClass.attributes.IndexOf(attributeObject.transform.parent.GetComponent<Identity>().attributeReference) + 1;
 
         newClass.attributes.Insert(position, attribute);
         newClass.Resize();
     }
 
-    public override void Trash()
+    protected override void TrashThis()
     {
-        base.Trash();
-
         UserAttribute attribute = gameObject.GetComponentInParent<Identity>().attributeReference;
-        TrashAttribute(attribute);
-    }
 
-    private void TrashAttribute(UserAttribute attribute)
-    {
         //Destroy(attribute.gameObject);
         PhotonNetwork.Destroy(attribute.gameObject);
         List<UserClass> imlClasses = Iml.GetSingleton().structuralModel.classes;

@@ -1,22 +1,19 @@
 using Photon.Pun;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 
 public class DragObject : MonoBehaviour
 {
-    public bool dragParent = false;
-    protected XRSimpleInteractable interactable;
-    private Transform active;
     protected Transform trash;
-    protected UserClass storage;
     protected LockView lockView;
-
     protected Transform errorPanel;
-
     protected bool grabbed = false;
+
+    [SerializeField]
+    private bool dragParent = false;
+    private Transform active;
+    private XRSimpleInteractable interactable;
 
     // Start is called before the first frame update
     void Start()
@@ -63,8 +60,6 @@ public class DragObject : MonoBehaviour
 
     public void Grabbed()
     {
-        //SelectEnterEventArgs args = new SelectEnterEventArgs();
-        //args.interactorObject = GameObject.Find("RightHand Controller").GetComponent<IXRSelectInteractor>();
         Grabbed(null);
     }
 
@@ -91,7 +86,12 @@ public class DragObject : MonoBehaviour
         transform.GetChild(0).gameObject.SetActive(true); // enable collider
     }
 
-    public virtual void Dropped(SelectExitEventArgs args)
+    public void Dropped()
+    {
+        Dropped(null);
+    }
+
+    public void Dropped(SelectExitEventArgs args)
     {
         if (dragParent)
         {
@@ -106,9 +106,15 @@ public class DragObject : MonoBehaviour
             return;
         grabbed = false;
         trash.GetComponent<MeshRenderer>().forceRenderingOff = true;
+
+        List<Collider> collisionList = GetComponentInChildren<Collision>().collisionList;
+        transform.GetChild(0).gameObject.SetActive(false); // turn off collider
+        DropThis(collisionList);
     }
 
-    public virtual void Trash()
+    protected virtual void DropThis(List<Collider> collisionList) { }
+
+    public void Trash()
     {
         GameObject.Find("ToolBox").GetComponent<ToolBox>().closeAll();
         if (!PhotonNetwork.IsMasterClient)
@@ -117,7 +123,10 @@ public class DragObject : MonoBehaviour
             photonView.RPC("Trash", RpcTarget.MasterClient);
             return;
         }
+        TrashThis();
     }
+
+    protected virtual void TrashThis() { }
 
     private static bool LinePlaneIntersection(out Vector3 intersection, Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint)
     {
@@ -146,8 +155,4 @@ public class DragObject : MonoBehaviour
             return false;
     }
 
-    public void Dropped()
-    {
-        Dropped(null);
-    }
 }

@@ -1,5 +1,4 @@
 using Photon.Pun;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -34,12 +33,8 @@ public class DragClass : DragObject
 
     }
 
-    public override void Dropped(SelectExitEventArgs args)
+    protected override void DropThis(List<Collider> collisionList)
     {
-        base.Dropped(args);
-
-        List<Collider> collisionList = GetComponentInChildren<Collision>().collisionList;
-        transform.GetChild(0).gameObject.SetActive(false); // turn off collider
         foreach (Collider c in collisionList)
         {
             if (c.transform == trash)
@@ -51,16 +46,10 @@ public class DragClass : DragObject
         gameObject.GetComponentInParent<Identity>().classReference.SetPosition(transform.position);
     }
 
-    public override void Trash()
+    protected override void TrashThis()
     {
-        base.Trash();
-
         UserClass classReference = gameObject.GetComponentInParent<Identity>().classReference;
-        TrashClass(classReference);
-    }
 
-    private void TrashClass(UserClass classReference)
-    {
         //Destroy(classReference.gameObject);
         PhotonNetwork.Destroy(classReference.gameObject);
         foreach (UserAttribute ua in classReference.attributes)
