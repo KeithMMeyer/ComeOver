@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
-public class DragObject : MonoBehaviour
+public abstract class DragObject : MonoBehaviour
 {
     protected Transform trash;
     protected LockView lockView;
@@ -112,7 +112,7 @@ public class DragObject : MonoBehaviour
         DropThis(collisionList);
     }
 
-    protected virtual void DropThis(List<Collider> collisionList) { }
+    protected abstract void DropThis(List<Collider> collisionList);
 
     public void Trash()
     {
@@ -126,7 +126,7 @@ public class DragObject : MonoBehaviour
         TrashThis();
     }
 
-    protected virtual void TrashThis() { }
+    protected abstract void TrashThis();
 
     private static bool LinePlaneIntersection(out Vector3 intersection, Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint)
     {
