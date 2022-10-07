@@ -27,24 +27,9 @@ namespace TestAPI.Controllers
 			}
 		}
 
-		// A constructor that 
 		public CoMoVRAPIController(ILogger<CoMoVRAPIController> logger)
 		{
 			_logger = logger;
-		}
-		// Gets the email of the user given their userID
-		[HttpGet("GetEmail")]
-		public string GetEmail(string userID)
-		{
-			if (database.TryGetUserFromID(userID, out User user))
-			{
-				return user.email;
-			}
-
-			// If the user is not found, throw a 404 error
-			Response.Clear();
-			Response.StatusCode = 404;
-			return "User not found";
 		}
 
 		[HttpGet("GetUser")]
@@ -78,6 +63,20 @@ namespace TestAPI.Controllers
 			Response.Clear();
 			Response.StatusCode = 404;
 			return "Diagram not found";
+		}
+
+		[HttpPost("LoginVR")]
+		public string LoginVR([FromBody] AuthToken authToken)
+		{
+			if (database.TryGetUserID(authToken, out string userID))
+			{
+				return userID;
+			}
+
+			// If the token is not valid or incorrect, throw a 401 error
+			Response.Clear();
+			Response.StatusCode = 401;
+			return "Invalid token";
 		}
 	}
 }

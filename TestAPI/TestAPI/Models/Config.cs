@@ -11,5 +11,7 @@ namespace TestAPI.Models
 		public string database { get; set; }
 
 		public string iml_root { get; set; }
+
+		public string access_code_expiry { get; set; }
 	}
 }
