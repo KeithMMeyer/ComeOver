@@ -7,6 +7,7 @@ namespace TestAPI
 	public class DB
 	{
 		public MySqlConnection connection { get; set; }
+		public MySqlConnection testDBConnection { get; set; }
 		public Config config { get; set; }
 
 		public DB()
@@ -30,7 +31,7 @@ namespace TestAPI
 			connection.Open();
 		}
 		
-		public List<List<String>> ExecuteQuery(string query)
+		public List<List<string>> ExecuteQuery(string query)
 		{
 			List<List<string>> results = new List<List<string>>();
 
@@ -101,6 +102,46 @@ namespace TestAPI
 			}
 
 			return diagrams.Count > 0;
+		}
+
+		public bool TryGetUserID(AuthToken token, out string userID)
+		{
+			userID = null;
+			
+			List<List<string>> results = ExecuteQuery($"SELECT * FROM iml.token WHERE token = '{token.authcode}';");
+			if (results.Count > 0)
+			{
+				// Input authcode exists
+				userID = results[0][1];
+
+				// Check if token is expired
+				DateTime tokenExpiration = DateTime.Parse(results[0][2]);
+
+				// Uses the current time to check if the token has expired
+				if (tokenExpiration < DateTime.Now - TimeSpan.FromSeconds(int.Parse(config.access_code_expiry)))
+				{
+					// Token is expired
+					return false;
+				}
+				
+				if (TryGetUserFromID(userID, out User user))
+				{
+					//Console.WriteLine("User from DB is " + user.email + " and user from token is " + token.email);
+					// User matching email exists
+					if (user.email == token.email)
+					{
+						// Email matches
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		// ONLY RUN WHEN TOKEN IS VALIDATED
+		public void DeleteToken(AuthToken token)
+		{
+			ExecuteQuery($"DELETE FROM iml.token WHERE token = '{token.authcode}';");
 		}
 
 		public void Close()
