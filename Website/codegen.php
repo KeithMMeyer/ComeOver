@@ -1,27 +1,15 @@
 <?php
 session_start();
 
-require("info.php");
+require_once 'credentials.php';
 
-// Connects to the temp database
-// host: 10.75.35.226
-// user: api
-// pass: testpass
-// db:   iml
+// creating the initial mysqli connection to the Database with provided credentials
+$mysqli = mysqli_connect($host, $user, $pass, $db);
 
-$host2 = "10.75.35.226";
-$user2 = "api";
-$pass2 = "testpass";
-$db2 = "iml";
-
-// Connect using mysqli with authentication method cached_sha2_password
-$mysqli2 = mysqli_connect($host2, $user2, $pass2, $db2) or die("Error " . mysqli_error($link));
-
-if (mysqli_connect_errno($mysqli2)) {
+if (mysqli_connect_errno($mysqli)) {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
     die;
 }
-
 
 if (!isset($_SESSION['user_email_address'])) {
     header('Location: index.php');
@@ -36,7 +24,7 @@ if (!isset($_SESSION['position'])) {
 }
 
 if (!isset($_SESSION['authcode'])) {
-    $_SESSION['authcode'] = createAuthCode($_SESSION['userId'], $mysqli2);
+    $_SESSION['authcode'] = createAuthCode($_SESSION['userId'], $mysqli);
 }
 
 if (!isset($_SESSION['time'])) {
@@ -44,33 +32,33 @@ if (!isset($_SESSION['time'])) {
 }
 
 if ($_SESSION['time'] < time()) {
-    $_SESSION['authcode'] = createAuthCode($_SESSION['userId'], $mysqli2);
+    $_SESSION['authcode'] = createAuthCode($_SESSION['userId'], $mysqli);
     $_SESSION['time'] = time() + 30;
 }
 
 // Function to create an auth code given the userID
-function createAuthCode($userID, $mysqli2) {
+function createAuthCode($userID, $mysqli) {
     try {
         // If the user has an auth code, delete it
         $sql = "DELETE FROM token WHERE userID = ?";
-        $stmt = $mysqli2->prepare($sql);
+        $stmt = $mysqli->prepare($sql);
         $stmt->bind_param("s", $userID);
         $stmt->execute();
     } catch (Throwable $t) {
-        echo "Error: " . $t->getMessage();
+        echo "Error1: " . $t->getMessage();
     }
 
     try {
         $authCode = rand(100000, 999999);
         $time = time();
         $sql = "INSERT INTO token (token, userID, timecreated) VALUES (?, ?, FROM_UNIXTIME(?))";
-        $stmt = $mysqli2->prepare($sql);
+        $stmt = $mysqli->prepare($sql);
         $stmt->bind_param("ssi", $authCode, $userID, $time);
         $stmt->execute();
         $stmt->close();
         return $authCode;
     } catch (Throwable $e) {
-        echo "Error: " . $e->getMessage();
+        echo "Error2: " . $e->getMessage();
     }
     return $authCode;
 }
