@@ -27,48 +27,16 @@ namespace TestAPI
 			// Connects to the MySQL database with the username and password
 			connection = new MySqlConnection(connectionString);
 
-			string testDBConnectionString = $"server=10.75.35.226;user=api;database=iml;port=3306;password=testpass";
-
-			testDBConnection = new MySqlConnection(testDBConnectionString);
-
 			// Opens the connection to the database
 			connection.Open();
-			testDBConnection.Open();
 		}
 		
-		public List<List<String>> ExecuteQuery(string query)
+		public List<List<string>> ExecuteQuery(string query)
 		{
 			List<List<string>> results = new List<List<string>>();
 
 			// Creates a new command that will be executed on the database
 			var command = connection.CreateCommand();
-
-			// Sets the command to be executed
-			command.CommandText = query;
-
-			// Executes the command and stores each row in a list of strings
-			using (var reader = command.ExecuteReader())
-			{
-				while (reader.Read())
-				{
-					List<string> row = new List<string>();
-					for (int i = 0; i < reader.FieldCount; i++)
-					{
-						row.Add(reader[i].ToString());
-					}
-					results.Add(row);
-				}
-			}
-
-			return results;
-		}
-
-		public List<List<String>> ExecuteQueryTestDB(string query)
-		{
-			List<List<string>> results = new List<List<string>>();
-
-			// Creates a new command that will be executed on the database
-			var command = testDBConnection.CreateCommand();
 
 			// Sets the command to be executed
 			command.CommandText = query;
@@ -111,24 +79,6 @@ namespace TestAPI
 			return false;
 		}
 
-		public bool TryGetUserFromIDTestDB(string userID, out User user)
-		{
-			user = null;
-			List<List<string>> results = ExecuteQueryTestDB($"SELECT * FROM users WHERE userID = '{userID}';");
-			string[] metamodels = ExecuteQueryTestDB($"SELECT metamodelId FROM metamodels WHERE userID = '{userID}';").Select(x => x[0]).ToArray();
-			if (results.Count > 0)
-			{
-				user = new User
-				{
-					userID = results[0][0],
-					email = results[0][1],
-					metamodels = metamodels
-				};
-				return true;
-			}
-			return false;
-		}
-
 		public bool TryGetIMLDiagrams(string userID, out List<IMLDiagram> diagrams)
 		{
 			diagrams = new List<IMLDiagram>();
@@ -158,7 +108,7 @@ namespace TestAPI
 		{
 			userID = null;
 			
-			List<List<string>> results = ExecuteQueryTestDB($"SELECT * FROM iml.token WHERE token = '{token.authcode}';");
+			List<List<string>> results = ExecuteQuery($"SELECT * FROM iml.token WHERE token = '{token.authcode}';");
 			if (results.Count > 0)
 			{
 				// Input authcode exists
@@ -174,9 +124,9 @@ namespace TestAPI
 					return false;
 				}
 				
-				if (TryGetUserFromIDTestDB(userID, out User user))
+				if (TryGetUserFromID(userID, out User user))
 				{
-					Console.WriteLine("User from DB is " + user.email + " and user from token is " + token.email);
+					//Console.WriteLine("User from DB is " + user.email + " and user from token is " + token.email);
 					// User matching email exists
 					if (user.email == token.email)
 					{
@@ -186,6 +136,12 @@ namespace TestAPI
 				}
 			}
 			return false;
+		}
+
+		// ONLY RUN WHEN TOKEN IS VALIDATED
+		public void DeleteToken(AuthToken token)
+		{
+			ExecuteQuery($"DELETE FROM iml.token WHERE token = '{token.authcode}';");
 		}
 
 		public void Close()

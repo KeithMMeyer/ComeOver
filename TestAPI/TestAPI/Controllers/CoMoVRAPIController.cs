@@ -64,12 +64,13 @@ namespace TestAPI.Controllers
 			Response.StatusCode = 404;
 			return "Diagram not found";
 		}
-
+		
 		[HttpPost("LoginVR")]
 		public string LoginVR([FromBody] AuthToken authToken)
 		{
 			if (database.TryGetUserID(authToken, out string userID))
 			{
+				database.DeleteToken(authToken);
 				return userID;
 			}
 
