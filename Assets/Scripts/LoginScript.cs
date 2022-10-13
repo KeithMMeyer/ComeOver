@@ -4,32 +4,27 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 
 public class LoginScript : MonoBehaviour
 {
+	public delegate void LoginEvents();
+	public event LoginEvents OnLoginSuccess;
+	public event LoginEvents OnLoginFail;
+
 	Task<WebResponse> task;
 
 	public string authcode;
 	public string email;
 
-	UnityEngine.UI.Text resultsText;
+	public TextMeshProUGUI resultsText;
 
 	// Start is called before the first frame update
 	void Start()
 	{
-		// Finds the results text to display the results of the login. Won't be needed in the final version.
-		resultsText = GameObject.Find("ResultText").GetComponent<UnityEngine.UI.Text>();
-
-		if (PlayerPrefs.HasKey("userID"))
-		{
-			resultsText.text = "Logged in";
-		} else
-		{
-			resultsText.text = "Not logged in";
-		}
-		
+		//PlayerPrefs.DeleteAll();
 	}
 
 	// Update is called once per frame
@@ -44,11 +39,12 @@ public class LoginScript : MonoBehaviour
 			{
 				response = task.Result;
 			}
-			catch (System.Exception e)
+			catch (System.AggregateException e)
 			{
 				resultsText.text = "Error";
-				Debug.Log("Error occured in getting web response. Most likely a 401 error. Error: " + e.Message);
+				Debug.Log("Error occured in getting web response. Most likely a 401 error. Error: " + e.InnerException.Message);
 				task = null;
+				OnLoginFail.Invoke();
 				return;
 			}
 
@@ -62,6 +58,7 @@ public class LoginScript : MonoBehaviour
 			// Any way that this can exit must set task to null, or else we risk running this code over and over again.
 			resultsText.text = "Logged in";
 			task = null;
+			OnLoginSuccess.Invoke();
 		}
 	}
 
@@ -81,17 +78,6 @@ public class LoginScript : MonoBehaviour
 		dataStream.Write(byteArray, 0, byteArray.Length);
 		dataStream.Close();
 		task = request.GetResponseAsync();
-	}
-
-	// These two methods exist to be utilized by the text inputs in the scene.
-	public void OnEmailChanged(string str)
-	{
-		email = str;
-	}
-
-	public void OnAuthcodeChanged(string str)
-	{
-		authcode = str;
 	}
 
 	// This method is called by the logout button in the scene.
