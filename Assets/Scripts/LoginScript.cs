@@ -9,46 +9,68 @@ using UnityEngine.Networking;
 
 public class LoginScript : MonoBehaviour
 {
-	public delegate void LoginEvent(string str);
-
 	Task<WebResponse> task;
 
-	string authcode;
-	string email;
-	string userID;
+	public string authcode;
+	public string email;
 
 	UnityEngine.UI.Text resultsText;
 
 	// Start is called before the first frame update
 	void Start()
 	{
+		// Finds the results text to display the results of the login. Won't be needed in the final version.
 		resultsText = GameObject.Find("ResultText").GetComponent<UnityEngine.UI.Text>();
 
 		if (PlayerPrefs.HasKey("userID"))
 		{
-			Debug.Log("userID: " + PlayerPrefs.GetString("userID"));
+			resultsText.text = "Logged in";
 		} else
 		{
-			Debug.Log("No userID");
-			//PlayerPrefs.SetString("userID", "39356da5-4371-11ed-a142-fa163e1521a4");
+			resultsText.text = "Not logged in";
 		}
+		
 	}
 
 	// Update is called once per frame
 	void Update()
 	{
-		if (PlayerPrefs.HasKey("userID"))
+		// Every update, we check if the task is complete. If it is, we get the response and save it to the player prefs.
+		if (task != null && task.IsCompleted) 
 		{
-			resultsText.text = PlayerPrefs.GetString("userID");
+			WebResponse response = null;
+			// A 401 response throws an exception. This checks for that.
+			try
+			{
+				response = task.Result;
+			}
+			catch (System.Exception e)
+			{
+				resultsText.text = "Error";
+				Debug.Log("Error occured in getting web response. Most likely a 401 error. Error: " + e.Message);
+				task = null;
+				return;
+			}
+
+			// Gets the response stream and reads it into a string.
+			Stream dataStream = response.GetResponseStream();
+			StreamReader reader = new StreamReader(dataStream);
+			string responseFromServer = reader.ReadToEnd();
+			PlayerPrefs.SetString("userID", responseFromServer);
+			PlayerPrefs.Save();
+
+			// Any way that this can exit must set task to null, or else we risk running this code over and over again.
+			resultsText.text = "Logged in";
+			task = null;
 		}
 	}
 
+	// This method is called by the login button in the scene.
 	public void Login()
 	{
 		resultsText.text = "Logging in...";
-		
-		// Makes a web request to POST to http://iml.cec.miamioh.edu:5000/CoMoVRAPI/LoginVR with the authcode and email 
 
+		// Creates a new web request to the login endpoint.
 		WebRequest request = WebRequest.Create("http://iml.cec.miamioh.edu:5000/CoMoVRAPI/LoginVR");
 		request.Method = "POST";
 		string jsonPostData = "{\"authcode\":\"" + authcode + "\",\"email\":\"" + email + "\"}";
@@ -59,45 +81,9 @@ public class LoginScript : MonoBehaviour
 		dataStream.Write(byteArray, 0, byteArray.Length);
 		dataStream.Close();
 		task = request.GetResponseAsync();
-
-		// When the task is complete, it will call the Login method
-		task.ContinueWith(ProcessResponse);
 	}
 
-	public void ProcessResponse(Task<WebResponse> webresp)
-	{
-		try
-		{
-			WebResponse response = webresp.Result;
-			Debug.Log("Processing response");
-			Debug.Log(((HttpWebResponse)response).StatusCode);
-			
-			
-			// If the response is a 401, set the results text to Error
-			if (((HttpWebResponse)response).StatusCode != HttpStatusCode.OK)
-			{
-				resultsText.text = "Error";
-			}
-			else
-			{
-				Stream dataStream = response.GetResponseStream();
-				StreamReader reader = new StreamReader(dataStream);
-				string responseFromServer = reader.ReadToEnd();
-
-				// Saves the response as a UserPref
-				Debug.Log("Setting userID to: " + responseFromServer);
-				PlayerPrefs.SetString("userID", responseFromServer);
-				PlayerPrefs.Save();
-
-				Debug.Log("Do we have the userID? " + PlayerPrefs.HasKey("userID"));
-			}
-		}
-		catch (System.Exception e)
-		{
-			resultsText.text = "Error";
-		}
-	}
-
+	// These two methods exist to be utilized by the text inputs in the scene.
 	public void OnEmailChanged(string str)
 	{
 		email = str;
@@ -108,8 +94,10 @@ public class LoginScript : MonoBehaviour
 		authcode = str;
 	}
 
+	// This method is called by the logout button in the scene.
 	public void Logout()
 	{
+		resultsText.text = "Logged out";
 		PlayerPrefs.DeleteKey("userID");
 		PlayerPrefs.Save();
 	}
