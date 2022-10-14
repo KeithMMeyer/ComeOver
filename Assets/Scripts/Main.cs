@@ -157,8 +157,6 @@ public class Main : MonoBehaviourPunCallbacks, IPunObservable
 
 		Debug.LogWarning("Rerendering Iml.");
 
-		
-
 		GenerateClasses(iml);
 
 		foreach (Relation relation in iml.structuralModel.relations)
