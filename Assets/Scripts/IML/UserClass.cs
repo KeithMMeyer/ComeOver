@@ -39,8 +39,9 @@ public class UserClass
         //GameObject templateClass = Resources.Load<GameObject>("ClassObject");
         //GameObject classObject = UnityEngine.Object.Instantiate(templateClass);
         GameObject classObject = PhotonNetwork.Instantiate("ClassObject", new Vector3(0, 0, 0), Quaternion.identity, 0);
+		classObject.tag = "IML";
 
-        classObject.transform.position = Iml.To3dPosition(x, y, 3);
+		classObject.transform.position = Iml.To3dPosition(x, y, 3);
         classObject.transform.Rotate(-90.0f, 0.0f, 0.0f, Space.Self);
         classObject.GetComponent<Identity>().classReference = this;
 
@@ -239,6 +240,12 @@ public class UserClass
         }
         return null;
     }
+
+	[PunRPC]
+	void DestroyClass()
+	{
+		PhotonNetwork.Destroy(gameObject);
+	}
 
     public override bool Equals(object obj)
     {
