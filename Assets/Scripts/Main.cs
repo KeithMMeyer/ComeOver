@@ -1,13 +1,15 @@
-﻿using Photon.Pun;
+﻿using ExitGames.Client.Photon;
+using Photon.Pun;
 using Photon.Realtime;
 using Photon.Voice.PUN;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR;
 
-public class Main : MonoBehaviourPunCallbacks, IPunObservable
+public class Main : MonoBehaviourPunCallbacks, IPunObservable, IOnEventCallback
 {
     public string inputfile;
     Iml iml;
@@ -18,6 +20,8 @@ public class Main : MonoBehaviourPunCallbacks, IPunObservable
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
+		if (iml == null) return;
+
         if (stream.IsWriting)
         {
             stream.SendNext(iml.structuralModel.name);
@@ -58,99 +62,26 @@ public class Main : MonoBehaviourPunCallbacks, IPunObservable
 				{
 					Destroy(audioListener);
 				}
+				LoadIMLFromAPI();
 			}
 		}
-		LoadIML();
     }
 
-	public void LoadIML()
+	public void LoadIMLFromAPI()
 	{
 		iml = Iml.GetSingleton();
-		if (PhotonNetwork.IsMasterClient)
-		{
-			if (iml == null && doImport)
-			{
-				iml = Importer.ImportXmlFromFile(inputfile);
-			}
-			else
-			{
-				if ((iml.structuralModel.classes.Count > 0 && iml.structuralModel.classes[0].gameObject != null))
-					return;
-				if (iml == null && !doImport)
-				{
-					iml = new Iml();
-					StructuralModel sm = new StructuralModel();
-					List<UserClass> classes = new List<UserClass>();
-					List<Relation> relations = new List<Relation>();
-					sm.classes = classes;
-					sm.relations = relations;
-					iml.structuralModel = sm;
-				}
 
-				Debug.LogWarning("Rerendering Iml.");
-			}
-		}
-		else
+		Uri diagramURI = DiagramInfo.diagramURI;
+
+		if (diagramURI == null)
 		{
 			return;
 		}
 
-		GenerateClasses(iml);
-
-		foreach (Relation relation in iml.structuralModel.relations)
-		{
-			string source = relation.source;
-			UserClass start = null;
-			foreach (UserClass classXml in iml.structuralModel.classes)
-			{
-				if (classXml.id.Equals(source))
-				{
-					start = classXml;
-					classXml.AddRelation(relation);
-					break;
-				}
-			}
-
-			string destination = relation.destination;
-			UserClass end = null;
-			foreach (UserClass classXml in iml.structuralModel.classes)
-			{
-				if (classXml.id.Equals(destination))
-				{
-					end = classXml;
-					classXml.AddRelation(relation);
-					break;
-				}
-			}
-			relation.CreateGameObject();
-			relation.AttachToClass(start, end);
-		}
-	}
-
-	public void DebugIML()
-	{
-		LoadIMLFromAPI("1633c87a30a4c8");
-	}
-
-	public void LoadIMLFromAPI(string diagramID)
-	{
-		iml = Iml.GetSingleton();
-
-		// If any GameObjects containing the Identity script are found, make a Photon RPC call to destroy them
-		Identity[] identities = FindObjectsOfType<Identity>();
-		foreach (Identity identity in identities)
-		{
-			PhotonView view = identity.gameObject.GetComponent<PhotonView>();
-			if (view != null)
-			{
-				view.RPC("DestroySelf", RpcTarget.MasterClient);
-			}
-		}
-
-		var metaModel = Importer.ImportXmlFromAPI(diagramID);
+		var metaModel = Importer.ImportXmlFromAPI(diagramURI.ToString());
 		iml = metaModel.metaModel;
 
-		if ((iml.structuralModel.classes.Count > 0 && iml.structuralModel.classes[0].gameObject != null))
+		if (iml.structuralModel.classes.Count > 0 && iml.structuralModel.classes[0].gameObject != null)
 		{
 			return;
 		}
@@ -211,6 +142,20 @@ public class Main : MonoBehaviourPunCallbacks, IPunObservable
 			Debug.Log("Master client left the room. Returning to lobby.");
 			PhotonNetwork.LeaveRoom();
 			SceneManager.LoadScene("Launcher");
+		}
+	}
+
+	public void OnEvent(EventData photonEvent)
+	{
+		byte eventCode = photonEvent.Code;
+		if (eventCode == EventCodes.LoadSceneEventCode)
+		{
+			string url = photonEvent.CustomData.ToString();
+			Debug.LogError("Loading scene from URL: " + url);
+			DiagramInfo.diagramURI = new System.Uri(url);
+
+			PhotonNetwork.DestroyAll();
+			PhotonNetwork.LoadLevel("MainScene");
 		}
 	}
 	#endregion

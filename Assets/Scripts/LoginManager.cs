@@ -155,10 +155,19 @@ public class LoginManager : MonoBehaviour
 		PlayerPrefs.DeleteKey("email");
 		PlayerPrefs.DeleteKey("picture");
 		PlayerPrefs.DeleteKey("metamodels");
-		
 		PlayerPrefs.Save();
 		welcomeScreen.SetActive(false);
 		loginScreen.SetActive(true);
+
+		// Deletes all the buttons in the model list.
+		foreach (Transform child in modelList.transform)
+		{
+			Destroy(child.gameObject);
+		}
+
+		// Clears the email and authcode fields.
+		emailField.text = "";
+		authcodeField.text = "";
 	}
 
 	public void GoToWelcomeScreen()
@@ -202,7 +211,9 @@ public class LoginManager : MonoBehaviour
 			nameText.text = "Hi, " + user.first_name + "!";
 
 			string models = "";
-			
+
+			List<MetaModel> metamodels = new List<MetaModel>();
+
 			foreach (string model in user.metamodels)
 			{
 				models += model + "\n";
@@ -212,9 +223,6 @@ public class LoginManager : MonoBehaviour
 				button.SetActive(true);
 				// Sets its parent to the Models List.
 				button.transform.SetParent(modelList.transform);
-
-				// Gets the ModelButtonScript component and sets the model name.
-				ModelButtonScript.OnModelButtonClicked += LoadDiagram;
 
 				// Sets the text to the model name.
 				button.GetComponentInChildren<TextMeshProUGUI>().text = model;
@@ -259,12 +267,12 @@ public class LoginManager : MonoBehaviour
 		}
 	}
 	
-	public void LoadDiagram(string modelName)
+	public void LoadDiagram()
 	{
 		Debug.Log("Called!");
 
 		// Gets the gameObject with a script called Main
 		Main main = GameObject.Find("Main").GetComponent<Main>();
-		main.LoadIMLFromAPI(modelName);
+		main.LoadIMLFromAPI();
 	}
 }

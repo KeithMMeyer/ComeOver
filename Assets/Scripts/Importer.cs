@@ -30,14 +30,9 @@ public class Importer
 
 	public static MetaModel ImportXmlFromAPI(string diagramID)
 	{
-		if (!PlayerPrefs.HasKey("userID"))
-		{
-			return default;
-		}
-
 		// Makes a request to the API to get the diagram using the userID and diagramID.
 
-		UnityWebRequest request = new UnityWebRequest($"http://iml.cec.miamioh.edu:5000/CoMoVRAPI/GetModel?userID={PlayerPrefs.GetString("userID")}&diagramID={diagramID}");
+		UnityWebRequest request = new UnityWebRequest(diagramID);
 		DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
 		request.downloadHandler = dH;
 
@@ -55,7 +50,6 @@ public class Importer
 		}
 		
 		string body = request.downloadHandler.text;
-		Debug.Log(body);
 
 		// Parses the body as a JSON object using the MetaModel class.
 		MetaModel metaModel = JsonUtility.FromJson<MetaModel>(body);
