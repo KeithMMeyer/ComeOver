@@ -4,7 +4,7 @@ session_start();
 require_once 'credentials.php';
 
 // creating the initial mysqli connection to the Database with provided credentials
-$mysqli = mysqli_connect($host, $user, $pass, $db);
+$mysqli = mysqli_connect($host, $db_user, $pass, $db_name);
 
 if (mysqli_connect_errno($mysqli)) {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
@@ -13,14 +13,17 @@ if (mysqli_connect_errno($mysqli)) {
 
 if (!isset($_SESSION['user_email_address'])) {
     header('Location: index.php');
+    die;
 }
 
 if (isset($_REQUEST['cancel'])) {
     header('Location: index.php');
+    die;
 }
 
 if (!isset($_SESSION['position'])) {
     header('Location: index.php');
+    die;
 }
 
 if (!isset($_SESSION['authcode'])) {
@@ -49,7 +52,26 @@ function createAuthCode($userID, $mysqli) {
     }
 
     try {
-        $authCode = rand(100000, 999999);
+		$found = true;
+
+		while($found) {
+			try {
+                $found = false;
+				$authCode = rand(100000, 999999);
+				$sql = "SELECT * FROM token WHERE token = ?";
+                $stmt = $mysqli->prepare($sql);
+                $stmt->bind_param("s", $authCode);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($result->num_rows == 0) {
+                    $found = false;
+                }
+			} catch (Throwable $t) {
+				echo "Error1: " . $t->getMessage();
+                $found = false;
+			}
+		}
+
         $time = time();
         $sql = "INSERT INTO token (token, userID, timecreated) VALUES (?, ?, FROM_UNIXTIME(?))";
         $stmt = $mysqli->prepare($sql);
