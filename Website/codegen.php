@@ -50,6 +50,15 @@ function createAuthCode($userID, $mysqli) {
 
     try {
         $authCode = rand(100000, 999999);
+		try {
+			// If the random auth exists, delete it
+			$sql = "DELETE FROM token WHERE token = ?";
+			$stmt = $mysqli->prepare($sql);
+			$stmt->bind_param("s", $authCode);
+			$stmt->execute();
+		} catch (Throwable $t) {
+			echo "Error1: " . $t->getMessage();
+		}
         $time = time();
         $sql = "INSERT INTO token (token, userID, timecreated) VALUES (?, ?, FROM_UNIXTIME(?))";
         $stmt = $mysqli->prepare($sql);
