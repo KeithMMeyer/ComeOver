@@ -13,13 +13,17 @@ public class LobbyGameManager : MonoBehaviour
     private Text lobbyPageNumber;
     [SerializeField]
     public Button[] buttons;
+    [SerializeField]
+    private Button incrementer;
+    [SerializeField]
+    private Button decrementer;
 
-    private int curretLobbyPage = 0;
+    private int currentLobbyPage = 0;
     public string[] roomNames;
 
     public string[] getLobbyNames()
     {
-        int j = curretLobbyPage * 6;
+        int j = currentLobbyPage * 6;
         string[] currentPageNames = new string[6];
         for(int i=0; i<6 && (j+i) < roomNames.Length; i++)
         {
@@ -38,12 +42,15 @@ public class LobbyGameManager : MonoBehaviour
             int buttonIndex = i;
             button.onClick.AddListener(() => testButton(button.GetComponentInChildren<Text>().text));
         }
+        incrementer.onClick.AddListener(() => changePage(1));
+        decrementer.onClick.AddListener(() => changePage(-1));
     }
 
     private void setupCurrentLobbypage()
     {
         //gets the correct info for each button that will lead to a lobby to present and puts it into the ui
-        lobbyPageNumber.text = (curretLobbyPage + 1) + " of " + "Stuff";
+        double numPages = roomNames.Length / 6;
+        lobbyPageNumber.text = (currentLobbyPage + 1) + " of " + Math.Ceiling(numPages);
         string[] roomsOnPage = getLobbyNames();
         for (int i =0; i < buttons.Length; i++)
         {
@@ -51,8 +58,19 @@ public class LobbyGameManager : MonoBehaviour
         }
     }
 
-    public void UpdateLobbyPage()
+    private void changePage(int changer)
     {
+        double numPages = roomNames.Length / 6;
+        if ((changer == -1 && currentLobbyPage == 0) || (changer == 1 && currentLobbyPage == Math.Ceiling(numPages)))
+        {
+            Debug.Log("Nothing Changed");
+        }
+        else
+        {
+            currentLobbyPage += changer;
+            Debug.Log("Something Changed");
+            setupCurrentLobbypage();
+        }
 
     }
 
@@ -89,6 +107,7 @@ public class LobbyConnection : MonoBehaviourPunCallbacks
             if(!room.RemovedFromList)
             {
                 roomNames.Add(room.Name);
+                Debug.Log(room.Name);
             }
         }
     }
