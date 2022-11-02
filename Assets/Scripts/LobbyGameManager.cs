@@ -1,17 +1,26 @@
-using UnityEngine;
-using System;
-using Photon.Realtime;
-using Photon.Pun;
-using UnityEngine.SceneManagement;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class LobbyGameManager : MonoBehaviour
 {
-   
-    public void TestingButtonFucntion()
+    public GameObject RefreshButton;
+
+    // Start is called before the first frame update
+    void Start()
     {
-        PhotonNetwork.JoinRandomRoom();
-        Debug.Log("Seeing if this works");
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    public void testButton(string name)
+    {
+        Debug.Log("" + name);
     }
 }
