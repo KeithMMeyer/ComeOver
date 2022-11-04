@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class LoginManager : MonoBehaviour
 {
@@ -20,8 +21,9 @@ public class LoginManager : MonoBehaviour
 	GameObject loginFailedScreen = null;
 	GameObject welcomeScreen = null;
 	TextMeshProUGUI nameText = null;
-	Image image = null;
-	TextMeshProUGUI modelsText = null;
+	UnityEngine.UI.Image image = null;
+	public GameObject templateButton = null;
+	GameObject modelList = null;
 
 	private void Start()
 	{
@@ -58,18 +60,19 @@ public class LoginManager : MonoBehaviour
 		nameText = GameObject.Find("NameText").GetComponent<TextMeshProUGUI>();
 		
 		// Finds the image
-		image = GameObject.Find("User Image").GetComponent<Image>();
-
-		modelsText = GameObject.Find("ModelsText").GetComponent<TextMeshProUGUI>();
+		image = GameObject.Find("User Image").GetComponent<UnityEngine.UI.Image>();
 
 		welcomeScreen.SetActive(false);
+
+		// Finds the model list and sets it to inactive.
+		modelList = welcomeScreen.GetComponentInChildren<VerticalLayoutGroup>().gameObject;
 
 		if (PlayerPrefs.HasKey("userID"))
 		{
 			// If the player has already logged in, we don't need to show the login screen.
 			// We can just show the welcome screen.
 			StartCoroutine(DownloadPicture());
-			nameText.text = "Hi, " + PlayerPrefs.GetString("firstName") + "!";
+			StartCoroutine(GetUser());
 			GoToWelcomeScreen();
 		}
 		else
@@ -126,10 +129,6 @@ public class LoginManager : MonoBehaviour
 	{
 		Destroy(GameObject.Find("LoginScript Controller"));
 
-		// Makes a call to the CoMoVR API to get the user's information.
-		// This is done in a coroutine so that the game doesn't freeze while waiting for the API to respond.
-		StartCoroutine(GetUser());
-
 		// Waits 3 seconds before displaying the welcome screen
 		StartCoroutine(WaitForWelcomeScreen());
 	}
@@ -156,21 +155,31 @@ public class LoginManager : MonoBehaviour
 		PlayerPrefs.DeleteKey("email");
 		PlayerPrefs.DeleteKey("picture");
 		PlayerPrefs.DeleteKey("metamodels");
-		
 		PlayerPrefs.Save();
 		welcomeScreen.SetActive(false);
 		loginScreen.SetActive(true);
+
+		// Deletes all the buttons in the model list.
+		foreach (Transform child in modelList.transform)
+		{
+			Destroy(child.gameObject);
+		}
+
+		// Clears the email and authcode fields.
+		emailField.text = "";
+		authcodeField.text = "";
 	}
 
 	public void GoToWelcomeScreen()
 	{
 		welcomeScreen.SetActive(true);
 		loginStatusScreen.SetActive(false);
-		modelsText.text = PlayerPrefs.GetString("metamodels");
+		
 	}
 
 	IEnumerator WaitForWelcomeScreen()
 	{
+		StartCoroutine(GetUser());
 		yield return new WaitForSeconds(3);
 		GoToWelcomeScreen();
 	}
@@ -203,10 +212,27 @@ public class LoginManager : MonoBehaviour
 
 			string models = "";
 
+			List<MetaModel> metamodels = new List<MetaModel>();
+
 			foreach (string model in user.metamodels)
 			{
 				models += model + "\n";
+				
+				// Instantiate the TemplateButton prefab and set its text to the model name.
+				GameObject button = Instantiate(templateButton, templateButton.transform.parent);
+				button.SetActive(true);
+				// Sets its parent to the Models List.
+				button.transform.SetParent(modelList.transform);
+
+				// Sets the text to the model name.
+				button.GetComponentInChildren<TextMeshProUGUI>().text = model;
+				// Sets the scale 1
+				button.transform.localScale = new Vector3(1, 1, 1);
+				// Sets the z to 0
+				button.transform.localPosition = new Vector3(button.transform.localPosition.x, button.transform.localPosition.y, 0);
 			}
+
+
 
 			PlayerPrefs.SetString("metamodels", models);
 
@@ -239,5 +265,14 @@ public class LoginManager : MonoBehaviour
 				}
 			}
 		}
+	}
+	
+	public void LoadDiagram()
+	{
+		Debug.Log("Called!");
+
+		// Gets the gameObject with a script called Main
+		Main main = GameObject.Find("Main").GetComponent<Main>();
+		main.LoadIMLFromAPI();
 	}
 }

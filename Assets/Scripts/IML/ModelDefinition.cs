@@ -15,9 +15,8 @@ public class Iml
 
     public Iml()
     {
-        if (singleton != null)
-            throw new UnityException();
-        singleton = this;
+		// Totally ruins the singleton pattern, but it's the only way to get the XML deserializer to work.
+		singleton = this;
     }
 
     public static Iml GetSingleton()
