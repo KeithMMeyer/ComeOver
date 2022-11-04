@@ -44,8 +44,9 @@ namespace Com.Mustang.CoMoVR
 				SceneManager.LoadScene("HeadlessScene");
 			} else
 			{
+				//loads into lobby scene
 				Debug.Log("Loading client");
-				Connect();
+				SceneManager.LoadScene("LobbyScene");
 			}
             
         }

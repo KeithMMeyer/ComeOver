@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using Photon.Pun;
+using System.Linq;
 
 namespace Com.Mustang.CoMoVR
 {
@@ -34,11 +35,13 @@ namespace Com.Mustang.CoMoVR
 		/// </summary>
 		void Start()
 		{
-			// This will change to better detect the launch flags.
+			// This will change to better detect the launch flags
 			
 			// Reads the command line argument "roomNumber" and uses it as the room name
-			roomName = Environment.GetCommandLineArgs()[2];
-			Debug.Log("Room Number: " + roomName);
+			roomName = Environment.GetCommandLineArgs().Where(x => x.StartsWith("-roomname")).FirstOrDefault();
+			roomName = roomName.Replace("-roomname=", "");
+			Debug.LogError("Room Name: " + roomName);
+			
 			if (roomName == null)
 			{
 				Debug.LogError("<Color=Red><a>Missing</a></Color> roomNumber in command line arguments. Please set it when you launch the client.");

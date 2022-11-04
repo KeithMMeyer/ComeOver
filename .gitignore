@@ -113,3 +113,4 @@ packages
 *.tsv
 
 TestAPI/TestAPI/Config/config.json
+Assets/TextMesh Pro

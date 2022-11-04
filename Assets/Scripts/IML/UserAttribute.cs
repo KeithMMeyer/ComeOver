@@ -37,6 +37,7 @@ public class UserAttribute
 
         attributeObject.GetComponent<Identity>().attributeReference = this;
         attributeObject.name = "Attribute : " + name;
+		attributeObject.tag = "IML";
 
         gameObject = attributeObject;
         gameObject.transform.Rotate(-90.0f, 0.0f, 0.0f, Space.Self);
@@ -368,4 +369,9 @@ public class UserAttribute
         return false;
     }
 
+	[PunRPC]
+	void DestroyAttribute()
+	{
+		PhotonNetwork.Destroy(gameObject);
+	}
 }

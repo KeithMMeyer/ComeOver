@@ -272,4 +272,10 @@ public class Relation
         return true;
     }
 
+	[PunRPC]
+	void DestroyRelation()
+	{
+		PhotonNetwork.Destroy(gameObject);
+	}
+
 }
