@@ -64,9 +64,6 @@ public class LoginManager : MonoBehaviour
 
 		welcomeScreen.SetActive(false);
 
-		// Finds the model list and sets it to inactive.
-		modelList = welcomeScreen.GetComponentInChildren<VerticalLayoutGroup>().gameObject;
-
 		if (PlayerPrefs.HasKey("userID"))
 		{
 			// If the player has already logged in, we don't need to show the login screen.
@@ -217,22 +214,7 @@ public class LoginManager : MonoBehaviour
 			foreach (string model in user.metamodels)
 			{
 				models += model + "\n";
-				
-				// Instantiate the TemplateButton prefab and set its text to the model name.
-				GameObject button = Instantiate(templateButton, templateButton.transform.parent);
-				button.SetActive(true);
-				// Sets its parent to the Models List.
-				button.transform.SetParent(modelList.transform);
-
-				// Sets the text to the model name.
-				button.GetComponentInChildren<TextMeshProUGUI>().text = model;
-				// Sets the scale 1
-				button.transform.localScale = new Vector3(1, 1, 1);
-				// Sets the z to 0
-				button.transform.localPosition = new Vector3(button.transform.localPosition.x, button.transform.localPosition.y, 0);
 			}
-
-
 
 			PlayerPrefs.SetString("metamodels", models);
 
@@ -265,14 +247,5 @@ public class LoginManager : MonoBehaviour
 				}
 			}
 		}
-	}
-	
-	public void LoadDiagram()
-	{
-		Debug.Log("Called!");
-
-		// Gets the gameObject with a script called Main
-		Main main = GameObject.Find("Main").GetComponent<Main>();
-		main.LoadIMLFromAPI();
 	}
 }
